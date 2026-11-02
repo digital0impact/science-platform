@@ -192,6 +192,9 @@ td .row{flex-wrap:nowrap}
 .opt input[type=radio]{accent-color:var(--good);width:20px;height:20px;flex:none}
 .x{border:0;background:none;color:var(--muted);cursor:pointer;font-size:1.2rem;padding:0 6px}
 .x:hover{color:var(--bad)}
+details.ai{border:1px dashed var(--accent);border-radius:8px;background:var(--surface)}
+details.ai summary{cursor:pointer;padding:10px 14px;font-weight:600;color:var(--accent)}
+details.ai .ai-body{display:grid;gap:10px;padding:0 14px 14px;font-size:.92rem}
 .linkbtn{border:0;background:none;color:var(--accent);cursor:pointer;font-weight:600;padding:4px 0;justify-self:start}
 .errors{background:var(--bad-soft);color:var(--bad);border-radius:8px;padding:12px 16px}
 .errors ul{margin:6px 0 0;padding-inline-start:20px}
@@ -232,7 +235,7 @@ td .row{flex-wrap:nowrap}
    ================================================================ */
 // ١) من Supabase: Project Settings › API (أو Data API)
 //    ما دام SUPABASE_URL فارغاً تعمل المنصة في «وضع التجربة» داخل المتصفح.
-const SUPABASE_URL ="sb_publishable_LckUNIOysW9I42Y5TlKKeQ_BadSoXsl";        // مثال: https://abcdefgh.supabase.co
+const SUPABASE_URL = "https://rolgdadzqoylohahyzlm.supabase.co";        // مثال: https://abcdefgh.supabase.co
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJvbGdkYWR6cW95bG9oYWh5emxtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM1MjYyMTQsImV4cCI6MjEwOTEwMjIxNH0.L5FcS1HB1nHiUGStt2R40AIMMjEuAYZfkFEeqvl227w";   // المفتاح العام: anon public أو publishable (وليس service_role أبداً)
 // ٢) اسم المنصة والمواد
 const SITE_NAME = "منصة العلوم والأحياء";
@@ -757,7 +760,7 @@ async function viewEditor(arg) {
     const l = await Store.getLesson(idPart);
     if (!l) { app.innerHTML = `<div class="empty"><h2>الدرس غير موجود</h2><a class="btn ghost" href="#teacher">العودة</a></div>`; return; }
     E = JSON.parse(JSON.stringify(l));
-    E.segments = (E.segments || []).map(s => ({ endText: s.end != null ? fmtTime(s.end) : "", questions: (s.questions || []).map(q => ({ ...q, options: [...q.options] })) }));
+    E.segments = (E.segments || []).map(s => ({ endText: s.end != null ? fmtTime(s.end) : "", source: s.source || "", questions: (s.questions || []).map(q => ({ ...q, options: [...q.options] })) }));
   }
   if (!grades.some(g => g.id === E.gradeId)) E.gradeId = grades[0].id;
   const subjOpts = [...new Set([...SUBJECTS, E.subject].filter(Boolean))];
@@ -817,15 +820,21 @@ async function viewEditor(arg) {
     if (t.dataset.k === "end") E.segments[s].endText = t.value;
     if (t.dataset.k === "qtext") E.segments[s].questions[q].text = t.value;
     if (t.dataset.k === "opt") E.segments[s].questions[q].options[o] = t.value;
+    if (t.dataset.k === "src") E.segments[s].source = t.value;
   });
   segBox.addEventListener("change", e => {
     const t = e.target;
     if (t.dataset.k === "correct") E.segments[Number(t.dataset.s)].questions[Number(t.dataset.q)].correct = Number(t.dataset.o);
+    if (t.dataset.k === "aicount") E.segments[Number(t.dataset.s)].aiCount = Number(t.value);
   });
+  segBox.addEventListener("toggle", e => {
+    if (e.target.matches("details.ai")) E.segments[Number(e.target.dataset.s)].aiOpen = e.target.open;
+  }, true);
   const onAct = e => {
     const b = e.target.closest("[data-act]"); if (!b) return;
     const s = Number(b.dataset.s), q = Number(b.dataset.q), o = Number(b.dataset.o);
     const act = b.dataset.act;
+    if (act === "ai") { generateQuestions(s); return; }
     if (act === "addSeg") { E.segments.push({ endText: "", questions: [blankQ()] }); }
     else if (act === "delSeg") { if (E.segments.length > 1) E.segments.splice(s, 1); }
     else if (act === "now") {
@@ -877,7 +886,49 @@ function drawEditorSegs() {
           ${q.options.length < 6 ? `<button class="linkbtn" type="button" data-act="addOpt" data-s="${si}" data-q="${qi}">+ خيار</button>` : ""}
         </div>`).join("")}
       <button class="linkbtn" type="button" data-act="addQ" data-s="${si}">+ سؤال لهذا الجزء</button>
+      <details class="ai" data-s="${si}" ${s.aiOpen ? "open" : ""}>
+        <summary>توليد أسئلة هذا الجزء بالذكاء الاصطناعي</summary>
+        <div class="ai-body">
+          <p class="muted">الصق نص هذا الجزء من المقطع، أو اكتب أهم أفكاره بنفسك. في يوتيوب: افتح المقطع، ثم «المزيد» تحت الوصف، ثم «عرض النص» (Show transcript)، وانسخ الأسطر من بداية الجزء إلى نهايته.</p>
+          <textarea id="src-${si}" rows="5" data-k="src" data-s="${si}" placeholder="نص الجزء ${num(si + 1)}…">${esc(s.source || "")}</textarea>
+          <div class="row">
+            <label class="row" style="gap:6px;font-size:.9rem">عدد الأسئلة
+              <select id="aic-${si}" data-k="aicount" data-s="${si}" style="width:auto">${[1, 2, 3, 4, 5].map(n => `<option value="${n}" ${(s.aiCount || 3) === n ? "selected" : ""}>${num(n)}</option>`).join("")}</select>
+            </label>
+            <button class="btn sm" type="button" data-act="ai" data-s="${si}" ${s.aiBusy ? "disabled" : ""}>${s.aiBusy ? "جارٍ التوليد…" : "ولّد الأسئلة"}</button>
+            <span class="muted" style="font-size:.85rem">تُضاف الأسئلة إلى هذا الجزء، فراجعها قبل الحفظ.</span>
+          </div>
+        </div>
+      </details>
     </div>`).join("");
+}
+async function generateQuestions(si) {
+  const seg = E.segments[si];
+  const text = (seg.source || "").trim();
+  if (DEMO) { toast("توليد الأسئلة يعمل بعد ربط المنصة بـ Supabase وإضافة دالة الذكاء الاصطناعي."); return; }
+  if (text.length < 60) { toast("الصق نصاً أطول لهذا الجزء (سطرين على الأقل)."); return; }
+  const grade = GRADES.find(g => g.id === E.gradeId);
+  seg.aiBusy = true; seg.aiOpen = true; drawEditorSegs();
+  try {
+    const { data, error } = await sb.functions.invoke("generate-questions", {
+      body: { text, count: seg.aiCount || 3, subject: E.subject, grade: grade ? grade.name : "", title: E.title || "" }
+    });
+    if (error) {
+      let msg = error.message;
+      try { const j = await error.context.json(); if (j && j.error) msg = j.error; } catch {}
+      throw new Error(msg);
+    }
+    const qs = (data && data.questions) || [];
+    if (!qs.length) throw new Error("لم تصل أسئلة. جرّب مرة أخرى.");
+    seg.questions = seg.questions.filter(q => q.text.trim() || q.options.some(o => o.trim()));
+    qs.forEach(q => seg.questions.push({ text: q.text, options: [...q.options], correct: q.correct }));
+    toast(`أُضيف ${num(qs.length)} أسئلة إلى الجزء ${num(si + 1)}. راجعها قبل الحفظ.`);
+  } catch (e) {
+    console.error(e);
+    toast("تعذّر توليد الأسئلة: " + (e.message || e));
+  } finally {
+    seg.aiBusy = false; drawEditorSegs();
+  }
 }
 async function saveDraft(thenTry) {
   const errs = [];
@@ -902,7 +953,9 @@ async function saveDraft(thenTry) {
       if (q.correct == null || q.correct >= options.length) errs.push(`${label}: علّم الإجابة الصحيحة.`);
       return { text: q.text.trim(), options, correct: q.correct };
     });
-    return { end: Number.isNaN(end) ? null : end, questions };
+    const seg = { end: Number.isNaN(end) ? null : end, questions };
+    if ((s.source || "").trim()) seg.source = s.source.trim();
+    return seg;
   });
   if (errs.length) {
     $("#e-errors").innerHTML = `<div class="errors"><b>قبل الحفظ:</b><ul>${errs.slice(0, 12).map(e => `<li>${esc(e)}</li>`).join("")}</ul></div>`;
