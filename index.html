@@ -426,7 +426,7 @@ const ok = ({ data, error }) => { if (error) throw error; return data; };
 const isUuid = v => /^[0-9a-f-]{36}$/i.test(String(v || ""));
 const rowToLesson = r => ({ ...(r.data || {}), id: r.id, gradeId: r.grade_id || "", published: r.published, order: r.sort });
 const rowToResult = r => ({
-  id: r.id, lessonId: r.lesson_id, lessonTitle: r.lesson_title, subject: r.subject, gradeId: r.grade_id || "", gradeName: r.grade_name,
+  id: r.id, lessonId: r.lesson_id || r.lab_id, labId: r.lab_id || "", lessonTitle: r.lesson_title, subject: r.subject, gradeId: r.grade_id || "", gradeName: r.grade_name,
   studentName: r.student_name, studentClass: r.student_class, correct: r.correct, total: r.total, score: r.score,
   attempts: r.attempts, minutes: r.minutes, completedAt: r.completed_at
 });
@@ -452,7 +452,7 @@ const SupaStore = {
   async deleteLesson(id) { ok(await sb.from("lessons").delete().eq("id", id)); },
   async addResult(r) {
     ok(await sb.from("results").insert({
-      lesson_id: r.lessonId, lesson_title: r.lessonTitle, subject: r.subject, grade_id: r.gradeId || null, grade_name: r.gradeName,
+      ...(r.labId ? { lab_id: r.labId, lesson_id: null } : { lesson_id: r.lessonId }), lesson_title: r.lessonTitle, subject: r.subject, grade_id: r.gradeId || null, grade_name: r.gradeName,
       student_name: r.studentName, student_class: r.studentClass, correct: r.correct, total: r.total, score: r.score,
       attempts: r.attempts, minutes: r.minutes, completed_at: r.completedAt
     }));
@@ -1337,6 +1337,8 @@ const READY_LABS = [
 let labMsgHandler = null;
 function stopLab() { if (labMsgHandler) { window.removeEventListener("message", labMsgHandler); labMsgHandler = null; } }
 function setFrame(frame, html) { frame.srcdoc = html || ""; }
+// أسئلة المختبر المكتملة فقط هي التي تظهر للطالبة
+const labQuizQs = lab => (lab.questions || []).filter(q => q.text && q.options && q.options.length >= 2 && q.options.every(Boolean) && Number.isInteger(q.correct) && q.correct < q.options.length);
 // المختبر الجاهز يُقرأ من ملفه في الموقع حتى تصل تحسيناته للجميع، والنسخة المحفوظة احتياط
 async function freshLabHtml(lab) {
   if (!lab.readyFile || !/^labs\/[\w.-]+\.html$/.test(lab.readyFile)) return lab.html;
@@ -1362,8 +1364,10 @@ async function viewLab(id) {
       <button class="btn ghost sm" type="button" id="lab-reset">إعادة المختبر من البداية</button>
     </div>
     <div id="lab-done" aria-live="polite"></div>
-    <div class="lab-wrap" id="lab-wrap"><iframe class="lab-frame" id="lab-frame" title="${esc(lab.title)}" sandbox="${LAB_SANDBOX}"></iframe></div>`;
+    <div class="lab-wrap" id="lab-wrap"><iframe class="lab-frame" id="lab-frame" title="${esc(lab.title)}" sandbox="${LAB_SANDBOX}"></iframe></div>
+    <div id="lab-quiz"></div>`;
   const frame = $("#lab-frame");
+  drawLabQuiz(lab, grades.find(x => x.id === lab.gradeId));
   lab.html = await freshLabHtml(lab);
   setFrame(frame, lab.html);
   $("#lab-reset").addEventListener("click", () => { setFrame(frame, lab.html); $("#lab-done").innerHTML = ""; });
@@ -1371,11 +1375,89 @@ async function viewLab(id) {
   labMsgHandler = e => {
     if (e.source !== frame.contentWindow || !e.data || e.data.type !== "labeeba-lab-complete") return;
     const score = Math.max(0, Math.min(100, Math.round(Number(e.data.score) || 100)));
-    $("#lab-done").innerHTML = `<div class="labdone">أحسنتِ! أنجزتِ مختبر «${esc(lab.title)}» بنسبة ${pct(score)}.</div>`;
+    $("#lab-done").innerHTML = `<div class="labdone">أحسنتِ! أنجزتِ مختبر «${esc(lab.title)}» بنسبة ${pct(score)}.${labQuizQs(lab).length ? " أجيبي الآن عن أسئلة المختبر تحته." : ""}</div>`;
     $("#lab-done").scrollIntoView({ behavior: motionOK() ? "smooth" : "auto", block: "center" });
     const mine = ls.get("labsDone", {}); mine[lab.id] = Math.max(mine[lab.id] || 0, score); ls.set("labsDone", mine);
   };
   window.addEventListener("message", labMsgHandler);
+}
+
+
+// أسئلة المختبر للطالبة: تُسجَّل نتيجة المحاولة الأولى وتُمنح شارة
+function drawLabQuiz(lab, grade) {
+  const box = $("#lab-quiz"); if (!box) return;
+  const qs = labQuizQs(lab);
+  if (!qs.length) { box.innerHTML = ""; return; }
+  const preview = !DEMO && state.isTeacher;
+  const me = ls.get("student", { name: "", cls: "" });
+  const st = { first: null, attempts: 0, started: Date.now() };
+  box.innerHTML = `
+    <form class="panel quiz" id="lq-form" style="margin-top:18px">
+      <div><span class="eyebrow">بعد التجربة</span><h2>أسئلة المختبر</h2><p class="muted">${nQs(qs.length)}. ${preview ? "معاينة المعلمة: لن تُحفظ نتيجتك." : "ستصل نتيجتك إلى المعلمة، وتحصلين على شارة إنجاز."}</p></div>
+      <div class="grid2">
+        <label class="f">الاسم الكامل<input id="lqs-name" required maxlength="80" value="${esc(me.name)}" autocomplete="name"></label>
+        <label class="f">الفصل / الشعبة<input id="lqs-cls" maxlength="30" value="${esc(me.cls)}" placeholder="مثال: ٢/أ"></label>
+      </div>
+      ${qs.map((x, qi) => `<fieldset class="qq" id="lqq${qi}" style="border:0;padding:0;margin:0"><p>${num(qi + 1)}. ${esc(x.text)}</p>
+        ${x.options.map((o, oi) => `<label class="choice"><input type="radio" name="la${qi}" value="${oi}" id="la${qi}_${oi}">${esc(o)}</label>`).join("")}</fieldset>`).join("")}
+      <div id="lq-verdict"></div>
+      <div class="row" id="lq-btns"><button class="btn" type="submit">تحقّقي من إجاباتي</button></div>
+      <div id="lq-award"></div>
+    </form>`;
+  const form = $("#lq-form");
+  form.addEventListener("change", () => $$(".qq", form).forEach(f => f.classList.remove("wrong", "right")));
+  form.addEventListener("submit", async e => {
+    e.preventDefault();
+    const name = $("#lqs-name").value.trim(), cls = $("#lqs-cls").value.trim();
+    if (!name) { $("#lq-verdict").innerHTML = `<div class="verdict no">اكتبي اسمك أولاً.</div>`; $("#lqs-name").focus(); return; }
+    const picks = qs.map((_, qi) => { const r = $(`input[name="la${qi}"]:checked`, form); return r ? Number(r.value) : null; });
+    if (picks.some(p => p === null)) { $("#lq-verdict").innerHTML = `<div class="verdict no">أجيبي عن جميع الأسئلة أولاً.</div>`; return; }
+    ls.set("student", { name, cls });
+    let correct = 0;
+    picks.forEach((p, qi) => { const okA = p === Number(qs[qi].correct); if (okA) correct++; $("#lqq" + qi).classList.add(okA ? "right" : "wrong"); });
+    st.attempts++;
+    const firstTime = st.first == null;
+    if (firstTime) st.first = correct;
+    const score = Math.round((st.first / qs.length) * 100);
+    let note = "";
+    if (firstTime && !preview) {
+      try {
+        await Store.addResult({
+          labId: lab.id, lessonId: lab.id, lessonTitle: "مختبر: " + lab.title, subject: lab.subject || "",
+          gradeId: lab.gradeId || "", gradeName: grade ? grade.name : "",
+          studentName: name.slice(0, 80), studentClass: cls.slice(0, 30),
+          correct: st.first, total: qs.length, score, attempts: 1,
+          minutes: Math.max(1, Math.round((Date.now() - st.started) / 60000)), completedAt: new Date().toISOString()
+        });
+        note = "وصلت نتيجتك إلى المعلمة.";
+      } catch (err) { console.error(err); note = "تعذّر إرسال النتيجة إلى المعلمة. التقطي صورة لشارتك وأرسليها لها."; }
+    }
+    const all = correct === qs.length;
+    $("#lq-verdict").innerHTML = `<div class="verdict ${all ? "ok" : "no"}">${all ? "أحسنتِ! " : ""}أجبتِ عن ${num(correct)} من ${num(qs.length)} إجابة صحيحة${all ? "." : ". الإجابات المظلّلة بالأحمر تحتاج مراجعة، جرّبي المختبر مرة أخرى ثم أعيدي المحاولة."}</div>`;
+    if (firstTime) {
+      const tier = badgeTier(score);
+      const mine = ls.get("badges", {}); const key = "lab:" + lab.id, prev = mine[key];
+      if (!prev || TIERS.findIndex(t => t.key === prev) > TIERS.indexOf(tier)) mine[key] = tier.key;
+      ls.set("badges", mine);
+      $("#lq-award").innerHTML = `
+        <section class="award">
+          <span class="eyebrow">شارة إنجاز · مختبر ${esc(lab.subject || "")}</span>
+          ${medalSVG(tier, lab.subject)}
+          <div class="tier" style="color:var(--t-${tier.key})">${tier.title}</div>
+          <div class="who">${esc(name)}</div>
+          <p>أنجزتِ مختبر <b>${esc(lab.title)}</b></p>
+          <p class="score">${pct(score)} · ${num(st.first)} من ${num(qs.length)} إجابات صحيحة من المحاولة الأولى</p>
+          ${note ? `<p class="next">${note}</p>` : ""}
+        </section>`;
+    }
+    $("#lq-btns").innerHTML = all ? "" : `<button class="btn ghost" type="button" id="lq-retry">حاولي مرة أخرى</button>`;
+    $("#lq-retry")?.addEventListener("click", () => {
+      $$(".qq", form).forEach(f => f.classList.remove("wrong", "right")); $$("input[type=radio]", form).forEach(i => (i.checked = false));
+      $("#lq-btns").innerHTML = `<button class="btn" type="submit">تحقّقي من إجاباتي</button>`;
+      $("#lq-verdict").innerHTML = "";
+    });
+    $("#lq-verdict").scrollIntoView({ behavior: motionOK() ? "smooth" : "auto", block: "start" });
+  });
 }
 
 // قائمة مختبرات المعلمة
@@ -1403,10 +1485,11 @@ async function viewLabs() {
     <div class="stack" style="gap:10px">
       <h2>${esc(g.name)}</h2>
       <div class="table-wrap"><table>
-        <thead><tr><th>المختبر</th><th>المادة</th><th>الحالة</th><th></th></tr></thead>
+        <thead><tr><th>المختبر</th><th>المادة</th><th>الأسئلة</th><th>الحالة</th><th></th></tr></thead>
         <tbody>${arr.sort(byOrder).map(l => `<tr data-id="${esc(l.id)}">
           <td><b>${esc(l.title)}</b></td>
           <td><span class="chip ${subjClass(l.subject)}">${esc(l.subject)}</span></td>
+          <td class="num">${(l.questions || []).length ? nQs(labQuizQs(l).length) : "—"}</td>
           <td>${!l.html ? `<span class="chip draft">مسودة بلا مختبر</span>` : l.published ? `<span class="chip bio">منشور</span>` : `<span class="chip draft">غير منشور</span>`}</td>
           <td><div class="row">
             <a class="btn ghost sm" href="#labedit=${encodeURIComponent(l.id)}">تعديل</a>
@@ -1437,7 +1520,7 @@ async function viewLabEditor(arg) {
   const [grades, lessons] = await Promise.all([Store.grades(), Store.lessons(true)]);
   if (idPart === "new") {
     const last = ls.get("lastLesson", {});
-    LB = { title: "", subject: last.subject || SUBJECTS[0], unit: "", gradeId: last.gradeId || grades[0].id, lessonId: params.lesson ? decodeURIComponent(params.lesson) : "", source: "", request: "", html: "", prevHtml: "", published: false, order: 0 };
+    LB = { questions: [], title: "", subject: last.subject || SUBJECTS[0], unit: "", gradeId: last.gradeId || grades[0].id, lessonId: params.lesson ? decodeURIComponent(params.lesson) : "", source: "", request: "", html: "", prevHtml: "", published: false, order: 0 };
   } else {
     let l;
     try { l = await Store.getLab(idPart); } catch { l = null; }
@@ -1445,6 +1528,7 @@ async function viewLabEditor(arg) {
     LB = JSON.parse(JSON.stringify(l));
     if (LB.readyFile) LB.html = await freshLabHtml(LB);
   }
+  LB.questions = (LB.questions || []).map(q => ({ text: q.text || "", options: [...(q.options || ["", "", "", ""])], correct: q.correct ?? null }));
   if (!grades.some(g => g.id === LB.gradeId)) LB.gradeId = grades[0].id;
   if (LB.lessonId && !LB.source) { const ls0 = lessons.find(x => x.id === LB.lessonId); if (ls0) { LB.source = ls0.source || ""; LB.title = LB.title || ls0.title; LB.gradeId = ls0.gradeId || LB.gradeId; LB.subject = ls0.subject || LB.subject; } }
   app.classList.add("wide");
@@ -1488,6 +1572,23 @@ async function viewLabEditor(arg) {
           </details>
         </div>
       </section>
+      <section class="panel step s4"><h2><span class="n">٤</span>أسئلة المختبر</h2>
+        <p class="muted" style="font-size:.9rem;margin-bottom:12px">تظهر للطالبة تحت المختبر لتجيب عنها بعد التجربة، وتصل نتيجتها إليكِ في «النتائج». علّمي الإجابة الصحيحة بالدائرة.</p>
+        <details class="ai" id="lq-ai">
+          <summary>توليد الأسئلة بالذكاء الاصطناعي</summary>
+          <div class="ai-body">
+            <p class="muted">تُكتب الأسئلة من نص الدرس ووصف المختبر وما يظهر فيه من شرح ومهام، ثم تُضاف إلى القائمة لتراجعيها وتعدّليها.</p>
+            <div class="row">
+              <label class="row" style="gap:6px;font-size:.9rem">عدد الأسئلة
+                <select id="lq-count" style="width:auto">${[3, 5, 8, 10].map(n => `<option value="${n}" ${n === 5 ? "selected" : ""}>${num(n)}</option>`).join("")}</select>
+              </label>
+              <button class="btn sm" type="button" id="lq-gen">ولّدي الأسئلة</button>
+            </div>
+          </div>
+        </details>
+        <div class="stack" id="lq-list" style="margin-top:12px"></div>
+        <button class="btn ghost" type="button" id="lq-add" style="margin-top:12px">+ إضافة سؤال</button>
+      </section>
       <div id="lb-msg" class="s-err"></div>
      </div>
      <aside class="ed-side">
@@ -1505,7 +1606,7 @@ async function viewLabEditor(arg) {
           </div>
         </div>
       </section>
-      <section class="panel step s5"><h2><span class="n">٤</span>النشر</h2>
+      <section class="panel step s5"><h2><span class="n">٥</span>النشر</h2>
         <div class="row">
           <label class="row" style="gap:6px"><input type="checkbox" id="lb-pub" ${LB.published ? "checked" : ""} style="accent-color:var(--accent);width:18px;height:18px"> منشور للطالبات</label>
           <span style="flex:1"></span>
@@ -1575,6 +1676,74 @@ async function viewLabEditor(arg) {
     e.target.value = "";
   });
   $("#lb-save").addEventListener("click", () => saveLab("save"));
+  // أسئلة المختبر
+  drawLabQs();
+  const lq = $("#lq-list");
+  lq.addEventListener("input", e => {
+    const t = e.target, i = Number(t.dataset.i), q = LB.questions[i]; if (!q) return;
+    if (t.dataset.k === "lqtext") q.text = t.value;
+    if (t.dataset.k === "lqopt") q.options[Number(t.dataset.o)] = t.value;
+  });
+  lq.addEventListener("change", e => {
+    const t = e.target; if (t.dataset.k === "lqcorrect") LB.questions[Number(t.dataset.i)].correct = Number(t.dataset.o);
+  });
+  lq.addEventListener("click", e => {
+    const b = e.target.closest("[data-lq]"); if (!b) return;
+    const i = Number(b.dataset.i), o = Number(b.dataset.o), q = LB.questions[i];
+    if (b.dataset.lq === "del") LB.questions.splice(i, 1);
+    if (b.dataset.lq === "addopt") q.options.push("");
+    if (b.dataset.lq === "delopt") { q.options.splice(o, 1); if (q.correct === o) q.correct = null; else if (q.correct > o) q.correct--; }
+    if (b.dataset.lq === "up" && i > 0) [LB.questions[i - 1], LB.questions[i]] = [LB.questions[i], LB.questions[i - 1]];
+    drawLabQs();
+  });
+  $("#lq-add").addEventListener("click", () => { LB.questions.push(blankQ()); drawLabQs(); $("#lq-list").lastElementChild?.scrollIntoView({ behavior: motionOK() ? "smooth" : "auto", block: "center" }); });
+  $("#lq-gen").addEventListener("click", generateLabQuestions);
+}
+function drawLabQs() {
+  const box = $("#lq-list"); if (!box) return;
+  const qs = LB.questions || [];
+  if (!qs.length) { box.innerHTML = `<p class="muted" style="font-size:.9rem">لا أسئلة بعد. أضيفي سؤالاً بنفسك أو ولّديها بالذكاء الاصطناعي. المختبر يعمل بدون أسئلة أيضاً.</p>`; return; }
+  box.innerHTML = qs.map((q, i) => `
+    <div class="q">
+      <div class="q-head"><span>سؤال ${num(i + 1)}</span>
+        <span class="row" style="gap:4px">${i > 0 ? `<button class="linkbtn" type="button" data-lq="up" data-i="${i}" title="نقل للأعلى">↑ للأعلى</button>` : ""}<button class="x" type="button" data-lq="del" data-i="${i}" aria-label="حذف السؤال">×</button></span></div>
+      <textarea id="lqt-${i}" rows="2" data-k="lqtext" data-i="${i}" placeholder="نص السؤال">${esc(q.text)}</textarea>
+      <div class="opts">${q.options.map((o, oi) => `
+        <div class="opt">
+          <input type="radio" id="lqc-${i}-${oi}" name="lqc-${i}" data-k="lqcorrect" data-i="${i}" data-o="${oi}" ${q.correct === oi ? "checked" : ""} aria-label="الإجابة الصحيحة" title="الإجابة الصحيحة">
+          <input id="lqo-${i}-${oi}" data-k="lqopt" data-i="${i}" data-o="${oi}" value="${esc(o)}" placeholder="الخيار ${num(oi + 1)}">
+          ${q.options.length > 2 ? `<button class="x" type="button" data-lq="delopt" data-i="${i}" data-o="${oi}" aria-label="حذف الخيار">×</button>` : ""}
+        </div>`).join("")}</div>
+      ${q.options.length < 6 ? `<button class="linkbtn" type="button" data-lq="addopt" data-i="${i}">+ خيار</button>` : ""}
+    </div>`).join("");
+}
+const labText = html => {
+  try { const d = new DOMParser().parseFromString(html || "", "text/html"); d.querySelectorAll("script,style,svg,canvas").forEach(n => n.remove()); return (d.body ? d.body.textContent : "").replace(/\s+/g, " ").trim().slice(0, 8000); }
+  catch { return ""; }
+};
+async function generateLabQuestions() {
+  if (DEMO) { toast("توليد الأسئلة يعمل بعد ربط المنصة بـ Supabase."); return; }
+  const parts = [];
+  if ((LB.source || "").trim()) parts.push(LB.source.trim());
+  if ((LB.request || "").trim()) parts.push("وصف المختبر: " + LB.request.trim());
+  const inLab = labText(LB.html); if (inLab) parts.push("ما يظهر للطالبة داخل المختبر من شرح ومهام: " + inLab);
+  const text = parts.join("\n\n");
+  if (text.length < 120) { toast("الصقي نص الدرس أو اكتبي وصف المختبر أولاً، أو ابني المختبر."); return; }
+  const grade = GRADES.find(g => g.id === LB.gradeId);
+  const btn = $("#lq-gen"); btn.disabled = true; btn.textContent = "جارٍ التوليد…";
+  try {
+    const { data, error } = await sb.functions.invoke("generate-questions", {
+      body: { text, count: Number($("#lq-count").value) || 5, subject: LB.subject, grade: grade ? grade.name : "", title: LB.title || "" }
+    });
+    if (error) { let msg = error.message; try { const j = await error.context.json(); if (j && j.error) msg = j.error; } catch {} throw new Error(msg); }
+    const qs = (data && data.questions) || [];
+    if (!qs.length) throw new Error("لم تصل أسئلة. جرّبي مرة أخرى.");
+    LB.questions = LB.questions.filter(q => q.text.trim() || q.options.some(o => o.trim()));
+    qs.forEach(q => LB.questions.push({ text: q.text, options: [...q.options], correct: q.correct }));
+    drawLabQs(); await saveLab("auto");
+    toast(`أُضيف ${nQs(qs.length)} وحُفظ المختبر. راجعيها وعدّلي ما تريدين.`);
+  } catch (e) { console.error(e); toast("تعذّر توليد الأسئلة: " + (e.message || e)); }
+  finally { btn.disabled = false; btn.textContent = "ولّدي الأسئلة"; }
 }
 function drawLabPreview(progress) {
   const box = $("#lb-preview"); if (!box) return;
@@ -1667,15 +1836,18 @@ async function saveLab(mode) {
   const lab = {
     title: LB.title || "مختبر بلا عنوان", subject: LB.subject, unit: (LB.unit || "").trim(), gradeId: LB.gradeId, lessonId: LB.lessonId || "",
     source: (LB.source || "").trim(), request: (LB.request || "").trim(), html: LB.html || "", prevHtml: LB.prevHtml || "", readyFile: LB.readyFile || "",
-    published: ready && !!LB.published, order: Number(LB.order) || 0, updatedAt: new Date().toISOString()
+    published: ready && !!LB.published, order: Number(LB.order) || 0, updatedAt: new Date().toISOString(),
+    questions: (LB.questions || []).map(q => ({ text: q.text.trim(), options: q.options.map(o => o.trim()), correct: q.correct ?? null }))
   };
+  const filledQs = lab.questions.filter(q => q.text || q.options.some(Boolean));
+  const badQs = filledQs.filter(q => !q.text || q.options.some(o => !o) || q.correct == null || q.correct >= q.options.length).length;
   if (LB.id) lab.id = LB.id;
   try {
     const id = await Store.saveLab(lab);
     if (!LB.id) { LB.id = id; history.replaceState(null, "", "#labedit=" + encodeURIComponent(id)); }
     $("#lb-h1") && ($("#lb-h1").textContent = lab.title);
     if (mode === "save") {
-      toast(!ready ? "حُفظ المختبر كمسودة (لم يُبنَ بعد)" : lab.published ? "حُفظ المختبر ونُشر للطالبات" : "حُفظ المختبر (غير منشور)");
+      toast((!ready ? "حُفظ المختبر كمسودة (لم يُبنَ بعد)" : lab.published ? "حُفظ المختبر ونُشر للطالبات" : "حُفظ المختبر (غير منشور)") + (badQs === 1 ? " · سؤال واحد غير مكتمل لن يظهر للطالبات" : badQs > 1 ? ` · ${nQs(badQs)} غير مكتملة لن تظهر للطالبات` : ""));
       location.hash = "labs";
     }
     return true;
@@ -1690,7 +1862,8 @@ async function saveLab(mode) {
 /* ======================= النتائج ======================= */
 async function viewResults() {
   app.innerHTML = `<p class="loading">جارٍ التحميل…</p>`;
-  const [results, grades, lessons] = await Promise.all([Store.results(), Store.grades(), Store.lessons(true)]);
+  const [results, grades, lessonsOnly, labsAll] = await Promise.all([Store.results(), Store.grades(), Store.lessons(true), safeLabs(true)]);
+  const lessons = [...lessonsOnly, ...labsAll.map(l => ({ ...l, title: "مختبر: " + l.title }))];
   results.sort((a, b) => String(b.completedAt).localeCompare(String(a.completedAt)));
   const f = { grade: "", lesson: "", q: "" };
   app.innerHTML = `
