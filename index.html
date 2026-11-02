@@ -1342,7 +1342,7 @@ async function saveDraft(mode = "save") {
 
 
 /* ======================= المختبرات الافتراضية ======================= */
-const LAB_SANDBOX = "allow-scripts allow-pointer-lock";
+const LAB_SANDBOX = "allow-scripts allow-pointer-lock allow-popups allow-popups-to-escape-sandbox";
 // مختبرات جاهزة محفوظة مع الموقع في مجلد labs/ (تُضاف بضغطة من محرر المختبر)
 const READY_LABS = [
   { file: "labs/mitosis.html", title: "رحلة الانقسام المتساوي", subject: "أحياء", unit: "انقسام الخلية",
@@ -1372,7 +1372,10 @@ function extractHtml(text) {
   return text.slice(start, end + 7);
 }
 // دروس تفاعلية جاهزة (فارغة الآن؛ تُضاف بنفس طريقة READY_LABS)
-const READY_ILESSONS = [];
+const READY_ILESSONS = [
+  { file: "labs/protists.html", title: "مستكشف الأوليات", subject: "أحياء", unit: "الأوليات",
+    about: "مستكشف ثلاثي الأبعاد لشعب الأوليات: تختار الطالبة الشعبة، وتدوّر نموذج الخلية وتتعرف تراكيبها ووظائفها، وتتابع خطوات الاقتران والتغذي ودورة الحياة والعدوى، ثم تختبر نفسها." }
+];
 
 /*<LAB-BLOCK>  يُولَّد قسم «الدروس التفاعلية» آلياً من هذا الجزء (انظري build-ilessons.py) */
 // صفحة المختبر للطالبة

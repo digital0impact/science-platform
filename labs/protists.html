@@ -1,0 +1,807 @@
+<!doctype html><html lang="ar" dir="rtl"><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>مستكشف الأوليات</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600&family=Readex+Pro:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+/* Layout: three columns in RTL — phylum cards (right), 3D stage (centre), glass study panel (left); stacks on phones */
+:root{
+  --bg:#f5efe6;--g1:#fff7ec;--g2:#e5f1ef;--g3:#f4e6d8;
+  --ink:#1f1c1a;--ink2:#5c5550;--line:rgba(70,50,30,.11);
+  --glass:rgba(255,252,248,.64);--glass2:rgba(255,252,248,.86);--edge:rgba(255,255,255,.8);--tile:rgba(255,255,255,.58);--raised:#fff;
+  --shadow:rgba(90,60,30,.32);--good:#2f8a55;--bad:#c2473f;
+  --accent:#2f9fb0;
+  --display:"Readex Pro","IBM Plex Sans Arabic",system-ui,sans-serif;
+  --sans:"IBM Plex Sans Arabic",system-ui,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#121719;--g1:#1b2427;--g2:#14232a;--g3:#1d1b1a;--ink:#ecebe6;--ink2:#a7aeac;--line:rgba(255,255,255,.1);
+  --glass:rgba(30,37,40,.66);--glass2:rgba(36,44,47,.9);--edge:rgba(255,255,255,.08);--tile:rgba(255,255,255,.05);--raised:#2c3639;
+  --shadow:rgba(0,0,0,.6);--good:#5cc489;--bad:#ef7b72;color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#121719;--g1:#1b2427;--g2:#14232a;--g3:#1d1b1a;--ink:#ecebe6;--ink2:#a7aeac;--line:rgba(255,255,255,.1);
+  --glass:rgba(30,37,40,.66);--glass2:rgba(36,44,47,.9);--edge:rgba(255,255,255,.08);--tile:rgba(255,255,255,.05);--raised:#2c3639;
+  --shadow:rgba(0,0,0,.6);--good:#5cc489;--bad:#ef7b72;color-scheme:dark}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;color:var(--ink);font:400 16px/1.7 var(--sans);-webkit-font-smoothing:antialiased;overflow-x:hidden;
+  background:radial-gradient(900px 620px at 52% 46%,var(--g1) 0,transparent 70%),radial-gradient(700px 500px at 15% 10%,var(--g2),transparent 70%),radial-gradient(800px 600px at 90% 90%,var(--g3),transparent 70%),var(--bg);
+  padding-left:max(0px,env(safe-area-inset-left,0px));padding-right:max(0px,env(safe-area-inset-right,0px))}
+button,input{font:inherit;color:inherit}
+button{background:none;border:0;cursor:pointer;padding:0}
+button:focus-visible,input:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.glass{background:var(--glass);border:1px solid var(--edge);box-shadow:0 18px 50px -28px var(--shadow);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px)}
+h1,h2,.brand,.kv dd,.fn b,.know{font-family:var(--display);text-wrap:balance}
+
+.bub{position:fixed;border-radius:50%;pointer-events:none;z-index:0;background:radial-gradient(circle at 35% 30%,rgba(255,255,255,.9),color-mix(in srgb,var(--accent) 22%,transparent) 60%,transparent);animation:float 14s ease-in-out infinite;opacity:.8}
+@keyframes float{50%{transform:translateY(-14px)}}
+@media (prefers-reduced-motion:reduce){.bub{animation:none}}
+
+header{position:relative;z-index:5;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:20px;padding:20px max(16px,44px)}
+.brand{display:flex;align-items:center;gap:12px;font-weight:600;font-size:21px}
+.brand i{width:30px;height:30px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff,#9fd9e2 40%,#2f9fb0 72%,#1d5b6b);box-shadow:0 4px 10px rgba(30,110,130,.3)}
+.brand small{display:block;font:500 12px var(--sans);color:var(--ink2);margin-top:-2px}
+nav{display:flex;gap:32px}
+nav a{position:relative;color:var(--ink2);text-decoration:none;font-size:15px;font-weight:500;padding:6px 0;white-space:nowrap}
+nav a[aria-current=page]{color:var(--ink)}
+nav a[aria-current=page]:after{content:"";position:absolute;left:30%;right:30%;bottom:-4px;height:1px;background:var(--ink)}
+nav a.vid{color:var(--accent);font-weight:600}
+.search{justify-self:end;position:relative;width:250px}
+.search input{width:100%;height:44px;border-radius:99px;border:1px solid var(--line);background:var(--glass2);padding:0 42px 0 16px;font-size:14px;outline:none}
+.search svg{position:absolute;inset-inline-start:16px;top:14px;width:16px;height:16px;color:var(--ink2)}
+.results{position:absolute;inset-inline-end:0;top:48px;width:300px;max-height:320px;overflow:auto;border-radius:16px;padding:6px}
+.results button{display:block;width:100%;text-align:start;padding:9px 12px;border-radius:10px;font-size:15px;font-weight:500}
+.results button:hover,.results button:focus-visible{background:var(--tile)}
+.results small{display:block;color:var(--ink2);font-size:12.5px;font-weight:400}
+
+.app{position:relative;z-index:1;display:grid;grid-template-columns:262px minmax(0,1fr) 392px;gap:28px;padding:6px 44px 28px;min-height:calc(100svh - 84px)}
+
+.side{display:flex;flex-direction:column;gap:12px}
+.card{display:grid;grid-template-columns:72px 1fr 14px;gap:14px;align-items:center;padding:12px;border-radius:22px;text-align:start;transition:transform .25s,box-shadow .25s,border-color .25s}
+.card:hover{transform:translateY(-1px)}
+.card img{width:72px;height:80px;border-radius:14px;object-fit:cover;background:color-mix(in srgb,var(--accent) 12%,var(--tile));display:block}
+.card b{display:block;font:600 17px/1.3 var(--display)}
+.card small{display:block;font-size:13px;color:var(--ink2);margin-top:2px;line-height:1.4}
+.card em{display:block;font-style:normal;font-size:11.5px;letter-spacing:.04em;color:var(--accent);font-family:system-ui,sans-serif;direction:ltr;text-align:end}
+.card svg{width:14px;height:14px;color:var(--ink2)}
+.card[aria-pressed=true]{border-color:color-mix(in srgb,var(--accent) 70%,transparent);box-shadow:0 18px 50px -28px var(--shadow),0 0 0 1px color-mix(in srgb,var(--accent) 55%,transparent)}
+.count{color:var(--ink2);font-size:14px;margin:4px 14px 0}
+.tagline{margin-top:auto;font:600 22px/1.35 var(--display);color:var(--ink)}
+.tagline span{display:block;font:400 14px/1.6 var(--sans);color:var(--ink2);margin-top:8px}
+
+.stage{position:relative;min-height:640px}
+#gl{position:absolute;inset:-20px -10px 76px;touch-action:pan-y}
+#gl canvas{display:block;width:100%!important;height:100%!important;touch-action:pan-y}
+#calls{position:absolute;inset:0;pointer-events:none;direction:ltr}
+.call{position:absolute;z-index:2;left:0;top:0;font:600 14.5px/1.3 var(--sans);white-space:nowrap;pointer-events:auto;transition:opacity .3s;padding:5px 12px;border-radius:99px;background:var(--glass2);border:1px solid var(--edge);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);direction:rtl}
+.call.off{opacity:0;pointer-events:none}
+.lead{position:absolute;z-index:1;left:0;top:0;height:1px;background:color-mix(in srgb,var(--ink) 40%,transparent);transform-origin:0 50%;pointer-events:none;transition:opacity .3s}
+.dot{position:absolute;z-index:1;left:0;top:0;width:8px;height:8px;margin:-4px 0 0 -4px;border-radius:50%;background:var(--raised);box-shadow:0 0 0 1.5px color-mix(in srgb,var(--ink) 60%,transparent);pointer-events:none;transition:opacity .3s}
+.lead.off,.dot.off{opacity:0}
+.hint{position:absolute;top:4px;inset-inline-start:0;font-size:13px;color:var(--ink2);z-index:2;pointer-events:none}
+
+.bar{position:absolute;z-index:3;left:50%;bottom:0;transform:translateX(-50%);display:flex;gap:8px;align-items:center;padding:8px;border-radius:99px;direction:ltr}
+.bar>*{height:46px;border-radius:99px;background:var(--glass2);border:1px solid var(--edge);display:flex;align-items:center}
+.bar .ic{width:46px;justify-content:center}
+.bar .ic svg{width:18px;height:18px}
+.zoom{gap:12px;padding:0 16px}
+.zoom button{width:20px;height:20px;font-size:18px;line-height:1;display:grid;place-items:center}
+.zoom input{width:100px;-webkit-appearance:none;appearance:none;height:1px;background:color-mix(in srgb,var(--ink) 30%,transparent)}
+.zoom input::-webkit-slider-thumb{-webkit-appearance:none;width:12px;height:12px;border-radius:50%;background:var(--ink2);border:0}
+.zoom input::-moz-range-thumb{width:12px;height:12px;border-radius:50%;background:var(--ink2);border:0}
+.mode{padding:4px;gap:2px}
+.mode button{height:36px;padding:0 18px;border-radius:99px;font-weight:600;font-size:14px;color:var(--ink2);font-family:system-ui,sans-serif}
+.mode button[aria-pressed=true]{background:var(--raised);color:var(--ink);box-shadow:0 4px 12px -6px var(--shadow)}
+
+.panel{border-radius:28px;padding:26px 24px 16px;display:flex;flex-direction:column;max-height:calc(100svh - 110px);position:sticky;top:20px;min-width:0}
+.kick{display:flex;justify-content:space-between;font-size:14px;font-weight:500;color:var(--ink2)}
+.kick span:last-child{font-variant-numeric:tabular-nums;direction:ltr}
+.panel h1{font-weight:700;font-size:clamp(38px,3.4vw,50px);line-height:1.15;margin:10px 0 2px}
+.latin{font:500 14px system-ui,sans-serif;color:var(--accent);letter-spacing:.06em;direction:ltr;text-align:end;margin-bottom:10px}
+.lede{font-size:16.5px;line-height:1.75;color:var(--ink2);margin:0 0 16px;padding-bottom:16px;border-bottom:1px solid var(--line)}
+.kv{display:grid;grid-template-columns:1fr 1fr;gap:12px 18px;margin:0 0 16px;padding-bottom:16px;border-bottom:1px solid var(--line)}
+.kv dt{font-size:13px;color:var(--ink2)}
+.kv dd{margin:2px 0 0;font-weight:600;font-size:16.5px;line-height:1.4}
+.kv div.wide{grid-column:1/-1}
+.tabs{display:grid;grid-template-columns:repeat(4,1fr);padding:4px;border-radius:99px;background:var(--tile);border:1px solid var(--edge);margin-bottom:12px}
+.tabs button{height:40px;border-radius:99px;font-size:14px;font-weight:500;color:var(--ink2);white-space:nowrap}
+.tabs button[aria-selected=true]{background:var(--raised);color:var(--ink);font-weight:600;box-shadow:0 4px 12px -6px var(--shadow)}
+.pane{overflow-y:auto;min-height:0;flex:1;margin:0 -8px;padding:0 8px 6px;scrollbar-width:thin}
+.st{border-radius:18px;background:var(--tile);border:1px solid var(--edge);margin-bottom:10px}
+.st>button{display:grid;grid-template-columns:72px 1fr 22px;gap:14px;align-items:center;width:100%;text-align:start;padding:10px 10px 10px 14px}
+.st img,.st .ph{width:72px;height:66px;border-radius:12px;object-fit:cover;display:block;background:color-mix(in srgb,var(--accent) 10%,transparent)}
+.st .ph{background:radial-gradient(circle at 40% 40%,var(--raised),color-mix(in srgb,var(--accent) 30%,transparent))}
+.st b{display:block;font-weight:600;font-size:16px;line-height:1.4}
+.st b i{font:400 12px system-ui,sans-serif;color:var(--ink2);font-style:normal;margin-inline-start:6px}
+.st span{display:block;font-size:13.5px;color:var(--ink2);line-height:1.55;margin-top:2px}
+.st .pm{width:22px;height:22px;border-radius:50%;border:1.5px solid var(--ink2);display:grid;place-items:center;font-size:15px;font-style:normal;line-height:1;color:var(--ink2)}
+.st .more{display:none;padding:0 98px 14px 16px;font-size:14.5px;color:var(--ink2)}
+.st.open .more{display:block}
+.linkbtn{color:var(--ink);font-weight:600;border-bottom:1px solid var(--accent);cursor:pointer;margin-inline-start:4px}
+.fn{padding:12px 4px;border-bottom:1px solid var(--line)}
+.fn b{display:block;font-weight:600;font-size:18px;line-height:1.4}
+.fn span{color:var(--ink2);font-size:14.5px}
+.know{font-weight:600;font-size:19px;line-height:1.55;margin:16px 4px 12px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:0 4px 14px}
+.chips span{font-size:13px;font-weight:600;border-radius:99px;padding:6px 12px;background:color-mix(in srgb,var(--accent) 16%,transparent)}
+.note{font-size:13px;color:var(--ink2);margin:8px 4px 0}
+.box{border-radius:18px;background:var(--tile);border:1px solid var(--edge);padding:14px 16px;margin:14px 0 6px}
+.box h2{font-size:16px;font-weight:600;margin:0 0 6px}
+.box p{margin:0 0 8px;font-size:14.5px;color:var(--ink2)}
+.box input[type=range]{width:100%;accent-color:var(--accent)}
+.labrow{display:flex;justify-content:space-between;font-size:12.5px;color:var(--ink2)}
+.meter{display:flex;align-items:baseline;gap:8px;margin-top:8px}
+.meter strong{font:700 30px/1 var(--display);color:var(--accent);font-variant-numeric:tabular-nums}
+.cmp{width:100%;border-collapse:collapse;font-size:13.5px}
+.cmp th,.cmp td{text-align:start;padding:7px 6px;border-bottom:1px solid var(--line);vertical-align:top}
+.cmp th{color:var(--ink2);font-weight:500}
+.seg{display:flex;gap:4px;padding:4px;border-radius:99px;background:var(--tile);border:1px solid var(--edge);margin:4px 0 12px}
+.seg button{flex:1;height:34px;border-radius:99px;font-size:13.5px;color:var(--ink2)}
+.seg button[aria-pressed=true]{background:var(--raised);color:var(--ink);font-weight:600}
+.steps{display:flex;gap:6px;margin:6px 0 14px;direction:rtl}
+.steps button{flex:1;height:30px;border-radius:9px;font:600 13px system-ui,sans-serif;background:var(--tile);border:1px solid var(--edge);color:var(--ink2)}
+.steps button.done{background:color-mix(in srgb,var(--accent) 22%,transparent);color:var(--ink)}
+.steps button[aria-current=step]{background:var(--accent);color:#fff;border-color:transparent}
+.stepcard{border-radius:18px;background:var(--tile);border:1px solid var(--edge);padding:16px;min-height:150px}
+.stepcard small{color:var(--accent);font-weight:600;font-size:13px}
+.stepcard p{margin:6px 0 0;font-size:16.5px;line-height:1.75}
+.stepnav{display:flex;justify-content:space-between;margin-top:12px}
+.btn{height:38px;padding:0 16px;border-radius:99px;background:var(--raised);border:1px solid var(--line);font-weight:600;font-size:14px}
+.btn:disabled{opacity:.4;cursor:default}
+.btn.pri{background:var(--accent);color:#fff;border-color:transparent}
+.q{padding:14px 2px;border-bottom:1px solid var(--line)}
+.q p{margin:0 0 8px;font-weight:600;font-size:16px}
+.q .opts{display:grid;gap:6px}
+.q .opts button{text-align:start;padding:9px 12px;border-radius:12px;background:var(--tile);border:1px solid var(--edge);font-size:14.5px}
+.q .opts button:hover:not(:disabled){border-color:var(--accent)}
+.q .opts button.ok{border-color:var(--good);background:color-mix(in srgb,var(--good) 15%,transparent)}
+.q .opts button.no{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 12%,transparent)}
+.q .why{font-size:13.5px;color:var(--ink2);margin-top:8px}
+.score{display:flex;justify-content:space-between;align-items:center;margin:12px 4px 4px;font-weight:600}
+
+@media (max-width:1200px){
+  header{padding:18px 24px}
+  nav{gap:20px}
+  .search{width:200px}
+  .app{grid-template-columns:220px minmax(0,1fr);padding:6px 24px 24px}
+  .panel{grid-column:1/-1;position:static;max-height:none}
+  .pane{overflow:visible}
+}
+@media (max-width:820px){
+  header{grid-template-columns:1fr auto;padding:14px max(16px,env(safe-area-inset-right,0px)) 14px max(16px,env(safe-area-inset-left,0px))}
+  nav{display:none}
+  .brand{font-size:18px;gap:10px}
+  .search{width:150px}
+  .results{width:min(300px,calc(100vw - 32px))}
+  .app{grid-template-columns:minmax(0,1fr);padding:0 16px 20px;gap:16px}
+  .side{flex-direction:row;overflow-x:auto;scroll-snap-type:x mandatory;padding:2px 2px 6px;gap:10px}
+  .card{flex:0 0 230px;grid-template-columns:56px 1fr 12px;scroll-snap-align:start;padding:10px}
+  .card img{width:56px;height:60px}
+  .count,.tagline{display:none}
+  .stage{min-height:0;height:min(74svh,540px)}
+  #gl{inset:0 -16px 70px}
+  .hint{display:none}
+  .call{font-size:13px;padding:4px 9px}
+  .bar{gap:5px;padding:5px;max-width:calc(100vw - 24px)}
+  .bar>*{height:40px}
+  .bar .ic{width:40px}
+  .zoom{padding:0 10px;gap:8px}
+  .zoom input{width:56px}
+  .mode button{padding:0 11px;height:32px}
+  .panel{padding:22px 16px 14px;border-radius:22px}
+  .tabs button{font-size:13px}
+  .st>button{grid-template-columns:58px 1fr 22px}
+  .st img,.st .ph{width:58px;height:54px}
+  .st .more{padding-right:16px}
+}
+</style>
+
+<span class="bub" style="width:26px;height:26px;left:37%;top:9%"></span>
+<span class="bub" style="width:18px;height:18px;left:58%;top:16%;animation-delay:-4s"></span>
+<span class="bub" style="width:30px;height:30px;left:28%;top:58%;animation-delay:-7s"></span>
+<span class="bub" style="width:20px;height:20px;left:62%;top:82%;animation-delay:-2s"></span>
+
+<div dir="rtl" lang="ar" id="root">
+<header>
+  <div class="brand"><i aria-hidden="true"></i><span>الأوليات<small>تنوع الطلائعيات · 4-2</small></span></div>
+  <nav aria-label="القائمة الرئيسية">
+    <a href="#top" aria-current="page">استكشف</a>
+    <a href="#types">الشعب</a>
+    <a href="#panel" data-tab="quiz">اختبر نفسك</a>
+    <a class="vid" href="https://www.youtube.com/watch?v=byZb-paeIeU" target="_blank" rel="noopener">فيديو الدرس ↗</a>
+  </nav>
+  <div class="search">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
+    <input id="q" type="search" placeholder="ابحث عن تركيب أو وظيفة…" aria-label="ابحث في التراكيب والوظائف" autocomplete="off">
+    <div class="results glass" id="results" role="listbox" hidden></div>
+  </div>
+</header>
+
+<main class="app" id="top">
+  <aside class="side" id="types" aria-label="شعب الأوليات">
+    <div id="list" style="display:contents"></div>
+    <p class="count">4 شعب مصنفة حسب طريقة الحركة</p>
+    <p class="tagline">طلائعيات غير ذاتية التغذي، شبيهة بالحيوانات<span>اختر شعبة، ثم أدر النموذج واضغط على أي تسمية لتقرأ عنها.</span></p>
+  </aside>
+
+  <section class="stage" aria-label="نموذج ثلاثي الأبعاد">
+    <div id="gl"></div>
+    <div id="calls"></div>
+    <p class="hint">اسحب لتدوير النموذج · العجلة للتكبير</p>
+    <div class="bar glass" role="toolbar" aria-label="أدوات العرض">
+      <button class="ic" id="recenter" aria-label="إعادة التوسيط" title="إعادة التوسيط"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg></button>
+      <button class="ic" id="play" aria-label="إيقاف الحركة" title="إيقاف الحركة"><svg viewBox="0 0 24 24" fill="currentColor"><rect x="7" y="6" width="3.2" height="12" rx="1"/><rect x="13.8" y="6" width="3.2" height="12" rx="1"/></svg></button>
+      <div class="zoom"><button id="zout" aria-label="تصغير">−</button><input id="zr" type="range" min="0" max="100" value="30" aria-label="التكبير"><button id="zin" aria-label="تكبير">+</button></div>
+      <div class="mode" role="group" aria-label="نمط العرض"><button id="m3" aria-pressed="true">3D</button><button id="m2" aria-pressed="false">2D</button></div>
+      <button class="ic" id="fs" aria-label="ملء الشاشة" title="ملء الشاشة"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
+    </div>
+  </section>
+
+  <aside class="panel glass" id="panel" aria-live="polite">
+    <div class="kick"><span id="kName"></span><span id="kNum"></span></div>
+    <h1 id="title"></h1>
+    <div class="latin" id="latin"></div>
+    <p class="lede" id="lede"></p>
+    <dl class="kv" id="kv"></dl>
+    <div class="tabs" role="tablist">
+      <button role="tab" id="t-structures" aria-selected="true" aria-controls="p-structures">التراكيب</button>
+      <button role="tab" id="t-functions" aria-selected="false" aria-controls="p-functions">الوظائف</button>
+      <button role="tab" id="t-seq" aria-selected="false" aria-controls="p-seq">المراحل</button>
+      <button role="tab" id="t-quiz" aria-selected="false" aria-controls="p-quiz">اختبار</button>
+    </div>
+    <div class="pane" id="p-structures" role="tabpanel"></div>
+    <div class="pane" id="p-functions" role="tabpanel" hidden></div>
+    <div class="pane" id="p-seq" role="tabpanel" hidden></div>
+    <div class="pane" id="p-quiz" role="tabpanel" hidden></div>
+  </aside>
+</main>
+</div>
+
+<script type="importmap">
+{"imports":{
+  "three":"https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js",
+  "three/addons/":"https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/"
+}}
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+
+const $ = id => document.getElementById(id);
+const V = (x, y, z) => new THREE.Vector3(x, y, z);
+const M = (color, o = {}) => new THREE.MeshPhysicalMaterial({ color, roughness: .42, clearcoat: .5, clearcoatRoughness: .3, ...o });
+const SHELL = (color, op = .38) => new THREE.MeshPhysicalMaterial({ color, roughness: .18, clearcoat: 1, transparent: true, opacity: op, side: THREE.DoubleSide, depthWrite: false });
+const ell = (r, sx, sy, sz, mat, pos, seg = 32) => { const m = new THREE.Mesh(new THREE.SphereGeometry(r, seg, Math.round(seg * .75)), mat); m.scale.set(sx, sy, sz); m.position.copy(pos); m.castShadow = true; return m; };
+const rnd = (a, b) => a + Math.random() * (b - a);
+function rbcGeo(R = .9) { // biconcave disc (Evans–Fung profile)
+  const pts = [];
+  for (let i = 0; i <= 24; i++) { const r = R * i / 24, p = r / R, h = R * .5 * Math.sqrt(Math.max(0, 1 - p * p)) * (.207 + 2.003 * p * p - 1.123 * p ** 4); pts.push(new THREE.Vector2(r, Math.max(h, .012))); }
+  for (let i = 24; i >= 0; i--) { const r = R * i / 24, p = r / R, h = R * .5 * Math.sqrt(Math.max(0, 1 - p * p)) * (.207 + 2.003 * p * p - 1.123 * p ** 4); pts.push(new THREE.Vector2(r, -Math.max(h, .012))); }
+  return new THREE.LatheGeometry(pts, 48);
+}
+const RBC_MAT = M('#cf3f4a', { roughness: .5, clearcoat: .3 });
+
+/* ===================== models (procedural teaching illustrations) ===================== */
+function buildParamecium() {
+  const g = new THREE.Group(), A = {}, L = 2.3, st = { period: 2.2 };
+  const deform = v => { const u = v.x; let x = u * L, y = v.y * .8, z = v.z * .92;
+    const taper = u < 0 ? 1 + u * .3 : 1 - u * u * .12; y *= taper; z *= taper;
+    z -= Math.exp(-(((u - .12) / .34) ** 2)) * Math.max(0, v.z) ** 2 * Math.exp(-((v.y / .55) ** 2)) * .5;
+    return V(x, y, z); };
+  const geo = new THREE.SphereGeometry(1, 120, 72), p = geo.attributes.position, t = V(0, 0, 0);
+  for (let i = 0; i < p.count; i++) { t.fromBufferAttribute(p, i); const d = deform(t); p.setXYZ(i, d.x, d.y, d.z); }
+  geo.computeVertexNormals();
+  const shell = new THREE.Mesh(geo, SHELL('#86cbd6', .42)); shell.renderOrder = 10; shell.castShadow = true; g.add(shell);
+  // cilia + trichocysts
+  const N = 1300, base = [], nrm = [], pos = new Float32Array(N * 6);
+  for (let k = 0; k < N; k++) { const d = V(rnd(-1, 1), rnd(-1, 1), rnd(-1, 1)).normalize(); const b = deform(d); base.push(b); nrm.push(V(b.x / (L * L), b.y / .64, b.z / .85).normalize()); }
+  const cg = new THREE.BufferGeometry(); cg.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+  g.add(new THREE.LineSegments(cg, new THREE.LineBasicMaterial({ color: '#2c8ea2', transparent: true, opacity: .75 })));
+  const tp = [];
+  for (let k = 0; k < 220; k++) { const b = base[k], n = nrm[k]; tp.push(b.x - n.x * .04, b.y - n.y * .04, b.z - n.z * .04, b.x - n.x * .14, b.y - n.y * .14, b.z - n.z * .14); }
+  const tg = new THREE.BufferGeometry(); tg.setAttribute('position', new THREE.Float32BufferAttribute(tp, 3));
+  g.add(new THREE.LineSegments(tg, new THREE.LineBasicMaterial({ color: '#4f7f8a' })));
+  // nuclei
+  g.add(ell(1, .58, .3, .34, M('#8c5bb0'), V(-.3, .02, -.2), 48)); A['النواة الكبيرة'] = V(-.3, .02, -.2);
+  g.add(ell(.11, 1, 1, 1, M('#c78bd8'), V(.22, .14, -.28))); A['النواة الصغيرة'] = V(.22, .14, -.28);
+  // food vacuoles
+  const fv = M('#87c065', { transparent: true, opacity: .9 });
+  [[.55, -.05, .05, .15], [.85, .1, -.15, .13], [1.15, -.12, -.05, .12], [.3, -.2, .2, .11], [-.95, -.05, .08, .14], [-1.3, .1, -.1, .11], [.7, .25, .2, .1]].forEach(([x, y, z, r]) => g.add(ell(r, 1, 1, 1, fv, V(x, y, z))));
+  A['الفجوات الغذائية'] = V(.55, -.05, .05);
+  // oral groove → gullet
+  const mouth = deform(V(.12, 0, 1).normalize()); A['الميزاب الفمي'] = mouth.clone();
+  const gul = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3([mouth, V(.25, -.02, .2), V(.42, -.05, .08)]), 20, .045, 8), M('#2f8597'));
+  g.add(gul); g.add(ell(.1, 1, 1, 1, fv, V(.46, -.05, .05)));
+  // contractile vacuoles
+  const cvs = [];
+  [V(1.25, .32, -.12), V(-1.12, .3, -.12)].forEach(c => {
+    const grp = new THREE.Group(); grp.position.copy(c);
+    const core = ell(.13, 1, 1, 1, M('#e9879a', { transparent: true, opacity: .92 }), V(0, 0, 0)); grp.add(core);
+    const canals = new THREE.Group();
+    for (let i = 0; i < 8; i++) { const a = i / 8 * Math.PI * 2, m = new THREE.Mesh(new THREE.CylinderGeometry(.018, .028, .3, 6), M('#f0a2b1'));
+      m.position.set(Math.cos(a) * .27, 0, Math.sin(a) * .27); m.rotation.z = Math.PI / 2; m.rotation.y = -a; canals.add(m); }
+    grp.add(canals); g.add(grp); cvs.push({ core, canals });
+  });
+  A['الفجوة المنقبضة'] = V(1.25, .32, -.12);
+  A['الهدبيات'] = deform(V(.8, .45, -.4).normalize()).multiplyScalar(1.07);
+  A['القشيرة'] = deform(V(-.25, .97, 0).normalize());
+  A['الأكياس الخيطية'] = deform(V(-.55, -.35, -.75).normalize()).multiplyScalar(.95);
+  A['فتحة الإخراج'] = deform(V(-.55, -.5, .67).normalize());
+  function update(time) {
+    for (let k = 0; k < N; k++) { const b = base[k], n = nrm[k], s = Math.sin(time * 7 - b.x * 3.4) * .075, o = k * 6;
+      pos[o] = b.x; pos[o + 1] = b.y; pos[o + 2] = b.z;
+      pos[o + 3] = b.x + n.x * .16 + s; pos[o + 4] = b.y + n.y * .16; pos[o + 5] = b.z + n.z * .16 + s * .3; }
+    cg.attributes.position.needsUpdate = true;
+    cvs.forEach((c, i) => { const f = ((time + i * st.period * .5) % st.period) / st.period;
+      const core = f < .82 ? .45 + .75 * f / .82 : 1.2 - (f - .82) / .18 * .8;
+      const can = f < .5 ? .6 + .6 * f / .5 : 1.2 - (f - .5) / .5 * .6;
+      c.core.scale.setScalar(core); c.canals.scale.set(can, 1, can); });
+  }
+  return { g, A, update, st };
+}
+
+function buildAmoeba() {
+  const g = new THREE.Group(), A = {};
+  const geo = new THREE.SphereGeometry(1, 128, 80), p = geo.attributes.position, dirs = Float32Array.from(p.array);
+  const inner = geo.clone(), ip = inner.attributes.position;
+  const pods = [[.2, .08, 1.0], [1.5, -.05, .75], [2.6, .12, .95], [3.9, 0, .6], [5.1, .1, .85]].map(([a, y, amp], i) => ({ d: V(Math.cos(a), y, Math.sin(a)).normalize(), amp, ph: i * 1.7, k: i % 2 ? 7 : 5 }));
+  const SX = 1.35, SY = .58;
+  const shell = new THREE.Mesh(geo, SHELL('#f4d7a2', .4)); shell.renderOrder = 10; shell.castShadow = true;
+  const endo = new THREE.Mesh(inner, M('#e2a957', { transparent: true, opacity: .38, depthWrite: false })); endo.renderOrder = 9;
+  g.add(shell, endo);
+  // granules
+  const gp = []; for (let i = 0; i < 500; i++) { const d = V(rnd(-1, 1), rnd(-1, 1), rnd(-1, 1)); if (d.length() > 1) { i--; continue; } gp.push(d.x * .9 * SX, d.y * .7 * SY, d.z * .9 * SX); }
+  const gg = new THREE.BufferGeometry(); gg.setAttribute('position', new THREE.Float32BufferAttribute(gp, 3));
+  g.add(new THREE.Points(gg, new THREE.PointsMaterial({ color: '#8a5a24', size: .03 })));
+  g.add(ell(.3, 1, .72, 1, M('#6a4c93'), V(-.3, .03, -.2), 48)); A['النواة'] = V(-.3, .03, -.2);
+  const cv = ell(.16, 1, 1, 1, M('#e9879a', { transparent: true, opacity: .92 }), V(.25, .12, -.55)); g.add(cv); A['الفجوة المنقبضة'] = cv.position;
+  const fvp = V(.45, .02, .35);
+  g.add(ell(.25, 1, .8, 1, SHELL('#a7d38a', .5), fvp)); const prey1 = new THREE.Mesh(new THREE.CapsuleGeometry(.06, .16, 6, 12), M('#4f9a3a')); prey1.position.copy(fvp); prey1.rotation.z = 1; g.add(prey1);
+  A['الفجوة الغذائية'] = fvp;
+  const prey2 = new THREE.Mesh(new THREE.CapsuleGeometry(.07, .2, 6, 12), M('#4f9a3a')); prey2.rotation.set(.4, 0, 1.2); g.add(prey2);
+  A['القدم الكاذبة'] = V(); A['الغشاء الخلوي'] = V(); A['السيتوبلازم الخارجي'] = V(); A['السيتوبلازم الداخلي'] = V(.15, -.05, -.05);
+  const n = V(), mem = V(.25, 1, .15).normalize(), ecto = pods[2].d;
+  const radius = (d, t) => { let r = 1 + .035 * Math.sin(d.x * 5 + t * .9) * Math.cos(d.z * 4 - t * .7); for (const q of pods) r += q.amp * (.6 + .4 * Math.sin(t * .45 + q.ph)) * Math.max(0, d.dot(q.d)) ** q.k; return r; };
+  function update(t) {
+    for (let i = 0; i < p.count; i++) { n.set(dirs[i * 3], dirs[i * 3 + 1], dirs[i * 3 + 2]); const r = radius(n, t);
+      p.setXYZ(i, n.x * r * SX, n.y * r * SY, n.z * r * SX); ip.setXYZ(i, n.x * r * SX * .84, n.y * r * SY * .8, n.z * r * SX * .84); }
+    p.needsUpdate = ip.needsUpdate = true; geo.computeVertexNormals(); inner.computeVertexNormals();
+    const q = pods[1], r1 = radius(q.d, t); A['القدم الكاذبة'].set(q.d.x * r1 * SX * .97, q.d.y * r1 * SY, q.d.z * r1 * SX * .97);
+    const r0 = radius(pods[0].d, t); prey2.position.set(pods[0].d.x * (r0 * SX + .12), .02, pods[0].d.z * (r0 * SX + .12));
+    const rm = radius(mem, t); A['الغشاء الخلوي'].set(mem.x * rm * SX, mem.y * rm * SY, mem.z * rm * SX);
+    const re = radius(ecto, t) * .92; A['السيتوبلازم الخارجي'].set(ecto.x * re * SX, ecto.y * re * SY, ecto.z * re * SX);
+    cv.scale.setScalar(.55 + .55 * (((t % 3) / 3) < .85 ? (t % 3) / 3 / .85 : 1 - ((t % 3) / 3 - .85) / .15));
+  }
+  return { g, A, update };
+}
+
+function buildPlasmodium() {
+  const g = new THREE.Group(), A = {}, body = new THREE.Group(); g.add(body);
+  const cl = u => .55 * u * u - .2; // centre line height
+  const deform = v => { const u = v.x, f = u > 0 ? Math.sqrt(Math.max(0, 1 - u * u)) * (1 - .12 * u) : Math.max(0, 1 - u * u) ** .42;
+    return V(u * 2.1, v.y * .46 * f + cl(u), v.z * .46 * f); };
+  const geo = new THREE.SphereGeometry(1, 120, 48), p = geo.attributes.position, t = V();
+  geo.rotateZ(Math.PI / 2); // poles to the long axis, so the tips stay smooth
+  for (let i = 0; i < p.count; i++) { t.fromBufferAttribute(p, i); const d = deform(t); p.setXYZ(i, d.x, d.y, d.z); }
+  geo.computeVertexNormals();
+  const shell = new THREE.Mesh(geo, SHELL('#c7637f', .46)); shell.renderOrder = 10; shell.castShadow = true; body.add(shell);
+  body.add(ell(.25, 1.35, .8, .8, M('#59306d'), V(-.5, cl(-.24), 0), 48)); A['النواة'] = V(-.5, cl(-.24), 0);
+  // apical complex
+  const tip = V(1.98, cl(.94), 0);
+  const ring = new THREE.Mesh(new THREE.TorusGeometry(.07, .022, 8, 24), M('#f3c46a')); ring.position.copy(tip); ring.rotation.y = Math.PI / 2; ring.rotation.x = .5; body.add(ring);
+  const ang = Math.atan(1.1 * .75 / 2.1);
+  [-.08, .08].forEach(z => { const r = ell(1, .4, .085, .085, M('#e7a33f'), V(1.5, cl(.71) + .02, z)); r.rotation.z = ang; body.add(r); });
+  for (let i = 0; i < 22; i++) { const u = rnd(.4, .88), x = u * 2.1, f = Math.sqrt(1 - u * u) * .3; body.add(ell(.035, 1.8, 1, 1, M('#f0b85a'), V(x, cl(u) + rnd(-f, f), rnd(-f, f)), 10)); }
+  A['العضيات القمية'] = tip.clone();
+  A['الغشاء البلازمي'] = deform(V(-.62, .78, 0).normalize());
+  const rbc = new THREE.Mesh(rbcGeo(1), RBC_MAT); rbc.position.set(3.25, .25, -.15); rbc.rotation.z = 1.25; rbc.castShadow = true; g.add(rbc);
+  A['خلية الدم الحمراء'] = rbc.position;
+  function update(time) { body.position.x = .12 * Math.sin(time * .8); body.rotation.x = .1 * Math.sin(time * .5); rbc.rotation.x = .25 * Math.sin(time * .4); }
+  return { g, A, update, bodyRef: body };
+}
+
+function buildTrypanosoma() {
+  const g = new THREE.Group(), A = {}, L = 2.5;
+  const wave = (x, t) => .26 * Math.sin(2.1 * x - 4 * t) * (.55 + .45 * (x + L) / (2 * L));
+  const half = x => { const u = Math.min(1, Math.abs(x / L)); return .3 * Math.max(0, 1 - u * u) ** .55; };
+  const geo = new THREE.SphereGeometry(1, 120, 32); geo.rotateZ(Math.PI / 2);
+  const p = geo.attributes.position, base = Float32Array.from(p.array);
+  const shell = new THREE.Mesh(geo, SHELL('#4dbb9a', .5)); shell.renderOrder = 10; shell.castShadow = true; g.add(shell);
+  const nuc = ell(.16, 1.5, .9, .9, M('#2f4a8a'), V(0, 0, 0)); g.add(nuc);
+  const kin = ell(.06, 1.3, 1, 1, M('#1d3b33'), V(0, 0, 0)); g.add(kin);
+  const flagMat = M('#18806a'); let flag = new THREE.Mesh(new THREE.BufferGeometry(), flagMat); flag.castShadow = true; g.add(flag);
+  const NS = 40, mem = new THREE.BufferGeometry(), mp = new Float32Array(NS * 2 * 3), idx = [];
+  for (let i = 0; i < NS - 1; i++) { const a = i * 2; idx.push(a, a + 1, a + 2, a + 1, a + 3, a + 2); }
+  mem.setAttribute('position', new THREE.BufferAttribute(mp, 3)); mem.setIndex(idx);
+  const memMesh = new THREE.Mesh(mem, new THREE.MeshPhysicalMaterial({ color: '#7fd6bb', transparent: true, opacity: .55, side: THREE.DoubleSide, depthWrite: false, roughness: .3 })); memMesh.renderOrder = 11; g.add(memMesh);
+  const rbcs = [[-.9, -1.15, -1.0], [1.3, -1.05, 1.0], [2.5, 1.0, -1.25], [-2.3, .9, .9]].map(([x, y, z], i) => { const m = new THREE.Mesh(rbcGeo(.85), RBC_MAT); m.position.set(x, y, z); m.rotation.set(rnd(0, 3), rnd(0, 3), rnd(0, 3)); m.castShadow = true; g.add(m); return m; });
+  A['السوط'] = V(); A['الغشاء المتموج'] = V(); A['النواة'] = nuc.position; A['قاعدة السوط'] = kin.position; A['خلايا الدم الحمراء'] = rbcs[1].position;
+  const X0 = -1.75, XT = L + 1.1;
+  const flagY = (x, t) => wave(x, t) + (x <= L ? half(x) + .1 : .1 * Math.max(0, 1 - (x - L) / .4));
+  function update(t) {
+    for (let i = 0; i < p.count; i++) { const bx = base[i * 3], by = base[i * 3 + 1], bz = base[i * 3 + 2], u = bx, f = Math.max(0, 1 - u * u) ** .55, x = u * L;
+      p.setXYZ(i, x, by * .3 * f + wave(x, t), bz * .36 * f); }
+    p.needsUpdate = true; geo.computeVertexNormals();
+    nuc.position.set(.1, wave(.1, t), 0); kin.position.set(X0, wave(X0, t) + .02, 0);
+    const pts = []; for (let i = 0; i <= 50; i++) { const x = X0 + (XT - X0) * i / 50; pts.push(V(x, flagY(x, t), .03 * Math.sin(x * 3))); }
+    flag.geometry.dispose(); flag.geometry = new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 160, .03, 6);
+    for (let i = 0; i < NS; i++) { const x = X0 + (L - .15 - X0) * i / (NS - 1); const lo = wave(x, t) + half(x) * .55;
+      mp.set([x, lo, .0, x, flagY(x, t), .03 * Math.sin(x * 3)], i * 6); }
+    mem.attributes.position.needsUpdate = true; mem.computeVertexNormals();
+    A['السوط'].set(L + .85, flagY(L + .85, t), 0); A['الغشاء المتموج'].set(.9, (wave(.9, t) + half(.9) * .55 + flagY(.9, t)) / 2, 0);
+    rbcs.forEach((m, i) => { m.rotation.y += .002 * (i + 1); });
+  }
+  return { g, A, update };
+}
+
+/* ===================== content (from the textbook lesson 4-2) ===================== */
+const CELLS = [
+  { key: 'cilio', build: buildParamecium, name: 'الهدبيات', latin: 'Ciliophora · Paramecium', ex: 'البراميسيوم', tag: 'الحركة بالهدبيات', accent: '#2f9fb0',
+    lede: 'شعبة يغطي الهدب أجسام أفرادها كليًّا أو جزئيًّا. البراميسيوم مثالها الأشهر: خلية واحدة تسبح في الماء العذب وتوجّه طعامها بآلاف الهدبيات.',
+    kv: [['المثال', 'البراميسيوم'], ['طريقة الحركة', 'الهدبيات Cilia'], ['عدد الأنواع', 'أكثر من 7000 نوع'], ['تعيش في', 'المحيطات والبرك والبحيرات والأنهار']],
+    structs: [
+      ['الهدبيات', 'Cilia', 'بروزات قصيرة تشبه الشعيرات تغطي الجسم.', 'تضرب الهدبيات في موجات متتابعة فتدفع الخلية في الماء، وتدفع الطعام نحو الميزاب الفمي.', 1],
+      ['القشيرة', 'Pellicle', 'طبقة تغطي جسم البراميسيوم كله.', 'تحافظ على شكل الخلية الثابت الشبيه بالنعل، وتحتها طبقة السيتوبلازم الخارجي.', 0],
+      ['الأكياس الخيطية', 'Trichocysts', 'أجسام أسطوانية في السيتوبلازم الخارجي.', 'تنطلق منها أشواك، ولا يُعرف دورها تمامًا، لكن يُرجح أنها تساعد على الدفاع عن النفس أو صيد الفريسة.', 0],
+      ['الميزاب الفمي', 'Oral groove', 'تجويف تدخل منه الطعام إلى المريء.', 'تدفع الهدبيات الطعام إلى هذا التجويف، ثم يمر عبر المريء لتتكون حوله فجوة غذائية.', 1],
+      ['الفجوات الغذائية', 'Food vacuoles', 'أكياس يُهضم فيها الطعام.', 'تتحرك داخل السيتوبلازم بينما تهضم الإنزيمات الغذاء، وتخرج البقايا من فتحة الإخراج.', 1],
+      ['الفجوة المنقبضة', 'Contractile vacuole', 'تجمع الماء الزائد وتطرده خارج الخلية.', 'يدخل الماء باستمرار بالخاصية الأسموزية لأن البيئة منخفضة التركيز، فتضخه الفجوة إلى الخارج وتحافظ على الاتزان الداخلي.', 1],
+      ['النواة الكبيرة', 'Macronucleus', 'تتحكم في الوظائف الحيوية للخلية.', 'تحوي نسخًا كثيرة من المادة الوراثية، وتسيطر على التغذي والتخلص من الفضلات والاتزان المائي.', 1],
+      ['النواة الصغيرة', 'Micronucleus', 'تؤدي دورًا مهمًّا في التكاثر.', 'تنقسم انقسامًا اختزاليًّا في أثناء الاقتران، وتتبادلها الخليتان عبر الجسر السيتوبلازمي.', 0],
+      ['فتحة الإخراج', 'Anal pore', 'تخرج منها الفضلات.', 'تطرد بقايا الطعام غير المهضوم من الفجوات الغذائية إلى خارج الخلية.', 0],
+    ],
+    fns: [['الحركة', 'تدفع الهدبيات الجسم في الماء.'], ['التغذي', 'تُدفع الأغذية إلى الميزاب الفمي ثم تُهضم في الفجوات الغذائية.'], ['الاتزان المائي', 'تطرد الفجوة المنقبضة الماء الزائد في البيئات منخفضة التركيز.'], ['التكاثر اللاجنسي', 'الانشطار الثنائي: تزداد النواة الكبيرة طولًا ثم تنشطر.'], ['الاقتران', 'عملية جنسية لتبادل المادة الوراثية، لكنه ليس تكاثرًا لأنه لا ينتج مخلوقات جديدة.']],
+    know: 'قد يعيش نحو 20 مليون هدبي في متر مربع واحد من الطين.',
+    chips: ['المحيطات', 'البرك', 'البحيرات', 'الأنهار'],
+    extra: 'lab',
+    seq: [{ title: 'الاقتران Conjugation', steps: [
+      ['تتلامس خليتا براميسيوم ويتكون بينهما جسر سيتوبلازمي.', null],
+      ['تنقسم النواة الصغيرة في كل خلية انقسامًا اختزاليًّا فتتكون نوى صغيرة أحادية المجموعة (1n).', 'النواة الصغيرة'],
+      ['تختفي ثلاث نوى صغيرة من كل خلية، وتنقسم النواة الباقية انقسامًا متساويًا.', 'النواة الصغيرة'],
+      ['تتبادل الخليتان نواة صغيرة عبر الجسر السيتوبلازمي.', null],
+      ['تنفصل الخليتان.', null],
+      ['تتفتت النواة الكبيرة القديمة.', 'النواة الكبيرة'],
+      ['تتكون نوى كبيرة جديدة.', 'النواة الكبيرة'],
+      ['يتكون براميسيوم بتركيب وراثي جديد دون إنتاج مخلوقات جديدة.', null]] }],
+    quiz: [
+      ['بماذا يتحرك البراميسيوم؟', ['الأقدام الكاذبة', 'الهدبيات', 'السوط', 'لا يملك أعضاء حركة'], 1, 'الهدبيات بروزات قصيرة تضرب الماء فتدفع الخلية.'],
+      ['لماذا تُعد الفجوة المنقبضة مهمة في البيئات منخفضة التركيز؟', ['لأنها تهضم الغذاء', 'لأنها تطرد الماء الزائد الذي يدخل بالخاصية الأسموزية', 'لأنها تنتج الطاقة', 'لأنها تبادل المادة الوراثية'], 1, 'تركيز المواد خارج الخلية أقل، فيدخل الماء باستمرار وتطرده الفجوة.'],
+      ['لماذا لا يُعد الاقتران تكاثرًا؟', ['لأنه لا ينتج مخلوقات جديدة', 'لأنه يحدث في الماء المالح فقط', 'لأن النواة الصغيرة لا تنقسم', 'لأنه يحتاج إلى عائلين'], 0, 'تتبادل الخليتان المادة الوراثية، لكن عدد الأفراد لا يزيد.']] },
+
+  { key: 'sarco', build: buildAmoeba, name: 'اللحميات', latin: 'Sarcodina · Amoeba', ex: 'الأميبا', tag: 'الحركة بالأقدام الكاذبة', accent: '#cf8a2e',
+    lede: 'تُسمى أيضًا جذريات القدم، وتقع ضمن شعيبة السوطيات اللحمية. تتحرك وتحصل على غذائها بأقدام كاذبة، والأميبا أشهر أفرادها.',
+    kv: [['المثال', 'الأميبا'], ['طريقة الحركة', 'الأقدام الكاذبة Pseudopods'], ['تعيش في', 'الماء المالح غالبًا'], ['طفيل منها', 'إنتاميبا هستوليتيكا · الزحار الأميبي']],
+    structs: [
+      ['القدم الكاذبة', 'Pseudopod', 'اندفاع للغشاء الخلوي بفعل السيتوبلازم.', 'تمتد الأقدام الكاذبة نحو الفريسة وتحيط بها فتتكون فجوة غذائية، وبها تتحرك الأميبا أيضًا.', 1],
+      ['الغشاء الخلوي', 'Cell membrane', 'يحيط بالخلية وتتم عبره عمليات الانتشار.', 'تتخلص الأميبا من الفضلات وتحصل على الأكسجين بالانتشار عبر الغشاء، فليس لها فتحة إخراج.', 1],
+      ['السيتوبلازم الخارجي', 'Ectoplasm', 'طبقة صافية تحت الغشاء الخلوي.', 'طبقة أكثر تماسكًا تقع تحت الغشاء مباشرة وتحيط بالسيتوبلازم الداخلي.', 0],
+      ['السيتوبلازم الداخلي', 'Endoplasm', 'سيتوبلازم سائل محبب في وسط الخلية.', 'يندفع إلى داخل القدم الكاذبة فيمدها، وتسبح فيه النواة والفجوات.', 0],
+      ['النواة', 'Nucleus', 'تتحكم في أنشطة الخلية.', 'تنقسم عند التكاثر اللاجنسي فتنتج خليتين متطابقتين.', 1],
+      ['الفجوة المنقبضة', 'Contractile vacuole', 'تطرد الماء الزائد.', 'تتجمع فيها المياه الزائدة ثم تنقبض لطردها إلى الخارج.', 1],
+      ['الفجوة الغذائية', 'Food vacuole', 'تتكون حول الفريسة وتهضمها.', 'تفرز فيها الإنزيمات لتحليل الغذاء بعد أن تحيط به الأقدام الكاذبة.', 1],
+    ],
+    fns: [['الحركة والتغذي', 'تمتد الأقدام الكاذبة وتحيط بالفريسة.'], ['الإخراج والتنفس', 'بالانتشار عبر الغشاء الخلوي.'], ['التكاثر', 'لاجنسيًّا: تنقسم الخلية إلى خليتين متطابقتين.'], ['البقاء', 'تتحوصل بعض الأميبا في الظروف الصعبة حتى تتحسن.']],
+    know: 'يستخدم الجيولوجيون أحافير المثقبات لتحديد عمر الصخور والرسوبيات، والمواقع المحتملة للتنقيب عن النفط.',
+    chips: ['الأميبا', 'المثقبات', 'الشعاعيات'],
+    extra: 'fossils',
+    seq: [{ title: 'تكوين الفجوة الغذائية', steps: [
+      ['يحفّز مثير كيميائي صادر عن مخلوق صغير الأميبا.', null],
+      ['يندفع الغشاء الخلوي بفعل السيتوبلازم فتتكون أقدام كاذبة.', 'القدم الكاذبة'],
+      ['تحيط الأقدام الكاذبة بالفريسة وتمسكها.', 'القدم الكاذبة'],
+      ['تتكون فجوة غذائية حول الفريسة، وتُفرز فيها إنزيمات لتحليلها.', 'الفجوة الغذائية']] }],
+    quiz: [
+      ['القدم الكاذبة هي:', ['شعيرة قصيرة تغطي الجسم', 'اندفاع للغشاء الخلوي بفعل السيتوبلازم', 'سوط طويل', 'فجوة لطرد الماء'], 1, 'يندفع الغشاء بفعل السيتوبلازم نحو الفريسة أو اتجاه الحركة.'],
+      ['كيف تتخلص الأميبا من الفضلات؟', ['من فتحة الإخراج', 'بالانتشار عبر الغشاء الخلوي', 'عبر الميزاب الفمي', 'بالأكياس الخيطية'], 1, 'ليس للأميبا فتحة إخراج كالبراميسيوم.'],
+      ['من أي مادة تتكون قشيرة المثقبات؟', ['السيليكا', 'كربونات الكالسيوم وحبيبات الرمل', 'السيليلوز', 'الكيتين'], 1, 'أما الشعاعيات فلها غلاف قاسٍ من السيليكا.']] },
+
+  { key: 'apico', build: buildPlasmodium, name: 'البوغيات القمية', latin: 'Apicomplexa · Plasmodium', ex: 'البلازموديوم', tag: 'طفيليات بلا عضيات حركة', accent: '#b4466a',
+    lede: 'طفيليات تنتج أبواغًا في مرحلة من دورة حياتها، ولا توجد فيها فجوات منقبضة أو أعضاء حركة. البلازموديوم يسبب مرض الملاريا.',
+    kv: [['المثال', 'البلازموديوم'], ['طريقة الحركة', 'لا توجد أعضاء حركة'], ['العائلان', 'الإنسان وأنثى بعوضة الأنوفيلس'], ['المرض', 'الملاريا']],
+    structs: [
+      ['العضيات القمية', 'Apical complex', 'تتمركز في أحد أطراف الخلية.', 'تساعد الطفيل على اختراق خلية العائل وأنسجته ليحصل على غذائه منها. ومنها اشتق اسم الشعبة.', 1],
+      ['النواة', 'Nucleus', 'تحمل المادة الوراثية للطفيل.', 'تنقسم مرات كثيرة في أثناء التكاثر اللاجنسي داخل خلايا الكبد والدم.', 1],
+      ['الغشاء البلازمي', 'Plasma membrane', 'تتم عبره عمليتا التنفس والإخراج.', 'تتنفس البوغيات وتُخرج فضلاتها بالانتشار عبر الغشاء البلازمي كما تفعل الأميبا.', 0],
+      ['خلية الدم الحمراء', 'Red blood cell', 'خلية العائل التي يهاجمها الطفيل.', 'يدخل الميروزويت خلايا الدم الحمراء ويتكاثر فيها بسرعة حتى تنفجر.', 1],
+      ['غياب أعضاء الحركة', 'No locomotion', 'لا هدبيات ولا سوط ولا أقدام كاذبة.', 'يعتمد الطفيل على عائله في الانتقال: البعوضة من إنسان إلى آخر، والدم داخل الجسم.', 0, null],
+    ],
+    fns: [['التطفل', 'تتطفل على مخلوقات فقارية ولافقارية.'], ['التكاثر', 'مراحل جنسية وأخرى لاجنسية في دورة الحياة.'], ['الأبواغ', 'خلايا تكاثرية تكوّن مخلوقًا جديدًا دون تلقيح.'], ['التنفس والإخراج', 'بالانتشار عبر الغشاء البلازمي.']],
+    know: 'تنتشر الملاريا غالبًا في المناطق الاستوائية وشبه الاستوائية، حيث تساعد الحرارة والرطوبة والأمطار على نمو البعوض.',
+    chips: ['الإنسان', 'بعوضة الأنوفيلس', 'خلايا الكبد', 'خلايا الدم الحمراء'],
+    extra: 'malaria',
+    seq: [{ title: 'دورة حياة البلازموديوم', steps: [
+      ['تلسع بعوضة مصابة الإنسان، فتنتقل السبوروزويتات من غددها اللعابية إلى مجرى الدم. الإنسان هنا هو العائل الثاني.', null],
+      ['تدخل السبوروزويتات خلايا الكبد وتتكاثر لاجنسيًّا مكونة ميروزويتات.', 'النواة'],
+      ['تنفجر خلايا الكبد المصابة وتطلق الميروزويتات.', null],
+      ['تدخل الميروزويتات خلايا الدم الحمراء وتتكاثر لاجنسيًّا بسرعة.', 'خلية الدم الحمراء'],
+      ['تنفجر خلايا الدم الحمراء فتنطلق ميروزويتات تهاجم خلايا أخرى، وتنتقل الأمشاج إلى الدم.', 'خلية الدم الحمراء'],
+      ['تدخل الأمشاج جسم البعوضة عندما تلسع إنسانًا مصابًا. البعوضة هنا هي العائل الأول.', null],
+      ['يتكون الزيجوت في معدة البعوضة، ويحدث انقسام اختزالي ينتج سبوروزويتات جديدة.', null]] }],
+    quiz: [
+      ['ما الذي يميز طفيليات البوغيات القمية عن باقي الأوليات؟', ['لها هدبيات كثيرة', 'لا توجد بها أعضاء حركة ولا فجوات منقبضة', 'تتحرك بسوط طويل', 'تصنع غذاءها بنفسها'], 1, 'لذلك تعتمد على العائل في انتقالها.'],
+      ['ما العائلان اللازمان لإكمال دورة حياة البلازموديوم؟', ['الإنسان وذبابة تسي تسي', 'الإنسان وأنثى بعوضة الأنوفيلس', 'الإنسان وحشرة ردوفيد', 'البعوضة والطيور'], 1, 'البعوضة هي العائل الأول والإنسان هو العائل الثاني.'],
+      ['أين تتكاثر السبوروزويتات أولًا بعد دخولها جسم الإنسان؟', ['في خلايا الكبد', 'في خلايا الدم الحمراء', 'في الطحال', 'في الجهاز العصبي'], 0, 'ثم تنطلق الميروزويتات إلى الدم.']] },
+
+  { key: 'zoo', build: buildTrypanosoma, name: 'السوطيات', latin: 'Zoomastigina · Trypanosoma', ex: 'التريبانوسوما', tag: 'الحركة بالسوط', accent: '#22957a',
+    lede: 'سُميت بهذا الاسم لأنها تتحرك بسوط، وهو نتوء طويل يبرز من الخلية. يعيش بعضها حرًّا، ويتطفل كثير منها داخل مخلوقات أخرى، ومنها التريبانوسوما المسببة لأمراض النوم.',
+    kv: [['المثال', 'التريبانوسوما'], ['طريقة الحركة', 'السوط Flagellum'], ['تعيش في', 'دم العائل'], ['الأمراض', 'النوم الأمريكي (شاجاز) والنوم الأفريقي']],
+    structs: [
+      ['السوط', 'Flagellum', 'نتوء طويل يبرز من الخلية ويساعدها على الحركة.', 'يمتد السوط على طول الجسم ثم يبرز حرًّا من مقدمته، وتسري فيه موجات تدفع الطفيل داخل الدم.', 1],
+      ['الغشاء المتموج', 'Undulating membrane', 'ثنية تصل السوط بجسم الخلية.', 'تنقل حركة السوط الموجية إلى الجسم كله، فيتلوى الطفيل وهو يسبح بين خلايا الدم.', 1],
+      ['النواة', 'Nucleus', 'تتحكم في أنشطة الخلية وتكاثرها.', 'تنقسم عندما يتكاثر الطفيل في القناة الهضمية للحشرة أو في دم الإنسان.', 1],
+      ['قاعدة السوط', 'Kinetoplast', 'نقطة انطلاق السوط في مؤخرة الخلية.', 'من هذه المنطقة ينشأ السوط ثم يمتد على حافة الجسم نحو المقدمة.', 0],
+      ['خلايا الدم الحمراء', 'Red blood cells', 'بيئة الطفيل داخل الإنسان.', 'يتكاثر الطفيل في مجرى الدم ويتضاعف، وقد يصل إلى القلب والكبد والطحال أو الجهاز العصبي.', 1],
+    ],
+    fns: [['الحركة', 'بالسوط والغشاء المتموج.'], ['التطفل', 'تتغذى داخل جسم العائل.'], ['دورة حياة بعائلين', 'حشرة ناقلة (العائل الأول) والإنسان (العائل الثاني).']],
+    know: 'توجد ثلاثة أنواع على الأقل من التريبانوسوما تسبب أمراضًا معدية قاتلة للإنسان، لقلة فرص العلاج المتاحة.',
+    chips: ['ذبابة تسي تسي', 'حشرة ردوفيد (البق)', 'وسط وجنوب أمريكا', 'أفريقيا'],
+    extra: 'sleep',
+    seq: [
+      { title: 'مرض النوم الأمريكي (شاجاز)', steps: [
+        ['حشرة البق (ردوفيد) هي العائل الأول، ويتكاثر الطفيل في قناتها الهضمية.', null],
+        ['تمتص الحشرة دم الإنسان لتتغذى عليه.', null],
+        ['ينتقل الطفيل من براز البق إلى جسم الإنسان عبر الجروح أو الأغشية المخاطية.', null],
+        ['يتكاثر الطفيل في مجرى الدم ويضر بالقلب والكبد والطحال.', 'خلايا الدم الحمراء']] },
+      { title: 'مرض النوم الأفريقي', steps: [
+        ['تلسع ذبابة تسي تسي إنسانًا أو حيوانًا مصابًا فتحمل الطفيل. الذبابة هي العائل الأول.', null],
+        ['تتكاثر السوطيات في القناة الهضمية للذبابة، ثم تنتقل إلى غددها اللعابية.', null],
+        ['تلسع الذبابة شخصًا سليمًا فتنتقل السوطيات من غددها إلى الإنسان (العائل الثاني).', null],
+        ['يتكاثر الطفيل في الجسم مسببًا ارتفاع الحرارة والتهاب العقد الليمفاوية وأضرارًا في الجهاز العصبي.', 'السوط']] }],
+    quiz: [
+      ['ما الحشرة الناقلة لمرض النوم الأفريقي؟', ['بعوضة الأنوفيلس', 'ذبابة تسي تسي', 'حشرة ردوفيد', 'ذبابة المنزل'], 1, 'حشرة ردوفيد تنقل مرض النوم الأمريكي.'],
+      ['كيف ينتقل طفيل شاجاز إلى جسم الإنسان؟', ['عبر لعاب البعوضة', 'من براز البق عبر الجروح أو الأغشية المخاطية', 'بشرب الماء الملوث', 'باللمس المباشر'], 1, 'البق يمتص الدم، والطفيل يخرج مع برازه قرب الجرح.'],
+      ['بماذا يشبه مرض النوم الأمريكي البوغيات المسببة للملاريا؟', ['كلاهما يتحرك بالهدبيات', 'كلاهما يحتاج إلى عائلين ليكمل دورة حياته', 'كلاهما يعيش في التربة', 'كلاهما يصنع غذاءه'], 1, 'وكلاهما يحتاج إلى حشرة لنقل المرض.']] },
+];
+CELLS.forEach(c => c.structs.forEach(s => { if (s.length < 6) s.push(s[0]); })); // anchor key = name unless given (null = no anchor)
+
+/* ===================== three setup ===================== */
+const gl = $('gl'), stageEl = document.querySelector('.stage');
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.05;
+renderer.shadowMap.enabled = true;
+gl.appendChild(renderer.domElement);
+const scene = new THREE.Scene();
+scene.environment = new THREE.PMREMGenerator(renderer).fromScene(new RoomEnvironment(), .04).texture; scene.environmentIntensity = .85;
+const camera = new THREE.PerspectiveCamera(38, 1, .05, 200);
+const VIEW_DIR = V(.32, .6, 1).normalize();
+scene.add(new THREE.HemisphereLight('#ffffff', '#e9dccb', .7));
+const key = new THREE.DirectionalLight('#fff3e2', 1.8); key.position.set(4, 8, 5);
+key.castShadow = true; key.shadow.mapSize.set(2048, 2048); key.shadow.normalBias = .02;
+Object.assign(key.shadow.camera, { left: -6, right: 6, top: 6, bottom: -6, near: 1, far: 30 }); scene.add(key);
+const fill = new THREE.DirectionalLight('#e2f2f5', .55); fill.position.set(-6, 3, -5); scene.add(fill);
+const ground = new THREE.Mesh(new THREE.CircleGeometry(6, 48), new THREE.ShadowMaterial({ opacity: .1 }));
+ground.rotation.x = -Math.PI / 2; ground.receiveShadow = true; scene.add(ground);
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true; controls.dampingFactor = .08; controls.enableZoom = false;
+controls.minPolarAngle = Math.PI * .06; controls.maxPolarAngle = Math.PI * .8;
+renderer.domElement.style.touchAction = 'pan-y';
+
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+let anim = !reduce, spin = !reduce, flat = false, clock = 1.2;
+
+function make(c) {
+  const m = c.build(); m.update(clock);
+  const holder = new THREE.Group(), inner = new THREE.Group(); inner.add(m.g); holder.add(inner);
+  m.g.traverse(o => { if (o.isMesh && o.castShadow !== false) o.castShadow = true; });
+  const box = new THREE.Box3().setFromObject(m.g), ctr = box.getCenter(V());
+  const s = 2.6 / Math.max(...box.getSize(V()).toArray()) * (c.key === 'sarco' ? 1.05 : 1);
+  inner.scale.setScalar(s); inner.position.copy(ctr).multiplyScalar(-s);
+  holder.updateMatrixWorld(true);
+  const hb = new THREE.Box3().setFromObject(holder);
+  holder.userData = { radius: hb.getBoundingSphere(new THREE.Sphere()).radius, minY: hb.min.y, inner, model: m };
+  return holder;
+}
+const models = {};
+
+/* snapshots for cards and structure close-ups */
+const tr = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true });
+tr.toneMapping = THREE.ACESFilmicToneMapping; tr.toneMappingExposure = 1.05;
+const ts = new THREE.Scene(), tc = new THREE.PerspectiveCamera(30, 1, .01, 100);
+ts.environment = new THREE.PMREMGenerator(tr).fromScene(new RoomEnvironment(), .04).texture; ts.environmentIntensity = .95;
+ts.add(new THREE.HemisphereLight('#ffffff', '#e9dccb', .8)); const tk = key.clone(); tk.castShadow = false; ts.add(tk);
+const shots = {};
+function shoot(w, h, pos, look) { tr.setSize(w, h); tc.aspect = w / h; tc.updateProjectionMatrix(); tc.position.copy(pos); tc.lookAt(look); tr.render(ts, tc); return tr.domElement.toDataURL('image/webp', .9); }
+function snaps(c, h) {
+  const parent = h.parent, rot = h.rotation.y; h.rotation.y = 0; ts.add(h); h.updateMatrixWorld(true);
+  const r = h.userData.radius, s = shots[c.key] = {}, inner = h.userData.inner, A = h.userData.model.A;
+  s.card = shoot(144, 160, VIEW_DIR.clone().multiplyScalar(r * 2.4), V());
+  for (const st of c.structs) { const a = st[5] && A[st[5]]; if (!a) continue;
+    const p = a.clone().applyMatrix4(inner.matrixWorld), out = p.clone().normalize().add(VIEW_DIR).normalize();
+    s[st[0]] = shoot(144, 132, p.clone().addScaledVector(out, r * .6), p); }
+  ts.remove(h); h.rotation.y = rot; if (parent) parent.add(h);
+}
+
+/* ===================== UI ===================== */
+const chev = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="m15 6-6 6 6 6"/></svg>';
+$('list').innerHTML = CELLS.map(c => `<button class="card glass" data-k="${c.key}" aria-pressed="false" style="--accent:${c.accent}"><img alt="" width="72" height="80"><span><b>${c.name}</b><small>${c.ex} · ${c.tag}</small><em>${c.latin.split(' · ')[0]}</em></span>${chev}</button>`).join('');
+let current = null, want = null;
+const TABS = ['structures', 'functions', 'seq', 'quiz'];
+function tab(name) { TABS.forEach(t => { $('t-' + t).setAttribute('aria-selected', t === name); $('p-' + t).hidden = t !== name; }); }
+TABS.forEach(t => $('t-' + t).onclick = () => tab(t));
+document.querySelectorAll('nav a[data-tab]').forEach(a => a.onclick = () => tab(a.dataset.tab));
+
+function renderStructs(c) {
+  const A = models[c.key]?.userData.model.A || {};
+  $('p-structures').innerHTML = c.structs.map(([n, lat, s, l, , ak], i) => `<div class="st" data-i="${i}"><button aria-expanded="false">${shots[c.key]?.[n] ? `<img src="${shots[c.key][n]}" alt="">` : '<span class="ph"></span>'}<span><b>${n}<i>${lat}</i></b><span>${s}</span></span><i class="pm" aria-hidden="true">+</i></button><div class="more">${l}${ak && A[ak] ? ' <a role="button" tabindex="0" class="linkbtn" data-show>أظهره على النموذج</a>' : ''}</div></div>`).join('');
+  $('p-structures').querySelectorAll('.st').forEach(el => {
+    const b = el.querySelector('button');
+    b.onclick = () => { const open = !el.classList.contains('open'); el.classList.toggle('open', open); b.setAttribute('aria-expanded', open); el.querySelector('.pm').textContent = open ? '−' : '+'; };
+    const show = el.querySelector('[data-show]'); if (show) show.onclick = show.onkeydown = e => { if (e.type === 'keydown' && e.key !== 'Enter') return; focusOn(c.structs[el.dataset.i][5]); };
+  });
+}
+
+function extraHTML(c) {
+  if (c.extra === 'lab') return `<div class="box"><h2>مختبر: تركيز المحلول والفجوة المنقبضة</h2><p>حرّك المؤشر لتغيير تركيز الأملاح حول البراميسيوم، وراقب سرعة ضخ الفجوة المنقبضة في النموذج.</p>
+    <input type="range" id="conc" min="0" max="100" value="12" aria-label="تركيز المحلول الخارجي"><div class="labrow"><span>ماء عذب (منخفض التركيز)</span><span>محلول أكثر تركيزًا</span></div>
+    <div class="meter"><strong id="rate"></strong><span>نبضة في الدقيقة</span></div><p id="labWhy" style="margin-top:6px"></p></div>`;
+  if (c.extra === 'fossils') return `<div class="box"><h2>الربط مع علم الأرض</h2><table class="cmp"><tr><th></th><th>المثقبات</th><th>الشعاعيات</th></tr><tr><th>الغلاف</th><td>قشيرة من كربونات الكالسيوم وحبيبات الرمل</td><td>غلاف قاسٍ من السيليكا</td></tr><tr><th>الأقدام الكاذبة</th><td colspan="2">تمتد عبر فتحات في الغلاف الخارجي</td></tr><tr><th>الأهمية</th><td colspan="2">أحافيرها تحدد عمر الصخور ومواقع التنقيب عن النفط</td></tr></table></div>`;
+  if (c.extra === 'malaria') return `<div class="box"><h2>أعراض الملاريا</h2><div class="chips" style="margin:6px 0 8px"><span>ارتفاع الحرارة</span><span>البرد</span><span>الصداع</span><span>القشعريرة</span><span>أعراض تشبه الإنفلونزا</span></div><p>للمزيد عن الملاريا: <a class="linkbtn" href="https://www.moh.gov.sa" target="_blank" rel="noopener">وزارة الصحة السعودية ↗</a></p></div>`;
+  if (c.extra === 'sleep') return `<div class="box"><h2>مقارنة مرضي النوم</h2><table class="cmp"><tr><th></th><th>الأمريكي (شاجاز)</th><th>الأفريقي</th></tr><tr><th>الناقل</th><td>حشرة ردوفيد (البق)</td><td>ذبابة تسي تسي</td></tr><tr><th>طريقة العدوى</th><td>براز البق عبر الجروح أو الأغشية المخاطية</td><td>لسعة الذبابة من غددها اللعابية</td></tr><tr><th>الأضرار</th><td>القلب والكبد والطحال</td><td>حمى، التهاب العقد الليمفاوية، الجهاز العصبي</td></tr><tr><th>الانتشار</th><td>وسط وجنوب أمريكا</td><td>أفريقيا (الشرقي والغربي)</td></tr></table></div>`;
+  return '';
+}
+function bindLab(c) {
+  const el = $('conc'); if (!el) return;
+  const upd = () => { const v = +el.value, per = 1.3 + v / 100 * 6.7; const m = models[c.key]; if (m) m.userData.model.st.period = per;
+    $('rate').textContent = Math.round(60 / per);
+    $('labWhy').textContent = v < 35 ? 'التركيز خارج الخلية أقل منه داخلها، فيدخل الماء بسرعة بالخاصية الأسموزية، وتضخ الفجوة بسرعة لتحافظ على الاتزان.' : v < 70 ? 'يقل الفرق في التركيز، فيبطؤ دخول الماء ويقل نشاط الفجوة.' : 'التركيز الخارجي مرتفع، فيدخل القليل من الماء وتكاد الفجوة تتوقف. هذا ما يفسر المنحنى الهابط للبراميسيوم الذي نُقل إلى محلول أكثر تركيزًا.'; };
+  el.oninput = upd; upd();
+}
+
+function renderSeq(c) {
+  let set = 0, step = 0;
+  const draw = () => {
+    const S = c.seq[set], n = S.steps.length, [txt, ak] = S.steps[step];
+    $('p-seq').innerHTML = (c.seq.length > 1 ? `<div class="seg" role="group">${c.seq.map((s, i) => `<button data-set="${i}" aria-pressed="${i === set}">${s.title}</button>`).join('')}</div>` : `<p class="know" style="margin-top:4px">${S.title}</p>`) +
+      `<div class="steps" role="list">${S.steps.map((_, i) => `<button role="listitem" data-step="${i}" class="${i < step ? 'done' : ''}" ${i === step ? 'aria-current="step"' : ''} aria-label="الخطوة ${i + 1}">${i + 1}</button>`).join('')}</div>
+      <div class="stepcard"><small>الخطوة ${step + 1} من ${n}</small><p>${txt}</p>${ak ? `<p style="font-size:14px;margin-top:10px"><a role="button" tabindex="0" class="linkbtn" data-show>أظهر «${ak}» على النموذج</a></p>` : ''}</div>
+      <div class="stepnav"><button class="btn" id="sPrev" ${step === 0 ? 'disabled' : ''}>→ السابقة</button><button class="btn pri" id="sNext" ${step === n - 1 ? 'disabled' : ''}>التالية ←</button></div>`;
+    $('p-seq').querySelectorAll('[data-set]').forEach(b => b.onclick = () => { set = +b.dataset.set; step = 0; draw(); });
+    $('p-seq').querySelectorAll('[data-step]').forEach(b => b.onclick = () => { step = +b.dataset.step; draw(); });
+    $('sPrev').onclick = () => { step--; draw(); }; $('sNext').onclick = () => { step++; draw(); };
+    const sh = $('p-seq').querySelector('[data-show]'); if (sh) sh.onclick = sh.onkeydown = e => { if (e.type === 'keydown' && e.key !== 'Enter') return; focusOn(ak); };
+  };
+  $('t-seq').textContent = c.key === 'cilio' ? 'الاقتران' : c.key === 'sarco' ? 'التغذي' : c.key === 'apico' ? 'دورة الحياة' : 'العدوى';
+  draw();
+}
+function renderQuiz(c) {
+  const ans = [];
+  $('p-quiz').innerHTML = c.quiz.map(([q, opts], i) => `<div class="q" data-q="${i}"><p>${i + 1}. ${q}</p><div class="opts">${opts.map((o, j) => `<button data-o="${j}">${o}</button>`).join('')}</div><div class="why" hidden></div></div>`).join('') + `<div class="score"><span id="score">أجب عن الأسئلة الثلاثة</span><button class="btn" id="qReset">أعد المحاولة</button></div>`;
+  $('p-quiz').querySelectorAll('.q').forEach(el => { const i = +el.dataset.q, [, , right, why] = c.quiz[i];
+    el.querySelectorAll('[data-o]').forEach(b => b.onclick = () => { const j = +b.dataset.o; ans[i] = j === right;
+      el.querySelectorAll('[data-o]').forEach(x => { x.disabled = true; if (+x.dataset.o === right) x.classList.add('ok'); else if (x === b) x.classList.add('no'); });
+      const w = el.querySelector('.why'); w.hidden = false; w.textContent = (j === right ? 'إجابة صحيحة. ' : 'ليست هذه. ') + why;
+      const done = ans.filter(x => x !== undefined).length, ok = ans.filter(Boolean).length;
+      $('score').textContent = done === c.quiz.length ? `نتيجتك: ${ok} من ${c.quiz.length}` : `أجبت عن ${done} من ${c.quiz.length}`;
+      // إشعار منصة لبيبة عند إكمال أول اختبار (مرة واحدة)
+      if (done === c.quiz.length && !window.__labeebaDone) { window.__labeebaDone = true; try { parent.postMessage({ type: 'labeeba-lab-complete', score: Math.round(ok / c.quiz.length * 100), tasks: c.quiz.length }, '*'); } catch (e) {} } }); });
+  $('qReset').onclick = () => renderQuiz(c);
+}
+
+function select(k) {
+  const c = CELLS.find(x => x.key === k), i = CELLS.indexOf(c); want = c;
+  document.documentElement.style.setProperty('--accent', c.accent);
+  document.querySelectorAll('.card').forEach(b => b.setAttribute('aria-pressed', b.dataset.k === k));
+  $('kName').textContent = 'شعبة ' + c.name; $('kNum').textContent = `0${i + 1} / 0${CELLS.length}`; $('title').textContent = c.name; $('latin').textContent = c.latin; $('lede').textContent = c.lede;
+  $('kv').innerHTML = c.kv.map(([a, b], j) => `<div class="${j === 3 && b.length > 22 ? 'wide' : ''}"><dt>${a}</dt><dd>${b}</dd></div>`).join('');
+  if (!models[k]) { models[k] = make(c); snaps(c, models[k]); }
+  renderStructs(c);
+  $('p-functions').innerHTML = c.fns.map(([a, b]) => `<div class="fn"><b>${a}</b><span>${b}</span></div>`).join('') + `<p class="know">${c.know}</p><div class="chips">${c.chips.map(x => `<span>${x}</span>`).join('')}</div>` + extraHTML(c) + `<p class="note">النماذج رسوم تعليمية مبسطة، وليست بمقياس رسم حقيقي.</p>`;
+  bindLab(c); renderSeq(c); renderQuiz(c);
+  const h = models[k];
+  if (current) scene.remove(current);
+  current = h; h.rotation.y = 0; scene.add(h); ground.position.y = h.userData.minY - .03;
+  buildCallouts(c); resetView();
+}
+document.querySelectorAll('.card').forEach(b => b.onclick = () => select(b.dataset.k));
+
+/* callouts */
+let calls = [];
+function openStruct(n) { tab('structures'); const el = [...document.querySelectorAll('.st')].find(e => e.querySelector('b').firstChild.textContent === n); if (el && !el.classList.contains('open')) el.querySelector('button').click(); el?.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); }
+function buildCallouts(c) {
+  $('calls').innerHTML = ''; calls = [];
+  const A = current.userData.model.A;
+  c.structs.filter(s => s[4] && s[5] && A[s[5]]).forEach(([n, , , , , ak]) => {
+    const lead = Object.assign(document.createElement('span'), { className: 'lead off' });
+    const dot = Object.assign(document.createElement('span'), { className: 'dot off' });
+    const lab = Object.assign(document.createElement('button'), { className: 'call off', textContent: n });
+    lab.onclick = () => openStruct(n);
+    $('calls').append(lead, dot, lab); calls.push({ a: A[ak], lead, dot, lab });
+  });
+}
+const tmp = V(), ctr = V(), camDir = V();
+function placeCallouts() {
+  if (!current) return;
+  const w = gl.clientWidth, h = gl.clientHeight, ox = gl.offsetLeft, oy = gl.offsetTop, sw = stageEl.clientWidth, inner = current.userData.inner;
+  ctr.copy(controls.target).project(camera); const cx = (ctr.x + 1) / 2 * w + ox, cy = (1 - ctr.y) / 2 * h + oy;
+  camDir.copy(camera.position).sub(controls.target).normalize();
+  const placed = [];
+  calls.forEach(k => {
+    tmp.copy(k.a).applyMatrix4(inner.matrixWorld);
+    const facing = tmp.clone().sub(controls.target).normalize().dot(camDir) > -.25;
+    tmp.project(camera);
+    const x = (tmp.x + 1) / 2 * w + ox, y = (1 - tmp.y) / 2 * h + oy;
+    let dx = x - cx, dy = y - cy; const len = Math.hypot(dx, dy) || 1; dx /= len; dy /= len;
+    const rPx = current.userData.radius / (camera.position.distanceTo(controls.target) * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2))) * h * .5;
+    const reach = Math.max(36, rPx * .9 - len + (w < 600 ? 16 : 36));
+    const lw = k.lab.offsetWidth;
+    let lx = x + dx * reach, ly = Math.min(Math.max(y + dy * reach * .8, 24), stageEl.clientHeight - 100);
+    lx = Math.min(Math.max(lx, dx < 0 ? lw + 8 : 8), sw - (dx < 0 ? 8 : lw + 8));
+    const left = dx < 0 ? lx - lw : lx, lh = k.lab.offsetHeight + 6;
+    for (const p of placed) if (left < p.r && left + lw > p.l && Math.abs(ly - p.y) < lh) ly = p.y + (ly >= p.y ? lh : -lh);
+    placed.push({ l: left, r: left + lw, y: ly });
+    k.lab.style.transform = `translate(${left}px,${ly - 13}px)`;
+    const ex = dx < 0 ? lx + 4 : lx - 4, ey = ly, L = Math.hypot(x - ex, y - ey), ang = Math.atan2(y - ey, x - ex);
+    k.lead.style.width = L + 'px'; k.lead.style.transform = `translate(${ex}px,${ey}px) rotate(${ang}rad)`;
+    k.dot.style.transform = `translate(${x}px,${y}px)`;
+    [k.lab, k.lead, k.dot].forEach(e => e.classList.toggle('off', !facing));
+  });
+}
+
+/* view controls */
+function homeDist() { const r = current?.userData.radius || 2; return r / Math.sin(THREE.MathUtils.degToRad(camera.fov / 2)) * .8 * Math.max(1, .95 / camera.aspect); }
+let dMin = 2, dMax = 20;
+function resetView() { const d = homeDist(); dMin = d * .35; dMax = d * 1.8; controls.target.set(0, 0, 0); camera.position.copy(flat ? V(0, 1, .0001) : VIEW_DIR).multiplyScalar(d); controls.update(); syncSlider(); }
+function setDist(d) { d = THREE.MathUtils.clamp(d, dMin, dMax); const v = camera.position.clone().sub(controls.target).setLength(d); camera.position.copy(controls.target).add(v); syncSlider(); }
+const sliderToDist = v => dMax * Math.pow(dMin / dMax, v / 100);
+function syncSlider() { const d = camera.position.distanceTo(controls.target); $('zr').value = Math.round(Math.log(d / dMax) / Math.log(dMin / dMax) * 100); }
+$('zr').oninput = e => setDist(sliderToDist(+e.target.value));
+$('zin').onclick = () => setDist(camera.position.distanceTo(controls.target) * .85);
+$('zout').onclick = () => setDist(camera.position.distanceTo(controls.target) * 1.18);
+$('recenter').onclick = () => { if (current) current.rotation.y = 0; resetView(); };
+function setMode(f) { flat = f; $('m3').setAttribute('aria-pressed', !f); $('m2').setAttribute('aria-pressed', f); camera.fov = f ? 12 : 38; camera.updateProjectionMatrix(); controls.enableRotate = !f; if (current) current.rotation.y = 0; resetView(); }
+$('m3').onclick = () => setMode(false); $('m2').onclick = () => setMode(true);
+$('fs').onclick = () => { try { const p = document.fullscreenElement ? document.exitFullscreen() : stageEl.requestFullscreen?.(); p?.catch?.(() => {}); } catch {} };
+const playIco = { pause: '<svg viewBox="0 0 24 24" fill="currentColor"><rect x="7" y="6" width="3.2" height="12" rx="1"/><rect x="13.8" y="6" width="3.2" height="12" rx="1"/></svg>', play: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13l10.5-6.5z"/></svg>' };
+function syncPlay() { $('play').innerHTML = anim ? playIco.pause : playIco.play; $('play').setAttribute('aria-label', anim ? 'إيقاف الحركة' : 'تشغيل الحركة'); $('play').title = $('play').getAttribute('aria-label'); }
+$('play').onclick = () => { anim = !anim; spin = anim; syncPlay(); }; syncPlay();
+function focusOn(ak) {
+  const A = current?.userData.model.A, a = A?.[ak]; if (!a) return;
+  if (flat) setMode(false); spin = false;
+  const p = a.clone().applyMatrix4(current.userData.inner.matrixWorld), out = p.clone().normalize().add(VIEW_DIR).normalize();
+  controls.target.copy(p).multiplyScalar(.6); camera.position.copy(p).addScaledVector(out, homeDist() * .5); controls.update(); syncSlider();
+  if (innerWidth < 1200) stageEl.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'center' });
+}
+renderer.domElement.addEventListener('pointerdown', () => { spin = false; });
+renderer.domElement.addEventListener('wheel', e => {
+  if (!current || e.ctrlKey) return;
+  const d = camera.position.distanceTo(controls.target), next = THREE.MathUtils.clamp(d * Math.exp(e.deltaY * .0012), dMin, dMax);
+  if (Math.abs(next - d) < 1e-3) return; e.preventDefault(); setDist(next);
+}, { passive: false });
+
+/* search */
+const INDEX = CELLS.flatMap(c => [...c.structs.map(s => ({ c, kind: 'structures', n: s[0], d: s[1] + ' ' + s[2] })), ...c.fns.map(f => ({ c, kind: 'functions', n: f[0], d: f[1] }))]);
+const norm = s => s.toLowerCase().replace(/[ًٌٍَُِّْ]/g, '').replace(/[أإآ]/g, 'ا').replace(/ة/g, 'ه').replace(/ى/g, 'ي');
+$('q').oninput = e => {
+  const q = norm(e.target.value.trim()), box = $('results');
+  const hits = q ? INDEX.filter(x => norm(x.n + ' ' + x.d + ' ' + x.c.name + ' ' + x.c.ex).includes(q)).slice(0, 8) : [];
+  box.innerHTML = hits.length ? hits.map((x, i) => `<button role="option" data-i="${i}">${x.n}<small>${x.c.name} · ${x.kind === 'structures' ? 'تركيب' : 'وظيفة'}</small></button>`).join('') : q ? '<button disabled>لا توجد نتائج</button>' : '';
+  box.hidden = !q;
+  box.querySelectorAll('[data-i]').forEach(b => b.onclick = () => {
+    const x = hits[b.dataset.i]; box.hidden = true; e.target.value = '';
+    select(x.c.key); tab(x.kind); if (x.kind === 'structures') openStruct(x.n);
+  });
+};
+$('q').onkeydown = e => { if (e.key === 'Escape') { e.target.value = ''; $('results').hidden = true; } };
+document.addEventListener('pointerdown', e => { if (!e.target.closest('.search')) $('results').hidden = true; });
+
+/* loop */
+function size() { const w = gl.clientWidth, h = gl.clientHeight; if (!w || !h) return; renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix(); if (current) resetView(); }
+new ResizeObserver(size).observe(gl); size();
+let visible = true, last = performance.now();
+new IntersectionObserver(([e]) => { visible = e.isIntersecting; }).observe(gl);
+renderer.setAnimationLoop(now => {
+  const dt = Math.min(.05, (now - last) / 1000); last = now;
+  if (!visible || !current) return;
+  if (anim) { clock += dt; current.userData.model.update(clock); }
+  if (spin && !flat) current.rotation.y += dt * .14;
+  controls.update(); renderer.render(scene, camera); placeCallouts();
+});
+
+// render all card thumbnails up front, then open the first phylum
+CELLS.forEach(c => { if (!models[c.key]) { models[c.key] = make(c); snaps(c, models[c.key]); } const img = document.querySelector(`.card[data-k="${c.key}"] img`); if (img) img.src = shots[c.key].card; });
+select('cilio');
+</script>
+
+</body></html>
