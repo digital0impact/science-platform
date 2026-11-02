@@ -204,6 +204,20 @@ details.ai .ai-body{display:grid;gap:10px;padding:0 14px 14px;font-size:.92rem}
 .linkbtn{border:0;background:none;color:var(--accent);cursor:pointer;font-weight:600;padding:4px 0;justify-self:start}
 .errors{background:var(--bad-soft);color:var(--bad);border-radius:8px;padding:12px 16px}
 .errors ul{margin:6px 0 0;padding-inline-start:20px}
+/* محرر الدرس: عمودان على الشاشات العريضة (البيانات والأجزاء | المقطع والنشر) */
+main.wide{max-width:1360px}
+.ed-grid{display:flex;flex-direction:column;gap:18px}
+.ed-main,.ed-side{display:contents}
+.s1{order:1}.s2{order:2}.s3{order:3}.s4{order:4}.s-err{order:5}
+.s5{order:6;position:sticky;bottom:0;z-index:5;padding-bottom:calc(16px + env(safe-area-inset-bottom,0px));box-shadow:0 -6px 18px rgba(0,0,0,.08)}
+.s5 h2{display:none}
+@media (min-width:980px){
+  .ed-grid{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);align-items:start}
+  .ed-main,.ed-side{display:grid;gap:18px;min-width:0}
+  .ed-side{position:sticky;top:calc(84px + env(safe-area-inset-top,0px));max-height:calc(100vh - 100px);overflow:auto}
+  .s5{position:static;box-shadow:none;padding-bottom:20px}
+  .s5 h2{display:flex}
+}
 .sticky-save{position:sticky;bottom:0;background:var(--surface);border-top:1px solid var(--line);padding-block:12px calc(12px + env(safe-area-inset-bottom,0px));margin-inline:calc(-1 * max(16px,env(safe-area-inset-left,0px)));padding-inline:max(16px,env(safe-area-inset-left,0px))}
 
 .toast{position:fixed;bottom:calc(20px + env(safe-area-inset-bottom,0px));inset-inline-start:50%;transform:translateX(50%);background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:8px;z-index:50;font-weight:500;max-width:calc(100% - 32px)}
@@ -384,6 +398,7 @@ function renderNav() {
 }
 async function route() {
   stopPlayer(); stopEditPlayer();
+  app.classList.remove("wide");
   renderNav();
   const { k, v } = hashParts();
   window.scrollTo(0, 0);
@@ -833,10 +848,12 @@ async function viewEditor(arg) {
   }
   if (!grades.some(g => g.id === E.gradeId)) E.gradeId = grades[0].id;
   const subjOpts = [...new Set([...SUBJECTS, E.subject].filter(Boolean))];
+  app.classList.add("wide");
   app.innerHTML = `
     <div class="dash-head"><div><div class="crumbs"><a href="#teacher">لوحة المعلم</a> › ${E.id ? "تعديل درس" : "درس جديد"}</div><h1>${E.id ? esc(E.title) : "درس جديد"}</h1></div></div>
-    <div class="steps">
-      <section class="panel step"><h2><span class="n">١</span>بيانات الدرس</h2>
+    <div class="ed-grid">
+     <div class="ed-main">
+      <section class="panel step s1"><h2><span class="n">١</span>بيانات الدرس</h2>
         <div class="grid2">
           <label class="f">عنوان الدرس<input id="e-title" data-b="title" value="${esc(E.title)}" placeholder="مثال: تركيب الخلية"></label>
           <label class="f">الصف<select id="e-grade" data-b="gradeId">${[...new Set(grades.map(g => g.stage || ""))].map(st => `<optgroup label="${esc(st || "الصفوف")}">${grades.filter(g => (g.stage || "") === st).map(g => `<option value="${esc(g.id)}" ${g.id === E.gradeId ? "selected" : ""}>${esc(g.name)}</option>`).join("")}</optgroup>`).join("")}</select></label>
@@ -847,30 +864,35 @@ async function viewEditor(arg) {
           <label class="f">ترتيب الدرس داخل الصف<input id="e-order" type="number" data-b="order" value="${esc(E.order ?? 0)}"></label>
         </div>
       </section>
-      <section class="panel step"><h2><span class="n">٢</span>مقطع الدرس</h2>
-        <div class="row"><input id="e-url" value="${esc(E.videoUrl || (E.videoId ? "https://youtu.be/" + E.videoId : ""))}" placeholder="رابط يوتيوب (عادي أو قصير أو Shorts)" style="flex:1 1 260px;direction:ltr;text-align:right"><button class="btn ghost" type="button" id="e-load">تحميل</button></div>
-        <div class="video" id="e-vwrap" style="margin-top:12px" ${E.videoId ? "" : "hidden"}><div id="e-yt"></div></div>
-        ${IS_LOCAL_FILE ? LOCAL_NOTE : ""}
-        <p class="muted" style="font-size:.88rem;margin-top:8px">حرّك المقطع بحرية هنا، ثم اضغط «الوقت الحالي» في أي جزء لتعيين نهايته. يُعرض المقطع للطالب دون أزرار التحكم.</p>
-      </section>
-      <section class="panel step"><h2><span class="n">٣</span>إعدادات المشاهدة</h2>
+      <section class="panel step s3"><h2><span class="n">٣</span>إعدادات المشاهدة</h2>
         <div class="stack">
           <label class="f" style="max-width:320px">نسبة الاجتياز لكل جزء<select id="e-pass">${[[100, "١٠٠٪ (جميع الإجابات صحيحة)"], [80, "٨٠٪ فأكثر"], [70, "٧٠٪ فأكثر"], [60, "٦٠٪ فأكثر"], [50, "٥٠٪ فأكثر"]].map(([v, t]) => `<option value="${v}" ${Number(E.passPct) === v ? "selected" : ""}>${t}</option>`).join("")}</select></label>
           <div class="f"><span style="font-size:.9rem;font-weight:500">السرعات المسموح للطالب باختيارها</span><div class="speedbox" id="e-speeds">${ALL_SPEEDS.map(s => `<label><input type="checkbox" value="${s}" ${E.speeds.includes(s) ? "checked" : ""}>×${s}</label>`).join("")}</div></div>
         </div>
       </section>
-      <section class="panel step"><h2><span class="n">٤</span>الأجزاء والأسئلة</h2>
+      <section class="panel step s4"><h2><span class="n">٤</span>الأجزاء والأسئلة</h2>
         <p class="muted" style="font-size:.9rem;margin-bottom:12px">حدّد وقت نهاية كل جزء (دقائق:ثوانٍ). اترك نهاية آخر جزء فارغة ليستمر حتى نهاية المقطع. علّم الإجابة الصحيحة بالدائرة.</p>
         <div class="stack" id="e-segs"></div>
         <button class="btn ghost" type="button" data-act="addSeg" id="e-addseg" style="margin-top:12px">+ إضافة جزء</button>
       </section>
-      <div id="e-errors"></div>
-      <div class="sticky-save row">
-        <label class="row" style="gap:6px"><input type="checkbox" id="e-pub" ${E.published ? "checked" : ""} style="accent-color:var(--accent);width:18px;height:18px"> منشور للطلاب</label>
-        <span style="flex:1"></span>
-        <button class="btn ghost" type="button" id="e-try">حفظ وتجربة كطالب</button>
-        <button class="btn" type="button" id="e-save">حفظ الدرس</button>
-      </div>
+      <div id="e-errors" class="s-err"></div>
+     </div>
+     <aside class="ed-side">
+      <section class="panel step s2"><h2><span class="n">٢</span>مقطع الدرس</h2>
+        <div class="row"><input id="e-url" value="${esc(E.videoUrl || (E.videoId ? "https://youtu.be/" + E.videoId : ""))}" placeholder="رابط يوتيوب (عادي أو قصير أو Shorts)" style="flex:1 1 260px;direction:ltr;text-align:right"><button class="btn ghost" type="button" id="e-load">تحميل</button></div>
+        <div class="video" id="e-vwrap" style="margin-top:12px" ${E.videoId ? "" : "hidden"}><div id="e-yt"></div></div>
+        ${IS_LOCAL_FILE ? LOCAL_NOTE : ""}
+        <p class="muted" style="font-size:.88rem;margin-top:8px">حرّك المقطع بحرية هنا، ثم اضغط «الوقت الحالي» في أي جزء لتعيين نهايته. يُعرض المقطع للطالب دون أزرار التحكم.</p>
+      </section>
+      <section class="panel step s5"><h2><span class="n">٥</span>النشر</h2>
+        <div class="row">
+          <label class="row" style="gap:6px"><input type="checkbox" id="e-pub" ${E.published ? "checked" : ""} style="accent-color:var(--accent);width:18px;height:18px"> منشور للطلاب</label>
+          <span style="flex:1"></span>
+          <button class="btn ghost" type="button" id="e-try">حفظ وتجربة كطالب</button>
+          <button class="btn" type="button" id="e-save">حفظ الدرس</button>
+        </div>
+      </section>
+     </aside>
     </div>`;
   $$("[data-b]").forEach(el => el.addEventListener("input", () => { E[el.dataset.b] = el.type === "number" ? Number(el.value) : el.value; }));
   $("#e-pass").addEventListener("change", e => (E.passPct = Number(e.target.value)));
