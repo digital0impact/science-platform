@@ -258,11 +258,18 @@ nav a.vid{color:var(--accent);font-weight:600}
 </main>
 </div>
 
-<script type="importmap">
-{"imports":{
-  "three":"https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js",
-  "three/addons/":"https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/"
-}}
+<!-- three.js: نسخة محفوظة مع موقع لبيبة أولاً (تعمل في الشبكات التي تحجب المواقع الخارجية)، ثم من CDN احتياطاً -->
+<script>
+(function () {
+  var LOCAL = "labs/vendor/three-0.169.0/", CDN = "https://cdn.jsdelivr.net/npm/three@0.169.0/", base = CDN;
+  try {
+    var x = new XMLHttpRequest(); x.open("HEAD", LOCAL + "build/three.module.js", false); x.send();
+    if (x.status >= 200 && x.status < 300) base = new URL(LOCAL, document.baseURI).href;
+  } catch (e) {}
+  var m = document.createElement("script"); m.type = "importmap";
+  m.textContent = JSON.stringify({ imports: { "three": base + "build/three.module.js", "three/addons/": base + "examples/jsm/" } });
+  document.currentScript.after(m);
+})();
 </script>
 <script type="module">
 import * as THREE from 'three';
