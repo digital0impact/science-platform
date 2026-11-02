@@ -492,7 +492,7 @@ function hashParts() {
 function renderNav() {
   const { k } = hashParts();
   const items = [["#", "الصفوف", ["home", "grade", "lesson", "lab", "ilesson"].includes(k)]];
-  if (state.isTeacher) items.push(["#teacher", "لوحة المعلمة", ["teacher", "edit"].includes(k)], ["#ilessons", "الدروس التفاعلية", ["ilessons", "iledit"].includes(k)], ["#labs", "المختبرات", ["labs", "labedit"].includes(k)], ["#results", "النتائج", k === "results"]);
+  if (state.isTeacher) items.push(["#teacher", "الصف المقلوب", ["teacher", "edit"].includes(k)], ["#ilessons", "الدروس التفاعلية", ["ilessons", "iledit"].includes(k)], ["#labs", "المختبرات", ["labs", "labedit"].includes(k)], ["#results", "النتائج", k === "results"]);
   let html = items.map(([h, t, on]) => `<a href="${h}" class="${on ? "on" : ""}">${t}</a>`).join("");
   if (!DEMO) html += state.user ? `<button id="signout" type="button">خروج</button>` : `<a href="#teacher" class="${k === "teacher" ? "on" : ""}">دخول المعلمة</a>`;
   $("#nav").innerHTML = html;
@@ -903,14 +903,14 @@ async function saveBadgePNG(tier, score) {
   } catch (e) { console.error(e); toast("تعذّر حفظ الصورة. التقط صورة للشاشة بدلاً منها."); }
 }
 
-/* ======================= لوحة المعلمة ======================= */
+/* ======================= الصف المقلوب (دروس المقاطع) ======================= */
 async function viewTeacher() {
   app.innerHTML = `<p class="loading">جارٍ التحميل…</p>`;
   const [grades, lessons] = await Promise.all([Store.grades(), Store.lessons(true)]);
   const home = location.origin + location.pathname;
   app.innerHTML = `
     <div class="dash-head">
-      <div><span class="eyebrow">لوحة المعلمة</span><h1>دروسي</h1></div>
+      <div><span class="eyebrow">الصف المقلوب</span><h1>دروسي</h1></div>
       <div class="row"><button class="btn ghost" type="button" id="copyhome">نسخ رابط المنصة للطالبات</button><a class="btn" href="#edit=new">+ درس جديد</a></div>
     </div>
     <section class="stack" id="lessons-by-grade"></section>`;
@@ -979,7 +979,7 @@ async function viewEditor(arg) {
   const subjOpts = [...new Set([...SUBJECTS, E.subject].filter(Boolean))];
   app.classList.add("wide");
   app.innerHTML = `
-    <div class="dash-head"><div><div class="crumbs"><a href="#teacher">لوحة المعلمة</a> › ${E.id ? "تعديل درس" : "درس جديد"}</div><h1>${E.id ? esc(E.title) : "درس جديد"}</h1></div></div>
+    <div class="dash-head"><div><div class="crumbs"><a href="#teacher">الصف المقلوب</a> › ${E.id ? "تعديل درس" : "درس جديد"}</div><h1>${E.id ? esc(E.title) : "درس جديد"}</h1></div></div>
     <div class="ed-grid">
      <div class="ed-main">
       <section class="panel step s1"><h2><span class="n">١</span>بيانات الدرس</h2>
