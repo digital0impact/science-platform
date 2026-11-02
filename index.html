@@ -1328,6 +1328,11 @@ async function saveDraft(mode = "save") {
 
 /* ======================= المختبرات الافتراضية ======================= */
 const LAB_SANDBOX = "allow-scripts allow-pointer-lock";
+// مختبرات جاهزة محفوظة مع الموقع في مجلد labs/ (تُضاف بضغطة من محرر المختبر)
+const READY_LABS = [
+  { file: "labs/mitosis.html", title: "رحلة الانقسام المتساوي", subject: "أحياء", unit: "انقسام الخلية",
+    about: "نموذج ثلاثي الأبعاد لخلية حيوانية أثناء الانقسام المتساوي: الطور البيني، والتمهيدي، والاستوائي، والانفصالي، والنهائي، ثم الخليتان البنتان. تدوّر الطالبة الخلية وتنتقل بين الأطوار وتقرأ شرح كل طور." }
+];
 let labMsgHandler = null;
 function stopLab() { if (labMsgHandler) { window.removeEventListener("message", labMsgHandler); labMsgHandler = null; } }
 function setFrame(frame, html) { frame.srcdoc = html || ""; }
@@ -1461,8 +1466,16 @@ async function viewLabEditor(arg) {
             <button class="btn" type="button" id="lb-build">${LB.html ? "أعيدي بناء المختبر من جديد" : "ابني المختبر"}</button>
             <span class="muted" style="font-size:.85rem">يستغرق البناء من دقيقة إلى ثلاث دقائق.</span>
           </div>
-          <details class="ai"><summary>لديكِ كود مختبر جاهز؟ الصقيه هنا</summary>
-            <div class="ai-body"><textarea id="lb-paste" rows="5" dir="ltr" placeholder="&lt;!DOCTYPE html&gt; …"></textarea><button class="btn ghost sm" type="button" id="lb-usepaste">استخدام هذا الكود</button></div>
+          <details class="ai" ${LB.html ? "" : "open"}><summary>أو استخدمي مختبراً جاهزاً</summary>
+            <div class="ai-body">
+              <div class="row">
+                <select id="lb-ready" style="flex:1 1 220px"><option value="">مختبرات لبيبة الجاهزة…</option>${READY_LABS.map((r, i) => `<option value="${i}">${esc(r.title)} · ${esc(r.subject)}</option>`).join("")}</select>
+                <button class="btn ghost sm" type="button" id="lb-useready">إضافة</button>
+              </div>
+              <label class="f">أو ارفعي ملف مختبر (HTML)<input type="file" id="lb-file" accept=".html,.htm,text/html"></label>
+              <label class="f">أو الصقي كود المختبر<textarea id="lb-paste" rows="4" dir="ltr" placeholder="&lt;!DOCTYPE html&gt; …"></textarea></label>
+              <button class="btn ghost sm" type="button" id="lb-usepaste" style="justify-self:start">استخدام الكود الملصق</button>
+            </div>
           </details>
         </div>
       </section>
@@ -1522,6 +1535,35 @@ async function viewLabEditor(arg) {
     const html = extractHtml($("#lb-paste").value);
     if (!html) { toast("هذا ليس ملف HTML كاملاً. يجب أن يبدأ بـ <!DOCTYPE html> أو <html>."); return; }
     LB.prevHtml = LB.html || ""; LB.html = html; drawLabPreview(); await saveLab("auto");
+  });
+  const useHtml = async (html, meta) => {
+    html = extractHtml(html);
+    if (!html) { toast("هذا ليس ملف HTML كاملاً. يجب أن يبدأ بـ <!DOCTYPE html> أو <html>."); return; }
+    LB.prevHtml = LB.html || ""; LB.html = html;
+    if (meta) {
+      if (!LB.title.trim()) { LB.title = meta.title; $("#lb-title").value = meta.title; }
+      if (meta.subject) { LB.subject = meta.subject; const sel = $("#lb-subject"); if (![...sel.options].some(o => o.value === meta.subject)) sel.add(new Option(meta.subject, meta.subject)); sel.value = meta.subject; }
+      if (meta.unit && !LB.unit) { LB.unit = meta.unit; $("#lb-unit").value = meta.unit; }
+      if (meta.about && !LB.request.trim()) { LB.request = meta.about; $("#lb-request").value = meta.about; }
+    }
+    drawLabPreview(); await saveLab("auto");
+    toast("أُضيف المختبر وحُفظ. اختاري الصف ثم انشريه.");
+  };
+  $("#lb-useready").addEventListener("click", async () => {
+    const r = READY_LABS[Number($("#lb-ready").value)];
+    if (!r) { toast("اختاري مختبراً من القائمة."); return; }
+    try {
+      const res = await fetch(r.file, { cache: "no-cache" });
+      if (!res.ok) throw new Error(res.status);
+      await useHtml(await res.text(), r);
+    } catch (e) { console.error(e); toast("تعذّر تحميل المختبر الجاهز. افتحي المنصة من رابطها على الإنترنت ثم جرّبي."); }
+  });
+  $("#lb-file").addEventListener("change", async e => {
+    const f = e.target.files && e.target.files[0]; if (!f) return;
+    if (f.size > 3 * 1024 * 1024) { toast("الملف أكبر من ٣ ميغابايت."); return; }
+    const name = f.name.replace(/\.html?$/i, "");
+    await useHtml(await f.text(), { title: name });
+    e.target.value = "";
   });
   $("#lb-save").addEventListener("click", () => saveLab("save"));
 }

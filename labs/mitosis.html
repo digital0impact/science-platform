@@ -1,0 +1,574 @@
+<!doctype html><html lang="ar" dir="rtl"><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>رحلة الانقسام المتساوي</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500&family=IBM+Plex+Sans+Arabic:wght@400;500;600&family=Reem+Kufi:wght@500;700&display=swap">
+<style>
+/* Layout: full-bleed 3D stage (microscope field), caption card at the reading start, control dock + phase timeline at the bottom. One deliberate dark look. */
+:root{
+  color-scheme: dark;
+  --bg:#050d12; --bg2:#0c222b; --ink:#eaf2f0; --muted:#93abae;
+  --line:rgba(170,215,220,.16); --panel:rgba(6,18,24,.78);
+  --accent:#f0a35e; --accent-ink:#1d1006; --fiber:#bfe9ee;
+  --f-display:"Reem Kufi","IBM Plex Sans Arabic",system-ui,sans-serif;
+  --f-body:"IBM Plex Sans Arabic",system-ui,"Segoe UI",Tahoma,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+html,body{height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);overflow:hidden}
+.stage{position:fixed;inset:0;background:radial-gradient(120% 90% at 50% 42%,var(--bg2) 0%,var(--bg) 62%)}
+#gl{display:block;width:100%;height:100%;touch-action:none;cursor:grab}
+#gl:active{cursor:grabbing}
+.vignette{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse 75% 70% at 50% 46%,transparent 55%,rgba(2,6,9,.7) 100%)}
+.labels{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.lbl{position:absolute;left:0;top:0;opacity:0;transition:opacity .45s ease;will-change:transform}
+.lbl .dot{position:absolute;width:7px;height:7px;margin:-3.5px 0 0 -3.5px;border-radius:50%;background:var(--ink);box-shadow:0 0 10px var(--fiber)}
+.lbl .stem{position:absolute;left:-.5px;bottom:0;width:1px;height:30px;background:linear-gradient(to top,var(--ink),transparent)}
+.lbl .txt{position:absolute;bottom:30px;left:0;transform:translateX(-50%);white-space:nowrap;font-size:12.5px;font-weight:500;padding:3px 10px;border-radius:999px;background:rgba(5,14,19,.78);border:1px solid var(--line);color:var(--ink)}
+
+.hud{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:space-between;gap:16px;pointer-events:none;
+  padding-block:calc(env(safe-area-inset-top,0px) + 16px) calc(env(safe-area-inset-bottom,0px) + 14px);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.hud > *{pointer-events:auto}
+.top{display:flex;flex-direction:column;gap:10px;align-self:flex-start;width:min(400px,100%)}
+.brand{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.brand h1{margin:0;font-family:var(--f-display);font-weight:700;font-size:22px;letter-spacing:0;color:var(--ink)}
+.brand span{font-size:12.5px;color:var(--muted)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px 16px 15px;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);display:flex;flex-direction:column;gap:7px}
+.eyebrow{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:12px;color:var(--muted)}
+.eyebrow b{color:var(--accent);font-weight:600;letter-spacing:.02em}
+.eyebrow i{font-family:var(--f-mono);font-style:normal;font-size:11px;direction:ltr;letter-spacing:.04em}
+.card h2{margin:0;font-family:var(--f-display);font-weight:500;font-size:26px;line-height:1.25;text-wrap:balance}
+.card p{margin:0;font-size:14.5px;line-height:1.75;color:#cfdedc}
+.chip{align-self:flex-start;margin-top:3px;font-size:12.5px;padding:3px 10px;border-radius:999px;background:rgba(240,163,94,.12);border:1px solid rgba(240,163,94,.35);color:#f6c99d}
+.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:11.5px;color:var(--muted);padding-top:4px;border-top:1px solid var(--line);margin-top:3px}
+.legend span{display:inline-flex;align-items:center;gap:5px}
+.legend em{width:9px;height:9px;border-radius:50%;display:inline-block}
+
+.dock{align-self:center;width:min(900px,100%);display:flex;flex-direction:column;gap:9px}
+.controls{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.btn{font:inherit;font-size:13px;color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:999px;height:36px;padding:0 14px;display:inline-flex;align-items:center;gap:7px;cursor:pointer;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.btn:hover{border-color:rgba(170,215,220,.4)}
+.btn:focus-visible,.seg:focus-visible,.speed button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.btn.play{background:var(--accent);color:var(--accent-ink);border-color:transparent;font-weight:600;padding:0 16px}
+.btn svg{width:15px;height:15px;fill:currentColor}
+.btn[aria-pressed="false"]{color:var(--muted)}
+.speed{display:inline-flex;background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:3px;height:36px;align-items:center}
+.speed button{font:inherit;font-family:var(--f-mono);font-size:12px;color:var(--muted);background:none;border:0;border-radius:999px;height:28px;padding:0 10px;cursor:pointer;direction:ltr}
+.speed button[aria-pressed="true"]{background:rgba(240,163,94,.18);color:var(--ink)}
+.clock{margin-inline-start:auto;font-family:var(--f-mono);font-size:12px;color:var(--muted);direction:ltr;font-variant-numeric:tabular-nums}
+.timeline{position:relative;display:flex;height:44px;border-radius:10px;overflow:hidden;background:var(--panel);border:1px solid var(--line);cursor:pointer;touch-action:none;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.fill{position:absolute;top:0;bottom:0;right:0;width:0;background:linear-gradient(to left,rgba(240,163,94,.10),rgba(240,163,94,.22));pointer-events:none}
+.head{position:absolute;top:0;bottom:0;width:2px;background:var(--accent);box-shadow:0 0 10px var(--accent);pointer-events:none;transform:translateX(50%)}
+.seg{position:relative;flex:1 1 0;min-width:0;display:flex;align-items:center;justify-content:center;font:inherit;font-size:12.5px;color:var(--muted);background:none;border:0;border-inline-start:1px solid var(--line);cursor:pointer;padding:0 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.seg:first-child{border-inline-start:0}
+.seg.core{color:#d7e4e2}
+.seg.on{color:var(--ink);font-weight:600}
+.seg.on::after{content:"";position:absolute;inset:auto 18% 5px;height:2px;border-radius:2px;background:var(--accent)}
+.hint{font-size:11.5px;color:var(--muted);text-align:center}
+.err{position:absolute;inset:0;display:grid;place-items:center;text-align:center;padding:24px;color:var(--muted)}
+@media (max-width:560px){
+  .brand h1{font-size:18px}
+  .card{padding:11px 13px 12px;gap:5px}
+  .card h2{font-size:21px}
+  .card p{font-size:13.5px;line-height:1.65}
+  .legend{display:none}
+  .seg{font-size:11px}
+  .seg .long{display:none}
+  .hint{display:none}
+  .btn{padding:0 11px}
+}
+@media (min-width:561px){ .seg .short{display:none} }
+</style>
+
+<div class="stage" id="stage" dir="rtl">
+  <canvas id="gl" aria-label="مشهد ثلاثي الأبعاد لخلية حيوانية أثناء الانقسام المتساوي"></canvas>
+  <div class="vignette"></div>
+  <div class="labels" id="labels" aria-hidden="true"></div>
+
+  <div class="hud">
+    <div class="top">
+      <div class="brand"><h1>الانقسام المتساوي</h1><span>خلية حيوانية · نموذج ثلاثي الأبعاد</span></div>
+      <section class="card" aria-live="polite">
+        <div class="eyebrow"><b id="cap-step">قبل الانقسام</b><i id="cap-en">INTERPHASE</i></div>
+        <h2 id="cap-title">الطور البيني</h2>
+        <p id="cap-text"></p>
+        <span class="chip" id="cap-chip"></span>
+        <div class="legend" aria-label="ألوان الكروموسومات">
+          <span><em style="background:#3d86ff"></em>كروموسوم 1</span>
+          <span><em style="background:#ee4b45"></em>كروموسوم 2</span>
+          <span><em style="background:#33c870"></em>كروموسوم 3</span>
+          <span><em style="background:#ab63f2"></em>كروموسوم 4</span>
+        </div>
+      </section>
+    </div>
+
+    <div class="dock">
+      <div class="controls">
+        <button class="btn play" id="play" type="button"><svg id="play-ico" viewBox="0 0 24 24"><path d="M7 4.5v15l13-7.5z"/></svg><span id="play-txt">تشغيل</span></button>
+        <button class="btn" id="restart" type="button"><svg viewBox="0 0 24 24"><path d="M12 5V2L7 6l5 4V7a6 6 0 1 1-6 6H4a8 8 0 1 0 8-8z"/></svg>من البداية</button>
+        <div class="speed" role="group" aria-label="سرعة العرض">
+          <button type="button" data-speed="0.5" aria-pressed="false">0.5×</button>
+          <button type="button" data-speed="1" aria-pressed="true">1×</button>
+          <button type="button" data-speed="1.6" aria-pressed="false">1.6×</button>
+        </div>
+        <button class="btn" id="tog-labels" type="button" aria-pressed="true">التسميات</button>
+        <button class="btn" id="tog-orbit" type="button" aria-pressed="true">دوران الكاميرا</button>
+        <span class="clock" id="clock">00:00 / 00:46</span>
+      </div>
+      <div class="timeline" id="timeline" role="slider" aria-label="الخط الزمني للانقسام" aria-valuemin="0" aria-valuemax="46" aria-valuenow="0" tabindex="0">
+        <div class="fill" id="fill"></div>
+        <div class="head" id="head"></div>
+      </div>
+      <div class="hint">اسحبي على المشهد لتدوير الخلية، واستخدمي عجلة الفأرة للتقريب. اضغطي على أي مرحلة للانتقال إليها.</div>
+    </div>
+  </div>
+</div>
+
+<!-- three.js: نسخة محفوظة مع موقع لبيبة أولاً، ثم من CDN احتياطاً -->
+<script src="labs/vendor/three-0.147.0.min.js"></script>
+<script>window.THREE||document.write('<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/build/three.min.js"><\/script>')</script>
+<script>
+(function(){
+"use strict";
+if(!window.THREE){ fail(); return; }
+
+/* ---------------- Phases ---------------- */
+const PHASES=[
+ {id:"inter",start:0,end:5,step:"قبل الانقسام",en:"INTERPHASE",title:"الطور البيني",short:"البيني",
+  text:"خلال هذا الطور تتضاعف الكروموسومات داخل النواة، وتظهر النوية واضحة. المادة الوراثية منتشرة على شكل كروماتين، وزوجا المريكزات قرب النواة.",
+  chip:"الخلية الأم: 4 كروموسومات"},
+ {id:"pro",start:5,end:15,step:"المرحلة 1 من 4",en:"PROPHASE",title:"الطور التمهيدي",short:"التمهيدي",core:true,
+  text:"تبدأ الكروماتيدات بالتكثف والظهور بوضوح داخل النواة، ويبدأ الغشاء النووي بالتحلل، وتتحرك المريكزات نحو قطبي الخلية وتتكون خيوط المغزل.",
+  chip:"كل كروموسوم = كروماتيدان شقيقان"},
+ {id:"meta",start:15,end:22,step:"المرحلة 2 من 4",en:"METAPHASE",title:"الطور الاستوائي",short:"الاستوائي",core:true,
+  text:"تصطف الكروموسومات في منتصف الخلية على المستوى الاستوائي، وترتبط بها خيوط المغزل من القطبين.",
+  chip:"4 كروموسومات على المستوى الاستوائي"},
+ {id:"ana",start:22,end:30,step:"المرحلة 3 من 4",en:"ANAPHASE",title:"الطور الانفصالي",short:"الانفصالي",core:true,
+  text:"تنفصل الكروماتيدات الشقيقة وتتجه نحو قطبي الخلية المتعاكسين بفعل خيوط المغزل.",
+  chip:"8 كروماتيدات: 4 نحو كل قطب"},
+ {id:"telo",start:30,end:41,step:"المرحلة 4 من 4",en:"TELOPHASE",title:"الطور النهائي",short:"النهائي",core:true,
+  text:"تتكون نواتان جديدتان حول مجموعتي الكروموسومات، وتبدأ الخلية بالانقسام السيتوبلازمي لتكوين خليتين بنتين متماثلتين وراثياً.",
+  chip:"نواتان: 4 كروموسومات في كل منهما"},
+ {id:"dau",start:41,end:46,step:"بعد الانقسام",en:"DAUGHTER CELLS",title:"خليتان بنتان",short:"خليتان بنتان",
+  text:"تنتج خليتان بنتان متماثلتان وراثياً، في كل منهما 4 كروموسومات، العدد نفسه في الخلية الأم. تدخل كل خلية الطور البيني من جديد.",
+  chip:"كل خلية بنت: 4 كروموسومات = الخلية الأم"}
+];
+const TOTAL=46;
+
+/* ---------------- Helpers ---------------- */
+const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
+const ss=(a,b,x)=>{const t=clamp((x-a)/(b-a),0,1);return t*t*(3-2*t);};
+const lerp=(a,b,t)=>a+(b-a)*t;
+const lp=(i,t)=>clamp((t-PHASES[i].start)/(PHASES[i].end-PHASES[i].start),0,1);
+function rng(seed){return function(){seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+const rand=rng(20261102);
+const V=(x,y,z)=>new THREE.Vector3(x,y,z);
+function randDir(){const u=rand()*2-1,a=rand()*Math.PI*2,r=Math.sqrt(1-u*u);return V(r*Math.cos(a),u,r*Math.sin(a));}
+function fail(){const s=document.getElementById("stage");const d=document.createElement("div");d.className="err";d.textContent="تعذّر تشغيل العرض ثلاثي الأبعاد في هذا المتصفح. جرّبي متصفحاً يدعم WebGL.";s.appendChild(d);}
+
+/* ---------------- Renderer ---------------- */
+const canvas=document.getElementById("gl");
+let renderer;
+try{ renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:true}); }catch(e){ fail(); return; }
+renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));
+renderer.setClearColor(0x000000,0);
+renderer.outputEncoding=THREE.sRGBEncoding;
+renderer.toneMapping=THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure=1.08;
+const scene=new THREE.Scene();
+const camera=new THREE.PerspectiveCamera(36,1,0.1,200);
+
+scene.add(new THREE.HemisphereLight(0xd6ecff,0x24140a,0.6));
+const key=new THREE.DirectionalLight(0xffe4c8,1.7);key.position.set(5,7,6);scene.add(key);
+const rimL=new THREE.DirectionalLight(0x86d8ff,1.2);rimL.position.set(-6,-2,-7);scene.add(rimL);
+const inner=new THREE.PointLight(0xffb070,0.9,14);scene.add(inner);
+
+function dotTexture(soft){const c=document.createElement("canvas");c.width=c.height=64;const g=c.getContext("2d");
+  const gr=g.createRadialGradient(32,32,0,32,32,32);gr.addColorStop(0,"rgba(255,255,255,1)");gr.addColorStop(soft?0.25:0.45,"rgba(255,255,255,"+(soft?0.45:0.9)+")");gr.addColorStop(1,"rgba(255,255,255,0)");
+  g.fillStyle=gr;g.fillRect(0,0,64,64);const t=new THREE.CanvasTexture(c);return t;}
+const dotTex=dotTexture(false), glowTex=dotTexture(true);
+
+/* Fresnel shell, optional noise dissolve (nuclear envelope breakdown / re-forming) */
+function shellMat(color,{base=0.03,rim=0.85,pow=2.4,dissolve=false}={}){
+  return new THREE.ShaderMaterial({
+    uniforms:{uColor:{value:new THREE.Color(color)},uOpacity:{value:1},uBase:{value:base},uRim:{value:rim},uPow:{value:pow},uDissolve:{value:0}},
+    vertexShader:`varying vec3 vN;varying vec3 vV;varying vec3 vP;
+      void main(){vP=position;vec4 mv=modelViewMatrix*vec4(position,1.0);vN=normalize(normalMatrix*normal);vV=normalize(-mv.xyz);gl_Position=projectionMatrix*mv;}`,
+    fragmentShader:`uniform vec3 uColor;uniform float uOpacity,uBase,uRim,uPow,uDissolve;varying vec3 vN;varying vec3 vV;varying vec3 vP;
+      float h(vec3 p){return fract(sin(dot(p,vec3(127.1,311.7,74.7)))*43758.5453);}
+      float vn(vec3 p){vec3 i=floor(p),f=fract(p);f=f*f*(3.0-2.0*f);
+        return mix(mix(mix(h(i),h(i+vec3(1,0,0)),f.x),mix(h(i+vec3(0,1,0)),h(i+vec3(1,1,0)),f.x),f.y),
+                   mix(mix(h(i+vec3(0,0,1)),h(i+vec3(1,0,1)),f.x),mix(h(i+vec3(0,1,1)),h(i+vec3(1,1,1)),f.x),f.y),f.z);}
+      void main(){
+        float edge=0.0;
+        ${dissolve?`float n=vn(vP*3.4)*0.65+vn(vP*8.0)*0.35;float th=uDissolve*1.08-0.04;if(n<th)discard;edge=(1.0-smoothstep(0.0,0.07,n-th))*step(0.001,uDissolve);`:``}
+        float f=pow(1.0-abs(dot(normalize(vN),normalize(vV))),uPow);
+        vec3 c=uColor*(0.35+f*1.35)+vec3(1.0,0.86,0.62)*edge*0.9;
+        gl_FragColor=vec4(c,(uBase+f*uRim+edge*0.7)*uOpacity);
+        #include <tonemapping_fragment>
+        #include <encodings_fragment>
+      }`,
+    transparent:true,depthWrite:false,side:THREE.DoubleSide
+  });
+}
+
+/* ---------------- Cell geometry & deformation ---------------- */
+const R=3, W=1.3, DC=2.75, R2=2.35;
+let E=0,C=0,G=0;
+function warp(px,py,pz,out,g,side){
+  const r=Math.hypot(px,py,pz)||1e-6;
+  let x=px*(1+E);const f=1-C*Math.exp(-(x*x)/(W*W));let y=py*f,z=pz*f;
+  if(g>0){
+    const s=side||(x>=0?1:-1),cx=s*DC,k=R/r;
+    const mx=px*k*(1+E),mf=1-C*Math.exp(-(mx*mx)/(W*W)),my=py*k*mf,mz=pz*k*mf;
+    const dx=mx-cx,dy=my,dz=mz,dl=Math.hypot(dx,dy,dz)||1e-6,rr=R2*(r/R)/dl;
+    x+=(cx+dx*rr-x)*g;y+=(dy*rr-y)*g;z+=(dz*rr-z)*g;
+  }
+  return out.set(x,y,z);
+}
+
+/* membrane built as two hemispheres (x>=0 / x<=0) so cleavage separates them cleanly */
+const fillMat=new THREE.MeshStandardMaterial({color:0xf08a3c,roughness:0.55,transparent:true,opacity:0.17,side:THREE.BackSide,depthWrite:false});
+const memMat=shellMat(0xffbe7e,{base:0.04,rim:0.82,pow:2.5});
+const sheenMat=new THREE.MeshPhysicalMaterial({color:0xffc58f,roughness:0.18,metalness:0,clearcoat:1,transparent:true,opacity:0.08,depthWrite:false});
+const halves=[1,-1].map(s=>{
+  const geo=new THREE.SphereGeometry(1,56,72,s>0?Math.PI/2:Math.PI*1.5,Math.PI);
+  const h={s,geo,dirs:geo.attributes.position.array.slice()};
+  const a=new THREE.Mesh(geo,fillMat);a.renderOrder=1;const b=new THREE.Mesh(geo,sheenMat);b.renderOrder=8;const c=new THREE.Mesh(geo,memMat);c.renderOrder=9;
+  [a,b,c].forEach(m=>{m.frustumCulled=false;scene.add(m);});
+  return h;
+});
+
+/* cytoplasm granules */
+const NG=650, gBase=new Float32Array(NG*3), gPos=new Float32Array(NG*3), gCol=new Float32Array(NG*3);
+for(let i=0;i<NG;i++){const d=randDir(),r=lerp(1.6,2.85,Math.cbrt(rand()));gBase.set([d.x*r,d.y*r,d.z*r],i*3);
+  const c=new THREE.Color().setHSL(lerp(0.06,0.11,rand()),lerp(0.5,0.85,rand()),lerp(0.42,0.7,rand()));gCol.set([c.r,c.g,c.b],i*3);}
+const gGeo=new THREE.BufferGeometry();gGeo.setAttribute("position",new THREE.BufferAttribute(gPos,3));gGeo.setAttribute("color",new THREE.BufferAttribute(gCol,3));
+const granules=new THREE.Points(gGeo,new THREE.PointsMaterial({size:0.09,map:dotTex,vertexColors:true,transparent:true,opacity:0.85,depthWrite:false}));
+granules.renderOrder=2;granules.frustumCulled=false;scene.add(granules);
+
+/* ambient dust in the medium */
+const ND=420,dPos=new Float32Array(ND*3);
+for(let i=0;i<ND;i++){const d=randDir(),r=lerp(13,34,rand());dPos.set([d.x*r,d.y*r,d.z*r],i*3);}
+const dGeo=new THREE.BufferGeometry();dGeo.setAttribute("position",new THREE.BufferAttribute(dPos,3));
+const dust=new THREE.Points(dGeo,new THREE.PointsMaterial({size:0.16,map:glowTex,color:0x7fb7bf,transparent:true,opacity:0.35,depthWrite:false,blending:THREE.AdditiveBlending}));
+scene.add(dust);
+
+/* ---------------- Chromosomes (2n = 4: two homologous pairs) ---------------- */
+const CHROMS=[
+  {color:0x3d86ff,p:0.26,q:0.46,plate:V(0,0.84,0.22),th:0.18},
+  {color:0xee4b45,p:0.26,q:0.46,plate:V(0,0.28,-0.42),th:-0.14},
+  {color:0x33c870,p:0.16,q:0.30,plate:V(0,-0.28,0.40),th:0.24},
+  {color:0xab63f2,p:0.16,q:0.30,plate:V(0,-0.80,-0.16),th:-0.1}
+];
+const chromMats=CHROMS.map(c=>new THREE.MeshPhysicalMaterial({color:c.color,roughness:0.38,metalness:0.02,clearcoat:0.6,clearcoatRoughness:0.35,emissive:new THREE.Color(c.color).multiplyScalar(0.18),transparent:true,opacity:1}));
+const cenMats=CHROMS.map(c=>new THREE.MeshStandardMaterial({color:new THREE.Color(c.color).multiplyScalar(0.55),roughness:0.5,transparent:true,opacity:1}));
+const AR=0.085;
+const chromatids=[];
+const XAX=V(1,0,0),YAX=V(0,1,0);
+CHROMS.forEach((c,i)=>{
+  c.qMeta=new THREE.Quaternion().setFromAxisAngle(XAX,c.th);
+  c.qPro=new THREE.Quaternion().setFromEuler(new THREE.Euler(rand()*6.28,rand()*6.28,rand()*6.28));
+  const d=randDir();c.pro=d.multiplyScalar(lerp(0.2,0.5,rand()));
+  c.phase=rand()*6.28;
+  [1,-1].forEach(s=>{
+    const g=new THREE.Group();
+    const cen=new THREE.Mesh(new THREE.SphereGeometry(0.105,20,14),cenMats[i]);g.add(cen);
+    const armP=new THREE.Mesh(new THREE.CapsuleGeometry(AR,c.p,8,16),chromMats[i]);
+    const armQ=new THREE.Mesh(new THREE.CapsuleGeometry(AR,c.q,8,16),chromMats[i]);
+    g.add(armP,armQ);scene.add(g);
+    chromatids.push({g,armP,armQ,s,ci:i,c,world:V(0,0,0),kin:V(0,0,0)});
+  });
+});
+
+/* ---------------- Chromatin (interphase, uncondensed DNA) ---------------- */
+function strand(radius){
+  const pts=[];let p=randDir().multiplyScalar(radius*0.55*rand());let d=randDir();
+  for(let i=0;i<20;i++){pts.push(p.clone());d.add(randDir().multiplyScalar(0.95)).normalize();
+    const np=p.clone().addScaledVector(d,radius*0.2);if(np.length()>radius*0.9){d.addScaledVector(np.clone().normalize(),-1.7).normalize();np.copy(p).addScaledVector(d,radius*0.2);}
+    if(np.length()>radius*0.9)np.setLength(radius*0.9);p=np;}
+  return new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts),170,0.026,6,false);
+}
+function chromatinMats(){return CHROMS.map(c=>new THREE.MeshStandardMaterial({color:new THREE.Color(c.color).lerp(new THREE.Color(0xffffff),0.22),roughness:0.6,emissive:new THREE.Color(c.color).multiplyScalar(0.25),transparent:true,opacity:0.9,depthWrite:false}));}
+function chromatin(radius,copies,mats){const g=new THREE.Group();CHROMS.forEach((c,i)=>{for(let k=0;k<copies;k++){const m=new THREE.Mesh(strand(radius),mats[i]);m.renderOrder=3;g.add(m);}});return g;}
+
+/* ---------------- Nuclei ---------------- */
+function makeNucleus(radius,chromCopies,nucleolusPos){
+  const grp=new THREE.Group();
+  const geo=new THREE.SphereGeometry(radius,96,64);
+  const env=new THREE.Mesh(geo,shellMat(0xff9b6e,{base:0.05,rim:0.95,pow:2.0,dissolve:true}));env.renderOrder=5;
+  const fillM=new THREE.MeshStandardMaterial({color:0x7a58b4,roughness:0.6,transparent:true,opacity:0.16,depthWrite:false});
+  const fill=new THREE.Mesh(new THREE.SphereGeometry(radius*0.985,48,32),fillM);fill.renderOrder=4;
+  const mats=chromatinMats();
+  const chr=chromatin(radius*0.92,chromCopies,mats);
+  const nucleolus=new THREE.Mesh(new THREE.SphereGeometry(radius*0.25,32,24),new THREE.MeshPhysicalMaterial({color:0x4d2370,roughness:0.55,clearcoat:0.4,emissive:0x1a0828}));
+  nucleolus.position.copy(nucleolusPos);
+  grp.add(fill,chr,nucleolus,env);
+  return {grp,env,fill,fillM,chr,mats,nucleolus};
+}
+const motherN=makeNucleus(1.35,2,V(0.36,0.22,0.34));scene.add(motherN.grp);
+const daughters=[1,-1].map(s=>{const n=makeNucleus(1.0,1,V(0.22*s,0.2,0.28));n.s=s;n.center=V(0,0,0);scene.add(n.grp);return n;});
+
+/* ---------------- Centrioles (9 microtubule triplets → 9-sided barrels) ---------------- */
+const cenGeo=new THREE.CylinderGeometry(0.06,0.06,0.3,9,1,false);
+const cenMat=new THREE.MeshStandardMaterial({color:0xdfe4e6,roughness:0.32,metalness:0.25,emissive:0x23363c,flatShading:true});
+function centriolePair(){
+  const g=new THREE.Group();const a=new THREE.Mesh(cenGeo,cenMat),b=new THREE.Mesh(cenGeo,cenMat);
+  b.rotation.z=Math.PI/2;b.position.set(0.14,0.17,0);g.add(a,b);
+  const glow=new THREE.Sprite(new THREE.SpriteMaterial({map:glowTex,color:0xbfe9ee,transparent:true,opacity:0.5,depthWrite:false,blending:THREE.AdditiveBlending}));
+  glow.scale.set(1.1,1.1,1);glow.position.set(0.07,0.08,0);g.add(glow);scene.add(g);return g;
+}
+const cents={"1":centriolePair(),"-1":centriolePair()};
+const poles={"1":V(0,0,0),"-1":V(0,0,0)};
+
+/* ---------------- Spindle fibers ---------------- */
+const KF=3, NPOL=8, NAST=16;
+const NSEG=chromatids.length*KF+2*NPOL+2*NAST;
+const sPos=new Float32Array(NSEG*6),sCol=new Float32Array(NSEG*6);
+const sGeo=new THREE.BufferGeometry();sGeo.setAttribute("position",new THREE.BufferAttribute(sPos,3));sGeo.setAttribute("color",new THREE.BufferAttribute(sCol,3));
+const spindleMat=new THREE.LineBasicMaterial({vertexColors:true,transparent:true,opacity:0,depthWrite:false,blending:THREE.AdditiveBlending});
+const spindle=new THREE.LineSegments(sGeo,spindleMat);spindle.frustumCulled=false;spindle.renderOrder=6;scene.add(spindle);
+for(let i=0;i<NSEG;i++){sCol.set([0.78,0.96,1.0, 0.32,0.55,0.62],i*6);}
+const jit=[];for(let i=0;i<NSEG;i++)jit.push(randDir().multiplyScalar(0.05+rand()*0.05));
+const polarEnds=[];for(let i=0;i<2*NPOL;i++){const a=rand()*6.28,r=Math.sqrt(rand())*0.95;polarEnds.push({y:Math.cos(a)*r,z:Math.sin(a)*r});}
+const asters=[];for(let i=0;i<2*NAST;i++)asters.push({d:randDir(),l:lerp(0.45,0.95,rand())});
+function setSeg(i,a,b){sPos[i*6]=a.x;sPos[i*6+1]=a.y;sPos[i*6+2]=a.z;sPos[i*6+3]=b.x;sPos[i*6+4]=b.y;sPos[i*6+5]=b.z;}
+
+/* ---------------- Labels ---------------- */
+const labelsEl=document.getElementById("labels");
+const S={};
+const LABELS=[
+  {text:"الغشاء البلازمي",pos:()=>S.memPt,show:t=>t<30||t>=41.5},
+  {text:"النواة",pos:()=>S.nucPt,show:t=>t<9},
+  {text:"الكروماتين",pos:()=>S.chromatinPt,show:t=>t<5.5},
+  {text:"النوية",pos:()=>S.nucleolusPt,show:t=>t<7.5},
+  {text:"الغشاء النووي يتحلل",pos:()=>S.nucPt,show:t=>t>=9&&t<12.5},
+  {text:"المريكزات",pos:()=>S.cenPt,show:t=>t<22||t>=42},
+  {text:"كروموسوم متضاعف (كروماتيدان)",pos:()=>S.chromPt,show:t=>t>=9&&t<22},
+  {text:"خيوط المغزل",pos:()=>S.spindlePt,show:t=>t>=12.5&&t<30},
+  {text:"المستوى الاستوائي",pos:()=>S.platePt,show:t=>t>=17&&t<22},
+  {text:"كروماتيدات منفصلة",pos:()=>S.sepPt,show:t=>t>=23&&t<31},
+  {text:"نواة جديدة",pos:()=>S.newNucPt,show:t=>t>=35},
+  {text:"انقسام السيتوبلازم",pos:()=>S.cytoPt,show:t=>t>=32&&t<41.5}
+];
+LABELS.forEach(l=>{const d=document.createElement("div");d.className="lbl";d.innerHTML='<span class="stem"></span><span class="dot"></span><span class="txt"></span>';d.querySelector(".txt").textContent=l.text;labelsEl.appendChild(d);l.el=d;});
+
+/* ---------------- Update ---------------- */
+const tmp=V(0,0,0),tmp2=V(0,0,0),tmp3=V(0,0,0),Qtmp=new THREE.Quaternion(),dirV=V(0,0,0);
+function clusterShift(s,out){warp(s*2.0,0,0,tmp3,0);return out.set(s*DC-tmp3.x,-tmp3.y,-tmp3.z).multiplyScalar(G);}
+
+function update(t,amb){
+  const P=lp(1,t),A=lp(3,t),T=lp(4,t),D=lp(5,t);
+  E=0.22*ss(0.1,1,A)+0.13*ss(0,0.45,T);
+  C=ss(0.15,0.75,T);
+  G=0.82*ss(0.55,1,T)+0.18*ss(0,0.7,D);
+
+  /* membrane */
+  halves.forEach(h=>{
+    const mp=h.geo.attributes.position,md=h.dirs;
+    for(let i=0,n=mp.count;i<n;i++){
+      const dx=md[i*3],dy=md[i*3+1],dz=md[i*3+2];
+      const w=R*(1+0.011*Math.sin(dx*4.2+amb*0.8)+0.008*Math.sin(dy*5.1-amb*1.1+dz*3.0));
+      warp(dx*w,dy*w,dz*w,tmp,G,h.s);mp.setXYZ(i,tmp.x,tmp.y,tmp.z);
+    }
+    mp.needsUpdate=true;h.geo.computeVertexNormals();
+  });
+
+  /* granules: gentle Brownian drift, carried by the deformation */
+  for(let i=0;i<NG;i++){
+    const j=i*3,ph=i*1.37;
+    warp(gBase[j]+0.04*Math.sin(amb*0.7+ph),gBase[j+1]+0.04*Math.cos(amb*0.6+ph*1.3),gBase[j+2]+0.04*Math.sin(amb*0.5+ph*0.7),tmp,G);
+    gPos[j]=tmp.x;gPos[j+1]=tmp.y;gPos[j+2]=tmp.z;
+  }
+  gGeo.attributes.position.needsUpdate=true;
+
+  /* centrosomes: two pairs beside the nucleus → migrate to the poles */
+  const mig=ss(0.05,0.85,P);
+  [1,-1].forEach(s=>{
+    const phi=lerp(s>0?1.45:1.75,s>0?0:Math.PI,mig),r=lerp(1.95,2.55,mig),z=lerp(s>0?0.72:0.55,0,mig);
+    warp(r*Math.cos(phi),r*Math.sin(phi),z,tmp,G);
+    tmp.lerp(tmp2.set(s*DC+0.1*s,1.32,0.5),G);
+    poles[s].copy(tmp);
+    const c=cents[s];c.position.copy(tmp);c.rotation.set(amb*0.25+s,amb*0.18+0.6*s,0.4*s);
+  });
+
+  /* chromosomes */
+  const k=ss(12.5,17.5,t);
+  const sc=0.42+0.58*ss(0.05,0.55,P);
+  const chromOp=ss(0.05,0.45,P)*(1-ss(0.55,0.9,T));
+  const u=ss(0.02,1,A),tel=ss(0,0.6,T);
+  const fold=Math.max(0,1.05*ss(0,0.25,A)-0.65*ss(0.3,0.9,T));
+  chromMats.forEach(m=>m.opacity=chromOp);cenMats.forEach(m=>m.opacity=chromOp);
+  const sep=A>0||T>0;
+  chromatids.forEach(cd=>{
+    const c=cd.c,s=cd.s;
+    cd.g.visible=chromOp>0.01;
+    const jig=0.035*Math.sin(amb*2.1+c.phase)*k*(1-ss(0,0.12,A));
+    let Q;
+    if(!sep){
+      Q=Qtmp.slerpQuaternions(c.qPro,c.qMeta,k);
+      const wob=(1-k)*0.05;
+      tmp.copy(c.pro).lerp(c.plate,k);
+      tmp.x+=wob*Math.sin(amb*0.9+c.phase)+jig;tmp.y+=wob*Math.cos(amb*0.8+c.phase);
+      tmp2.set(s*0.095*sc,0,0).applyQuaternion(Q);tmp.add(tmp2);
+    }else{
+      Q=c.qMeta;
+      const shrink=1-0.45*u-0.05*tel;
+      tmp.set(s*(0.095+1.75*u+0.155*tel)+jig,c.plate.y*shrink,c.plate.z*shrink);
+    }
+    warp(tmp.x,tmp.y,tmp.z,cd.world,0);
+    cd.world.add(clusterShift(s,tmp2));
+    cd.g.position.copy(cd.world);cd.g.quaternion.copy(Q);cd.g.scale.setScalar(sc);
+    cd.kin.set(s*0.07*sc,0,0).applyQuaternion(Q).add(cd.world);
+    [[cd.armP,c.p,1],[cd.armQ,c.q,-1]].forEach(([arm,L,m])=>{
+      dirV.set(-s*Math.sin(fold),0,m*Math.cos(fold));
+      arm.quaternion.setFromUnitVectors(YAX,dirV);
+      arm.position.copy(dirV).multiplyScalar(L/2+0.04);
+    });
+  });
+
+  /* mother nucleus: envelope breaks down during prophase */
+  const envD=ss(0.45,0.95,P);
+  motherN.env.material.uniforms.uDissolve.value=envD;
+  motherN.env.visible=envD<0.999;
+  motherN.fillM.opacity=0.16*(1-ss(0.35,0.8,P));motherN.fill.visible=motherN.fillM.opacity>0.002;
+  const mc=0.88*(1-ss(0.1,0.55,P));motherN.mats.forEach(m=>m.opacity=mc);motherN.chr.visible=mc>0.01;
+  motherN.chr.scale.setScalar(1-0.25*ss(0.1,0.55,P));
+  const nl=1-ss(0.1,0.5,P);motherN.nucleolus.scale.setScalar(Math.max(nl,0.001));motherN.nucleolus.visible=nl>0.01;
+  motherN.grp.rotation.y=amb*0.05;
+
+  /* daughter nuclei re-form around each chromosome set */
+  daughters.forEach(n=>{
+    const s=n.s;warp(s*2.0,0,0,n.center,0);n.center.add(clusterShift(s,tmp2));
+    n.grp.position.copy(n.center);
+    n.grp.visible=T>0.2;
+    n.env.material.uniforms.uDissolve.value=1-ss(0.25,0.75,T);
+    n.grp.scale.setScalar(0.72+0.28*ss(0.25,0.9,T));
+    n.fillM.opacity=0.16*ss(0.4,0.9,T);
+    const dc=0.88*ss(0.6,1,T);n.mats.forEach(m=>m.opacity=dc);n.chr.visible=dc>0.01;
+    const no=ss(0.75,1,T);n.nucleolus.scale.setScalar(Math.max(no,0.001));n.nucleolus.visible=no>0.01;
+    n.grp.rotation.y=amb*0.05*s;
+  });
+
+  /* spindle */
+  const spOp=0.8*ss(0.25,0.7,P)*(1-ss(0.05,0.5,T));
+  spindleMat.opacity=spOp;spindle.visible=spOp>0.005;
+  if(spindle.visible){
+    const grow=ss(0.25,0.75,P),kA=ss(12,15.5,t);let i=0;
+    chromatids.forEach(cd=>{const p=poles[cd.s];for(let f=0;f<KF;f++,i++){tmp.copy(p).add(jit[i]);tmp2.copy(tmp).lerp(cd.kin,kA);tmp2.addScaledVector(jit[i],0.4*kA);setSeg(i,tmp,tmp2);}});
+    for(let q=0;q<2*NPOL;q++,i++){const s=q<NPOL?1:-1,p=poles[s],pe=polarEnds[q];
+      warp(-s*0.7,pe.y,pe.z,tmp2,G);tmp.copy(p).add(jit[i]);tmp2.lerp(tmp,1-grow);setSeg(i,tmp,tmp2);}
+    for(let q=0;q<2*NAST;q++,i++){const s=q<NAST?1:-1,p=poles[s],a=asters[q];
+      tmp.copy(p);tmp2.copy(p).addScaledVector(a.d,a.l*grow);setSeg(i,tmp,tmp2);}
+    sGeo.attributes.position.needsUpdate=true;
+  }
+
+  /* points for labels */
+  S.memPt=warp(0,2.3,1.93,V(0,0,0),G);
+  S.nucPt=V(-0.55,-0.95,0.8).setLength(1.35);
+  S.chromatinPt=V(-0.3,0.35,0.5);
+  S.nucleolusPt=motherN.nucleolus.getWorldPosition(V(0,0,0));
+  S.cenPt=cents["1"].position.clone();
+  const c0=chromatids[0];
+  S.chromPt=c0.world.clone().add(V(0,0.25,0));
+  S.spindlePt=poles["1"].clone().lerp(chromatids[2].kin,0.45);
+  S.platePt=V(0,-1.35,0);
+  S.sepPt=chromatids[1].world.clone();
+  S.newNucPt=daughters[0].center.clone().add(V(0,0.95,0));
+  S.cytoPt=warp(0,R,0,V(0,0,0),G);
+}
+
+/* ---------------- Camera & interaction ---------------- */
+const reduced=window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+let userAz=-0.35,userEl=0,zoom=1,orbitOn=!reduced,orbitClock=0;
+function placeCamera(t){
+  const aspect=camera.aspect;
+  const az=orbitClock*0.11+userAz;
+  const el=clamp(0.3+userEl+0.06*Math.sin(orbitClock*0.17),-1.25,1.25);
+  const needW=lerp(7.4,11.2,ss(22,33,t));
+  const vf=THREE.MathUtils.degToRad(camera.fov)/2,hf=Math.atan(Math.tan(vf)*aspect);
+  const need=Math.max((needW/2)/Math.tan(hf),(needW*0.62)/Math.tan(vf))+1.2;
+  const rad=Math.max(need,9)*zoom;
+  camera.position.set(rad*Math.cos(el)*Math.sin(az),rad*Math.sin(el),rad*Math.cos(el)*Math.cos(az));
+  camera.lookAt(0,aspect<0.8?0.9:0,0);
+}
+let drag=null;
+canvas.addEventListener("pointerdown",e=>{drag={x:e.clientX,y:e.clientY};canvas.setPointerCapture(e.pointerId);});
+canvas.addEventListener("pointermove",e=>{if(!drag)return;userAz-=(e.clientX-drag.x)*0.006;userEl=clamp(userEl+(e.clientY-drag.y)*0.004,-1.3,1.0);drag={x:e.clientX,y:e.clientY};});
+const endDrag=()=>{drag=null;};canvas.addEventListener("pointerup",endDrag);canvas.addEventListener("pointercancel",endDrag);
+canvas.addEventListener("wheel",e=>{e.preventDefault();zoom=clamp(zoom*Math.exp(e.deltaY*0.001),0.55,1.6);},{passive:false});
+
+/* ---------------- UI ---------------- */
+let t=0,playing=!reduced,speed=1,amb=0;
+const $=id=>document.getElementById(id);
+const tl=$("timeline"),fillEl=$("fill"),headEl=$("head");
+PHASES.forEach((p,i)=>{const b=document.createElement("button");b.type="button";b.className="seg"+(p.core?" core":"");
+  b.style.flexGrow=(p.end-p.start)+4;b.innerHTML='<span class="long"></span><span class="short"></span>';
+  b.querySelector(".long").textContent=p.core?p.title:p.title;b.querySelector(".short").textContent=p.short;
+  b.addEventListener("click",e=>{e.stopPropagation();t=p.start+0.01;if(!playing)setPlaying(true);});
+  p.btn=b;tl.appendChild(b);});
+function setPlaying(v){playing=v;if(t>=TOTAL&&v)t=0;
+  $("play-txt").textContent=v?"إيقاف مؤقت":"تشغيل";
+  $("play-ico").innerHTML=v?'<path d="M6 4h4v16H6zM14 4h4v16h-4z"/>':'<path d="M7 4.5v15l13-7.5z"/>';}
+$("play").addEventListener("click",()=>setPlaying(!playing));
+$("restart").addEventListener("click",()=>{t=0;setPlaying(true);});
+document.querySelectorAll(".speed button").forEach(b=>b.addEventListener("click",()=>{speed=+b.dataset.speed;document.querySelectorAll(".speed button").forEach(x=>x.setAttribute("aria-pressed",x===b?"true":"false"));}));
+let showLabels=true;
+$("tog-labels").addEventListener("click",e=>{showLabels=!showLabels;e.currentTarget.setAttribute("aria-pressed",String(showLabels));});
+$("tog-orbit").setAttribute("aria-pressed",String(orbitOn));
+$("tog-orbit").addEventListener("click",e=>{orbitOn=!orbitOn;e.currentTarget.setAttribute("aria-pressed",String(orbitOn));});
+let scrub=false;
+function scrubTo(x){const r=tl.getBoundingClientRect();t=clamp((r.right-x)/r.width,0,1)*TOTAL;}
+tl.addEventListener("pointerdown",e=>{if(e.target.closest(".seg")&&e.pointerType!=="mouse")return;scrub=true;tl.setPointerCapture(e.pointerId);scrubTo(e.clientX);});
+tl.addEventListener("pointermove",e=>{if(scrub)scrubTo(e.clientX);});
+tl.addEventListener("pointerup",()=>{scrub=false;});
+tl.addEventListener("keydown",e=>{
+  const i=phaseIndex(t);
+  if(e.key==="ArrowLeft"){t=PHASES[Math.min(i+1,PHASES.length-1)].start+0.01;e.preventDefault();}
+  if(e.key==="ArrowRight"){t=PHASES[Math.max(i-1,0)].start+0.01;e.preventDefault();}
+});
+document.addEventListener("keydown",e=>{if(e.code==="Space"&&!/BUTTON|INPUT/.test(e.target.tagName)){e.preventDefault();setPlaying(!playing);}});
+function phaseIndex(t){for(let i=0;i<PHASES.length;i++)if(t<PHASES[i].end)return i;return PHASES.length-1;}
+let curPhase=-1;
+function showPhase(i){const p=PHASES[i];$("cap-step").textContent=p.step;$("cap-en").textContent=p.en;$("cap-title").textContent=p.title;$("cap-text").textContent=p.text;$("cap-chip").textContent=p.chip;
+  PHASES.forEach((q,j)=>q.btn.classList.toggle("on",j===i));}
+const fmt=s=>{s=Math.floor(s);return String(Math.floor(s/60)).padStart(2,"0")+":"+String(s%60).padStart(2,"0");};
+
+/* ---------------- Resize & loop ---------------- */
+const stage=$("stage");
+function resize(){const w=stage.clientWidth,h=stage.clientHeight;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();}
+new ResizeObserver(resize).observe(stage);resize();
+
+let last=performance.now();
+const proj=V(0,0,0);
+function frame(now){
+  const dt=Math.min(0.05,(now-last)/1000);last=now;
+  if(playing&&!scrub){t+=dt*speed;if(t>=TOTAL){t=TOTAL;setPlaying(false);if(!window.__labeebaDone){window.__labeebaDone=true;try{parent.postMessage({type:"labeeba-lab-complete",score:100,tasks:6},"*");}catch(e){}}}}
+  if(orbitOn&&!drag)orbitClock+=dt;
+  amb+=dt*(reduced?0.3:1);
+  update(t,amb);placeCamera(t);
+  dust.rotation.y=amb*0.01;
+  renderer.render(scene,camera);
+
+  const i=phaseIndex(t);if(i!==curPhase){curPhase=i;showPhase(i);}
+  const f=t/TOTAL*100;fillEl.style.width=f+"%";headEl.style.right=f+"%";
+  tl.setAttribute("aria-valuenow",t.toFixed(0));
+  $("clock").textContent=fmt(t)+" / "+fmt(TOTAL);
+
+  const w=stage.clientWidth,h=stage.clientHeight;
+  LABELS.forEach(l=>{
+    const on=showLabels&&l.show(t)&&l.pos();
+    if(on){proj.copy(l.pos()).project(camera);
+      if(proj.z<1){l.el.style.transform=`translate3d(${((proj.x+1)/2*w).toFixed(1)}px,${((1-proj.y)/2*h).toFixed(1)}px,0)`;l.el.style.opacity=1;return;}}
+    l.el.style.opacity=0;
+  });
+  requestAnimationFrame(frame);
+}
+setPlaying(playing);
+requestAnimationFrame(frame);
+})();
+</script>
+
+</body></html>
