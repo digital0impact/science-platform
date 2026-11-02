@@ -225,6 +225,8 @@ details.ai .ai-body{display:grid;gap:10px;padding:0 14px 14px;font-size:.92rem}
 .bq-side select{width:auto;padding:6px 8px;font-size:.88rem}
 @media (max-width:560px){.bq{grid-template-columns:auto minmax(0,1fr)}.bq-side{grid-column:2}}
 .chip.lab{background:var(--lab-soft);color:var(--lab)}
+.chip.ilesson{background:var(--sci-soft);color:var(--accent)}
+.labcard.ilcard{border-color:var(--accent);border-style:solid}
 .labcard{border-style:dashed;border-color:var(--accent)}
 .lab-frame{display:block;width:100%;height:min(80vh,860px);border:1px solid var(--line);border-radius:var(--r);background:#fff}
 .ed-side .lab-frame{height:min(60vh,620px)}
@@ -489,8 +491,8 @@ function hashParts() {
 }
 function renderNav() {
   const { k } = hashParts();
-  const items = [["#", "الصفوف", ["home", "grade", "lesson", "lab"].includes(k)]];
-  if (state.isTeacher) items.push(["#teacher", "لوحة المعلمة", ["teacher", "edit"].includes(k)], ["#labs", "المختبرات", ["labs", "labedit"].includes(k)], ["#results", "النتائج", k === "results"]);
+  const items = [["#", "الصفوف", ["home", "grade", "lesson", "lab", "ilesson"].includes(k)]];
+  if (state.isTeacher) items.push(["#teacher", "لوحة المعلمة", ["teacher", "edit"].includes(k)], ["#ilessons", "الدروس التفاعلية", ["ilessons", "iledit"].includes(k)], ["#labs", "المختبرات", ["labs", "labedit"].includes(k)], ["#results", "النتائج", k === "results"]);
   let html = items.map(([h, t, on]) => `<a href="${h}" class="${on ? "on" : ""}">${t}</a>`).join("");
   if (!DEMO) html += state.user ? `<button id="signout" type="button">خروج</button>` : `<a href="#teacher" class="${k === "teacher" ? "on" : ""}">دخول المعلمة</a>`;
   $("#nav").innerHTML = html;
@@ -506,7 +508,8 @@ async function route() {
     if (k === "grade") return await viewGrade(v);
     if (k === "lesson") return await viewLesson(v);
     if (k === "lab") return await viewLab(v);
-    if (["teacher", "edit", "results", "labs", "labedit"].includes(k)) {
+    if (k === "ilesson") return await viewILesson(v);
+    if (["teacher", "edit", "results", "labs", "labedit", "ilessons", "iledit"].includes(k)) {
       if (!state.authReady) { app.innerHTML = `<p class="loading">جارٍ التحقق من الدخول…</p>`; return; }
       if (!state.isTeacher) return viewLogin();
       if (k === "teacher") return await viewTeacher();
@@ -514,6 +517,8 @@ async function route() {
       if (k === "results") return await viewResults();
       if (k === "labs") return await viewLabs();
       if (k === "labedit") return await viewLabEditor(v);
+      if (k === "ilessons") return await viewILessons();
+      if (k === "iledit") return await viewILessonEditor(v);
     }
     return await viewHome();
   } catch (e) {
@@ -561,7 +566,7 @@ async function viewHome() {
     return `<a class="grade" href="#grade=${encodeURIComponent(g.id)}">
       ${g.stage ? `<span class="stage">${esc(g.stage)}</span>` : ""}
       <h2>${esc(g.name)}</h2>
-      <div class="counts">${counts.map(([s, n]) => `<span class="chip ${subjClass(s)}">${esc(s)}: ${nLessons(n)}</span>`).join("")}${other ? `<span class="chip draft">أخرى: ${nLessons(other)}</span>` : ""}${(() => { const n = labs.filter(l => l.gradeId === g.id).length; return n ? `<span class="chip lab">المختبرات: ${nLabs(n)}</span>` : ""; })()}${!ls_.length && !labs.some(l => l.gradeId === g.id) ? `<span class="muted" style="font-size:.85rem">لا دروس بعد</span>` : ""}</div>
+      <div class="counts">${counts.map(([s, n]) => `<span class="chip ${subjClass(s)}">${esc(s)}: ${nLessons(n)}</span>`).join("")}${other ? `<span class="chip draft">أخرى: ${nLessons(other)}</span>` : ""}${(() => { const mine = labs.filter(l => l.gradeId === g.id), ni = mine.filter(l => l.kind === "interactive").length, nl = mine.length - ni; return (ni ? `<span class="chip ilesson">دروس تفاعلية: ${num(ni)}</span>` : "") + (nl ? `<span class="chip lab">المختبرات: ${nLabs(nl)}</span>` : ""); })()}${!ls_.length && !labs.some(l => l.gradeId === g.id) ? `<span class="muted" style="font-size:.85rem">لا دروس بعد</span>` : ""}</div>
     </a>`;
   }).join("")}</section>`;
 }
@@ -582,17 +587,25 @@ async function viewGrade(id) {
     <div id="list" class="stack" style="gap:28px"></div>`;
   const draw = () => {
     const shown = lessons.filter(l => filter === "الكل" || l.subject === filter);
-    const shownLabs = labs.filter(l => filter === "الكل" || l.subject === filter);
+    const shownAll = labs.filter(l => filter === "الكل" || l.subject === filter);
+    const shownIL = shownAll.filter(l => l.kind === "interactive");
+    const shownLabs = shownAll.filter(l => l.kind !== "interactive");
+    const ilHtml = shownIL.length ? `<section class="unit"><h2>الدروس التفاعلية</h2><div class="lessons">${shownIL.map(l => `
+      <a class="lesson labcard ilcard" href="#ilesson=${encodeURIComponent(l.id)}">
+        <span class="row" style="gap:6px"><span class="chip ilesson">درس تفاعلي</span><span class="chip ${subjClass(l.subject)}">${esc(l.subject)}</span></span>
+        <h3>${esc(l.title)}</h3>
+        <span class="meta">${esc(l.unit || "تعلّمي خطوة بخطوة")}${labQuizQs(l).length ? " · " + nQs(labQuizQs(l).length) : ""}</span>
+      </a>`).join("")}</div></section>` : "";
     const labsHtml = shownLabs.length ? `<section class="unit"><h2>المختبرات الافتراضية</h2><div class="lessons">${shownLabs.map(l => `
       <a class="lesson labcard" href="#lab=${encodeURIComponent(l.id)}">
         <span class="row" style="gap:6px"><span class="chip lab">مختبر</span><span class="chip ${subjClass(l.subject)}">${esc(l.subject)}</span></span>
         <h3>${esc(l.title)}</h3>
         <span class="meta">${esc(l.unit || "جرّبي واكتشفي بنفسك")}</span>
       </a>`).join("")}</div></section>` : "";
-    if (!shown.length && !shownLabs.length) { $("#list").innerHTML = `<div class="empty"><p>لا توجد دروس منشورة لهذا الصف بعد.</p></div>`; return; }
+    if (!shown.length && !shownAll.length) { $("#list").innerHTML = `<div class="empty"><p>لا توجد دروس منشورة لهذا الصف بعد.</p></div>`; return; }
     const units = [];
     shown.forEach(l => { const u = (l.unit || "").trim() || "دروس الصف"; let e = units.find(x => x[0] === u); if (!e) units.push(e = [u, []]); e[1].push(l); });
-    $("#list").innerHTML = labsHtml + units.map(([u, arr]) => `<section class="unit"><h2>${esc(u)}</h2><div class="lessons">${arr.map(l => `
+    $("#list").innerHTML = ilHtml + labsHtml + units.map(([u, arr]) => `<section class="unit"><h2>${esc(u)}</h2><div class="lessons">${arr.map(l => `
       <a class="lesson" href="#lesson=${encodeURIComponent(l.id)}">
         <span><span class="chip ${subjClass(l.subject)}">${esc(l.subject)}</span></span>
         <h3>${esc(l.title)}</h3>
@@ -921,6 +934,7 @@ async function viewTeacher() {
           <td>${l.complete === false ? `<span class="chip draft">مسودة غير مكتملة</span>` : l.published ? `<span class="chip bio">منشور</span>` : `<span class="chip draft">غير منشور</span>`}</td>
           <td><div class="row">
             <a class="btn ghost sm" href="#edit=${encodeURIComponent(l.id)}">تعديل</a>
+            <a class="btn ghost sm" href="#iledit=new&lesson=${encodeURIComponent(l.id)}" title="إنشاء درس تفاعلي من هذا الدرس">تفاعلي</a>
             <a class="btn ghost sm" href="#labedit=new&lesson=${encodeURIComponent(l.id)}" title="إنشاء مختبر افتراضي لهذا الدرس">مختبر</a>
             <button class="btn ghost sm" type="button" data-act="link">نسخ الرابط</button>
             <button class="btn ghost sm" type="button" data-act="pub">${l.published ? "إخفاء" : "نشر"}</button>
@@ -1346,6 +1360,21 @@ async function freshLabHtml(lab) {
   return lab.html;
 }
 
+const labText = html => {
+  try { const d = new DOMParser().parseFromString(html || "", "text/html"); d.querySelectorAll("script,style,svg,canvas").forEach(n => n.remove()); return (d.body ? d.body.textContent : "").replace(/\s+/g, " ").trim().slice(0, 8000); }
+  catch { return ""; }
+};
+function extractHtml(text) {
+  text = String(text || "").replace(/^\s*```(?:html)?\s*/i, "").replace(/```\s*$/i, "");
+  const start = text.search(/<!doctype html|<html[\s>]/i);
+  const end = text.toLowerCase().lastIndexOf("</html>");
+  if (start < 0 || end < start) return "";
+  return text.slice(start, end + 7);
+}
+// دروس تفاعلية جاهزة (فارغة الآن؛ تُضاف بنفس طريقة READY_LABS)
+const READY_ILESSONS = [];
+
+/*<LAB-BLOCK>  يُولَّد قسم «الدروس التفاعلية» آلياً من هذا الجزء (انظري build-ilessons.py) */
 // صفحة المختبر للطالبة
 async function viewLab(id) {
   app.innerHTML = `<p class="loading">جارٍ تحميل المختبر…</p>`;
@@ -1464,7 +1493,7 @@ function drawLabQuiz(lab, grade) {
 async function viewLabs() {
   app.innerHTML = `<p class="loading">جارٍ التحميل…</p>`;
   let labs;
-  try { labs = await Store.labs(true); }
+  try { labs = (await Store.labs(true)).filter(l => (l.kind || "lab") === "lab"); }
   catch (e) {
     app.innerHTML = `<div class="empty"><h2>جدول المختبرات غير موجود بعد</h2><p>شغّلي آخر نسخة من ملف supabase.sql في SQL Editor ثم حدّثي الصفحة. (${esc(e.code || e.message)})</p></div>`;
     return;
@@ -1520,7 +1549,7 @@ async function viewLabEditor(arg) {
   const [grades, lessons] = await Promise.all([Store.grades(), Store.lessons(true)]);
   if (idPart === "new") {
     const last = ls.get("lastLesson", {});
-    LB = { questions: [], title: "", subject: last.subject || SUBJECTS[0], unit: "", gradeId: last.gradeId || grades[0].id, lessonId: params.lesson ? decodeURIComponent(params.lesson) : "", source: "", request: "", html: "", prevHtml: "", published: false, order: 0 };
+    LB = { kind: "lab", questions: [], title: "", subject: last.subject || SUBJECTS[0], unit: "", gradeId: last.gradeId || grades[0].id, lessonId: params.lesson ? decodeURIComponent(params.lesson) : "", source: "", request: "", html: "", prevHtml: "", published: false, order: 0 };
   } else {
     let l;
     try { l = await Store.getLab(idPart); } catch { l = null; }
@@ -1559,12 +1588,12 @@ async function viewLabEditor(arg) {
             <button class="btn" type="button" id="lb-build">${LB.html ? "أعيدي بناء المختبر من جديد" : "ابني المختبر"}</button>
             <span class="muted" style="font-size:.85rem">يستغرق البناء من دقيقة إلى ثلاث دقائق.</span>
           </div>
-          <details class="ai" ${LB.html ? "" : "open"}><summary>أو استخدمي مختبراً جاهزاً</summary>
+          <details class="ai" ${LB.html ? "" : "open"}><summary>${READY_LABS.length ? "أو استخدمي مختبراً جاهزاً" : "أو أضيفي مختبراً جاهزاً من ملف"}</summary>
             <div class="ai-body">
-              <div class="row">
+              ${READY_LABS.length ? `<div class="row">
                 <select id="lb-ready" style="flex:1 1 220px"><option value="">مختبرات لبيبة الجاهزة…</option>${READY_LABS.map((r, i) => `<option value="${i}">${esc(r.title)} · ${esc(r.subject)}</option>`).join("")}</select>
                 <button class="btn ghost sm" type="button" id="lb-useready">إضافة</button>
-              </div>
+              </div>` : ""}
               <label class="f">أو ارفعي ملف مختبر (HTML)<input type="file" id="lb-file" accept=".html,.htm,text/html"></label>
               <label class="f">أو الصقي كود المختبر<textarea id="lb-paste" rows="4" dir="ltr" placeholder="&lt;!DOCTYPE html&gt; …"></textarea></label>
               <button class="btn ghost sm" type="button" id="lb-usepaste" style="justify-self:start">استخدام الكود الملصق</button>
@@ -1659,7 +1688,7 @@ async function viewLabEditor(arg) {
     drawLabPreview(); await saveLab("auto");
     toast("أُضيف المختبر وحُفظ. اختاري الصف ثم انشريه.");
   };
-  $("#lb-useready").addEventListener("click", async () => {
+  $("#lb-useready")?.addEventListener("click", async () => {
     const r = READY_LABS[Number($("#lb-ready").value)];
     if (!r) { toast("اختاري مختبراً من القائمة."); return; }
     try {
@@ -1717,10 +1746,6 @@ function drawLabQs() {
       ${q.options.length < 6 ? `<button class="linkbtn" type="button" data-lq="addopt" data-i="${i}">+ خيار</button>` : ""}
     </div>`).join("");
 }
-const labText = html => {
-  try { const d = new DOMParser().parseFromString(html || "", "text/html"); d.querySelectorAll("script,style,svg,canvas").forEach(n => n.remove()); return (d.body ? d.body.textContent : "").replace(/\s+/g, " ").trim().slice(0, 8000); }
-  catch { return ""; }
-};
 async function generateLabQuestions() {
   if (DEMO) { toast("توليد الأسئلة يعمل بعد ربط المنصة بـ Supabase."); return; }
   const parts = [];
@@ -1763,13 +1788,6 @@ function drawLabPreview(progress) {
   const r = $("#lb-refine"); if (r) r.hidden = !LB.html;
   const u = $("#lb-undo"); if (u) u.hidden = !LB.prevHtml;
   const bb = $("#lb-build"); if (bb) bb.textContent = LB.html ? "أعيدي بناء المختبر من جديد" : "ابني المختبر";
-}
-function extractHtml(text) {
-  text = String(text || "").replace(/^\s*```(?:html)?\s*/i, "").replace(/```\s*$/i, "");
-  const start = text.search(/<!doctype html|<html[\s>]/i);
-  const end = text.toLowerCase().lastIndexOf("</html>");
-  if (start < 0 || end < start) return "";
-  return text.slice(start, end + 7);
 }
 async function runLabAI(isChange) {
   if (DEMO) { toast("بناء المختبر يعمل بعد ربط المنصة بـ Supabase. يمكنك الآن لصق كود مختبر جاهز للتجربة."); return; }
@@ -1837,7 +1855,8 @@ async function saveLab(mode) {
     title: LB.title || "مختبر بلا عنوان", subject: LB.subject, unit: (LB.unit || "").trim(), gradeId: LB.gradeId, lessonId: LB.lessonId || "",
     source: (LB.source || "").trim(), request: (LB.request || "").trim(), html: LB.html || "", prevHtml: LB.prevHtml || "", readyFile: LB.readyFile || "",
     published: ready && !!LB.published, order: Number(LB.order) || 0, updatedAt: new Date().toISOString(),
-    questions: (LB.questions || []).map(q => ({ text: q.text.trim(), options: q.options.map(o => o.trim()), correct: q.correct ?? null }))
+    questions: (LB.questions || []).map(q => ({ text: q.text.trim(), options: q.options.map(o => o.trim()), correct: q.correct ?? null })),
+    kind: "lab"
   };
   const filledQs = lab.questions.filter(q => q.text || q.options.some(Boolean));
   const badQs = filledQs.filter(q => !q.text || q.options.some(o => !o) || q.correct == null || q.correct >= q.options.length).length;
@@ -1858,12 +1877,518 @@ async function saveLab(mode) {
     return false;
   }
 }
+/*</LAB-BLOCK>*/
+/*<ILESSON-BLOCK>*/
+/* مولَّد آلياً من LAB-BLOCK بالسكربت build-ilessons.py — لا تعدّليه يدوياً */
+// صفحة الدرس التفاعلي للطالبة
+async function viewILesson(id) {
+  app.innerHTML = `<p class="loading">جارٍ تحميل الدرس التفاعلي…</p>`;
+  const [lab, grades] = await Promise.all([Store.getLab(id), Store.grades()]);
+  if (!lab || !lab.html) { app.innerHTML = `<div class="empty"><h2>الدرس التفاعلي غير متاح</h2><p>ربما لم يُنشر بعد أو حُذف.</p><a class="btn ghost" href="#">العودة إلى الصفوف</a></div>`; return; }
+  app.classList.add("wide");
+  const g = grades.find(x => x.id === lab.gradeId);
+  app.innerHTML = `
+    <div class="lesson-head">
+      <div class="crumbs"><a href="#">الصفوف</a>${g ? ` › <a href="#grade=${encodeURIComponent(g.id)}">${esc(g.name)}</a>` : ""} › الدروس التفاعلية</div>
+      <div class="row"><span class="chip ilesson">درس تفاعلي</span><span class="chip ${subjClass(lab.subject)}">${esc(lab.subject)}</span>${lab.published ? "" : `<span class="chip draft">غير منشور</span>`}</div>
+      <h1>${esc(lab.title)}</h1>
+    </div>
+    <div class="row noprint">
+      <button class="btn ghost sm" type="button" id="lab-full">ملء الشاشة</button>
+      <button class="btn ghost sm" type="button" id="lab-reset">إعادة الدرس التفاعلي من البداية</button>
+    </div>
+    <div id="lab-done" aria-live="polite"></div>
+    <div class="lab-wrap" id="lab-wrap"><iframe class="lab-frame" id="lab-frame" title="${esc(lab.title)}" sandbox="${LAB_SANDBOX}"></iframe></div>
+    <div id="lab-quiz"></div>`;
+  const frame = $("#lab-frame");
+  drawILQuiz(lab, grades.find(x => x.id === lab.gradeId));
+  lab.html = await freshLabHtml(lab);
+  setFrame(frame, lab.html);
+  $("#lab-reset").addEventListener("click", () => { setFrame(frame, lab.html); $("#lab-done").innerHTML = ""; });
+  $("#lab-full").addEventListener("click", () => { const w = $("#lab-wrap"); (w.requestFullscreen ? w.requestFullscreen() : Promise.reject()).catch(() => toast("ملء الشاشة غير متاح في هذا المتصفح.")); });
+  labMsgHandler = e => {
+    if (e.source !== frame.contentWindow || !e.data || e.data.type !== "labeeba-lab-complete") return;
+    const score = Math.max(0, Math.min(100, Math.round(Number(e.data.score) || 100)));
+    $("#lab-done").innerHTML = `<div class="labdone">أحسنتِ! أنجزتِ الدرس التفاعلي «${esc(lab.title)}» بنسبة ${pct(score)}.${labQuizQs(lab).length ? " أجيبي الآن عن أسئلة الدرس التفاعلي تحته." : ""}</div>`;
+    $("#lab-done").scrollIntoView({ behavior: motionOK() ? "smooth" : "auto", block: "center" });
+    const mine = ls.get("labsDone", {}); mine[lab.id] = Math.max(mine[lab.id] || 0, score); ls.set("labsDone", mine);
+  };
+  window.addEventListener("message", labMsgHandler);
+}
+
+
+// أسئلة الدرس التفاعلي للطالبة: تُسجَّل نتيجة المحاولة الأولى وتُمنح شارة
+function drawILQuiz(lab, grade) {
+  const box = $("#lab-quiz"); if (!box) return;
+  const qs = labQuizQs(lab);
+  if (!qs.length) { box.innerHTML = ""; return; }
+  const preview = !DEMO && state.isTeacher;
+  const me = ls.get("student", { name: "", cls: "" });
+  const st = { first: null, attempts: 0, started: Date.now() };
+  box.innerHTML = `
+    <form class="panel quiz" id="lq-form" style="margin-top:18px">
+      <div><span class="eyebrow">بعد التجربة</span><h2>أسئلة الدرس التفاعلي</h2><p class="muted">${nQs(qs.length)}. ${preview ? "معاينة المعلمة: لن تُحفظ نتيجتك." : "ستصل نتيجتك إلى المعلمة، وتحصلين على شارة إنجاز."}</p></div>
+      <div class="grid2">
+        <label class="f">الاسم الكامل<input id="lqs-name" required maxlength="80" value="${esc(me.name)}" autocomplete="name"></label>
+        <label class="f">الفصل / الشعبة<input id="lqs-cls" maxlength="30" value="${esc(me.cls)}" placeholder="مثال: ٢/أ"></label>
+      </div>
+      ${qs.map((x, qi) => `<fieldset class="qq" id="lqq${qi}" style="border:0;padding:0;margin:0"><p>${num(qi + 1)}. ${esc(x.text)}</p>
+        ${x.options.map((o, oi) => `<label class="choice"><input type="radio" name="la${qi}" value="${oi}" id="la${qi}_${oi}">${esc(o)}</label>`).join("")}</fieldset>`).join("")}
+      <div id="lq-verdict"></div>
+      <div class="row" id="lq-btns"><button class="btn" type="submit">تحقّقي من إجاباتي</button></div>
+      <div id="lq-award"></div>
+    </form>`;
+  const form = $("#lq-form");
+  form.addEventListener("change", () => $$(".qq", form).forEach(f => f.classList.remove("wrong", "right")));
+  form.addEventListener("submit", async e => {
+    e.preventDefault();
+    const name = $("#lqs-name").value.trim(), cls = $("#lqs-cls").value.trim();
+    if (!name) { $("#lq-verdict").innerHTML = `<div class="verdict no">اكتبي اسمك أولاً.</div>`; $("#lqs-name").focus(); return; }
+    const picks = qs.map((_, qi) => { const r = $(`input[name="la${qi}"]:checked`, form); return r ? Number(r.value) : null; });
+    if (picks.some(p => p === null)) { $("#lq-verdict").innerHTML = `<div class="verdict no">أجيبي عن جميع الأسئلة أولاً.</div>`; return; }
+    ls.set("student", { name, cls });
+    let correct = 0;
+    picks.forEach((p, qi) => { const okA = p === Number(qs[qi].correct); if (okA) correct++; $("#lqq" + qi).classList.add(okA ? "right" : "wrong"); });
+    st.attempts++;
+    const firstTime = st.first == null;
+    if (firstTime) st.first = correct;
+    const score = Math.round((st.first / qs.length) * 100);
+    let note = "";
+    if (firstTime && !preview) {
+      try {
+        await Store.addResult({
+          labId: lab.id, lessonId: lab.id, lessonTitle: "درس تفاعلي: " + lab.title, subject: lab.subject || "",
+          gradeId: lab.gradeId || "", gradeName: grade ? grade.name : "",
+          studentName: name.slice(0, 80), studentClass: cls.slice(0, 30),
+          correct: st.first, total: qs.length, score, attempts: 1,
+          minutes: Math.max(1, Math.round((Date.now() - st.started) / 60000)), completedAt: new Date().toISOString()
+        });
+        note = "وصلت نتيجتك إلى المعلمة.";
+      } catch (err) { console.error(err); note = "تعذّر إرسال النتيجة إلى المعلمة. التقطي صورة لشارتك وأرسليها لها."; }
+    }
+    const all = correct === qs.length;
+    $("#lq-verdict").innerHTML = `<div class="verdict ${all ? "ok" : "no"}">${all ? "أحسنتِ! " : ""}أجبتِ عن ${num(correct)} من ${num(qs.length)} إجابة صحيحة${all ? "." : ". الإجابات المظلّلة بالأحمر تحتاج مراجعة، جرّبي الدرس التفاعلي مرة أخرى ثم أعيدي المحاولة."}</div>`;
+    if (firstTime) {
+      const tier = badgeTier(score);
+      const mine = ls.get("badges", {}); const key = "lab:" + lab.id, prev = mine[key];
+      if (!prev || TIERS.findIndex(t => t.key === prev) > TIERS.indexOf(tier)) mine[key] = tier.key;
+      ls.set("badges", mine);
+      $("#lq-award").innerHTML = `
+        <section class="award">
+          <span class="eyebrow">شارة إنجاز · درس تفاعلي ${esc(lab.subject || "")}</span>
+          ${medalSVG(tier, lab.subject)}
+          <div class="tier" style="color:var(--t-${tier.key})">${tier.title}</div>
+          <div class="who">${esc(name)}</div>
+          <p>أنجزتِ الدرس التفاعلي <b>${esc(lab.title)}</b></p>
+          <p class="score">${pct(score)} · ${num(st.first)} من ${num(qs.length)} إجابات صحيحة من المحاولة الأولى</p>
+          ${note ? `<p class="next">${note}</p>` : ""}
+        </section>`;
+    }
+    $("#lq-btns").innerHTML = all ? "" : `<button class="btn ghost" type="button" id="lq-retry">حاولي مرة أخرى</button>`;
+    $("#lq-retry")?.addEventListener("click", () => {
+      $$(".qq", form).forEach(f => f.classList.remove("wrong", "right")); $$("input[type=radio]", form).forEach(i => (i.checked = false));
+      $("#lq-btns").innerHTML = `<button class="btn" type="submit">تحقّقي من إجاباتي</button>`;
+      $("#lq-verdict").innerHTML = "";
+    });
+    $("#lq-verdict").scrollIntoView({ behavior: motionOK() ? "smooth" : "auto", block: "start" });
+  });
+}
+
+// قائمة دروس تفاعلية المعلمة
+async function viewILessons() {
+  app.innerHTML = `<p class="loading">جارٍ التحميل…</p>`;
+  let labs;
+  try { labs = (await Store.labs(true)).filter(l => (l.kind || "lab") === "interactive"); }
+  catch (e) {
+    app.innerHTML = `<div class="empty"><h2>جدول الدروس التفاعلية غير موجود بعد</h2><p>شغّلي آخر نسخة من ملف supabase.sql في SQL Editor ثم حدّثي الصفحة. (${esc(e.code || e.message)})</p></div>`;
+    return;
+  }
+  const grades = await Store.grades();
+  app.innerHTML = `
+    <div class="dash-head">
+      <div><span class="eyebrow">لوحة المعلمة</span><h1>الدروس التفاعلية</h1><p class="muted">صفي الدرس التفاعلي الذي تريدينه، ويبنيه الذكاء الاصطناعي من نص الدرس، ثم تجرّبينه وتعدّلينه قبل نشره.</p></div>
+      <a class="btn" href="#iledit=new">+ درس تفاعلي جديد</a>
+    </div>
+    <section class="stack" id="lab-groups"></section>`;
+  const groups = [...grades.map(g => [g, labs.filter(l => l.gradeId === g.id)]), [{ id: "", name: "دروس تفاعلية بلا صف" }, labs.filter(l => !grades.some(g => g.id === l.gradeId))]].filter(([, a]) => a.length);
+  if (!groups.length) {
+    $("#lab-groups").innerHTML = `<div class="empty"><h2>لا توجد دروس تفاعلية بعد</h2><p>ابدئي بدرس تفاعلي لأحد دروسك: الصقي نص الدرس، واكتبي ما تريدين أن تتعلمه الطالبة وكيف تتفاعل معه.</p><a class="btn" href="#iledit=new">+ درس تفاعلي جديد</a></div>`;
+    return;
+  }
+  $("#lab-groups").innerHTML = groups.map(([g, arr]) => `
+    <div class="stack" style="gap:10px">
+      <h2>${esc(g.name)}</h2>
+      <div class="table-wrap"><table>
+        <thead><tr><th>الدرس التفاعلي</th><th>المادة</th><th>الأسئلة</th><th>الحالة</th><th></th></tr></thead>
+        <tbody>${arr.sort(byOrder).map(l => `<tr data-id="${esc(l.id)}">
+          <td><b>${esc(l.title)}</b></td>
+          <td><span class="chip ${subjClass(l.subject)}">${esc(l.subject)}</span></td>
+          <td class="num">${(l.questions || []).length ? nQs(labQuizQs(l).length) : "—"}</td>
+          <td>${!l.html ? `<span class="chip draft">مسودة بلا درس تفاعلي</span>` : l.published ? `<span class="chip bio">منشور</span>` : `<span class="chip draft">غير منشور</span>`}</td>
+          <td><div class="row">
+            <a class="btn ghost sm" href="#iledit=${encodeURIComponent(l.id)}">تعديل</a>
+            <a class="btn ghost sm" href="#ilesson=${encodeURIComponent(l.id)}">فتح</a>
+            <button class="btn ghost sm" type="button" data-act="link">نسخ الرابط</button>
+            <button class="btn ghost sm" type="button" data-act="pub">${l.published ? "إخفاء" : "نشر"}</button>
+            <button class="btn danger sm" type="button" data-act="del">حذف</button>
+          </div></td></tr>`).join("")}</tbody></table></div>
+    </div>`).join("");
+  $("#lab-groups").addEventListener("click", async e => {
+    const b = e.target.closest("button[data-act]"); if (!b) return;
+    const id = b.closest("tr").dataset.id, l = labs.find(x => x.id === id);
+    if (b.dataset.act === "link") copy(location.origin + location.pathname + "#ilesson=" + encodeURIComponent(id));
+    if (b.dataset.act === "pub") {
+      if (!l.published && !l.html) { toast("ابني الدرس التفاعلي أولاً ثم انشريه."); return; }
+      await Store.saveLab({ ...l, published: !l.published }); toast(l.published ? "أُخفي الدرس التفاعلي عن الطالبات" : "نُشر الدرس التفاعلي"); viewILessons();
+    }
+    if (b.dataset.act === "del") armDelete(b, async () => { await Store.deleteLab(id); toast("حُذف الدرس التفاعلي"); viewILessons(); });
+  });
+}
+
+// محرر الدرس التفاعلي
+let IL = null;
+async function viewILessonEditor(arg) {
+  app.innerHTML = `<p class="loading">جارٍ التحميل…</p>`;
+  const [idPart, ...rest] = arg.split("&");
+  const params = Object.fromEntries(rest.map(p => p.split("=")));
+  const [grades, lessons] = await Promise.all([Store.grades(), Store.lessons(true)]);
+  if (idPart === "new") {
+    const last = ls.get("lastLesson", {});
+    IL = { kind: "interactive", questions: [], title: "", subject: last.subject || SUBJECTS[0], unit: "", gradeId: last.gradeId || grades[0].id, lessonId: params.lesson ? decodeURIComponent(params.lesson) : "", source: "", request: "", html: "", prevHtml: "", published: false, order: 0 };
+  } else {
+    let l;
+    try { l = await Store.getLab(idPart); } catch { l = null; }
+    if (!l) { app.innerHTML = `<div class="empty"><h2>الدرس التفاعلي غير موجود</h2><a class="btn ghost" href="#ilessons">العودة</a></div>`; return; }
+    IL = JSON.parse(JSON.stringify(l));
+    if (IL.readyFile) IL.html = await freshLabHtml(IL);
+  }
+  IL.questions = (IL.questions || []).map(q => ({ text: q.text || "", options: [...(q.options || ["", "", "", ""])], correct: q.correct ?? null }));
+  if (!grades.some(g => g.id === IL.gradeId)) IL.gradeId = grades[0].id;
+  if (IL.lessonId && !IL.source) { const ls0 = lessons.find(x => x.id === IL.lessonId); if (ls0) { IL.source = ls0.source || ""; IL.title = IL.title || ls0.title; IL.gradeId = ls0.gradeId || IL.gradeId; IL.subject = ls0.subject || IL.subject; } }
+  app.classList.add("wide");
+  const subjOpts = [...new Set([...SUBJECTS, IL.subject].filter(Boolean))];
+  const lessonOpts = () => lessons.filter(x => x.gradeId === IL.gradeId).sort(byOrder);
+  app.innerHTML = `
+    <div class="dash-head"><div><div class="crumbs"><a href="#ilessons">الدروس التفاعلية</a> › ${IL.id ? "تعديل درس تفاعلي" : "درس تفاعلي جديد"}</div><h1 id="lb-h1">${IL.id ? esc(IL.title) : "درس تفاعلي جديد"}</h1></div></div>
+    <div class="ed-grid">
+     <div class="ed-main">
+      <section class="panel step s1"><h2><span class="n">١</span>بيانات الدرس التفاعلي</h2>
+        <div class="grid2">
+          <label class="f">عنوان الدرس التفاعلي<input id="lb-title" data-l="title" value="${esc(IL.title)}" placeholder="مثال: دورة الصخور خطوة بخطوة"></label>
+          <label class="f">الصف<select id="lb-grade" data-l="gradeId">${[...new Set(grades.map(g => g.stage || ""))].map(st => `<optgroup label="${esc(st || "الصفوف")}">${grades.filter(g => (g.stage || "") === st).map(g => `<option value="${esc(g.id)}" ${g.id === IL.gradeId ? "selected" : ""}>${esc(g.name)}</option>`).join("")}</optgroup>`).join("")}</select></label>
+          <label class="f">المادة<select id="lb-subject" data-l="subject">${subjOpts.map(x => `<option ${x === IL.subject ? "selected" : ""}>${esc(x)}</option>`).join("")}</select></label>
+          <label class="f">الوحدة (اختياري)<input id="lb-unit" data-l="unit" value="${esc(IL.unit || "")}"></label>
+          <label class="f">الدرس المرتبط (اختياري)<select id="lb-lesson"></select></label>
+        </div>
+      </section>
+      <section class="panel step s2"><h2><span class="n">٢</span>اطلبي الدرس التفاعلي</h2>
+        <div class="stack">
+          <label class="f">نص الدرس
+            <textarea id="lb-source" rows="7" placeholder="الصقي نص المقطع أو ملخص الدرس، أو اختاري الدرس المرتبط ليُملأ تلقائياً.">${esc(IL.source || "")}</textarea>
+          </label>
+          <label class="f">ماذا تريدين في الدرس التفاعلي؟
+            <textarea id="lb-request" rows="5" placeholder="مثال: درس تفاعلي عن دورة الصخور: يبدأ بسؤال مشوّق، ثم خطوة قصيرة لكل نوع من الصخور مع رسم يتغير عند الضغط، ثم نشاط ترتيب مراحل الدورة بالسحب، وسؤال سريع بعد كل خطوة، وملخص في النهاية.">${esc(IL.request || "")}</textarea>
+          </label>
+          <div class="row">
+            <button class="btn" type="button" id="lb-build">${IL.html ? "أعيدي بناء الدرس التفاعلي من جديد" : "ابني الدرس التفاعلي"}</button>
+            <span class="muted" style="font-size:.85rem">يستغرق البناء من دقيقة إلى ثلاث دقائق.</span>
+          </div>
+          <details class="ai" ${IL.html ? "" : "open"}><summary>${READY_ILESSONS.length ? "أو استخدمي درساً تفاعلياً جاهزاً" : "أو أضيفي درساً تفاعلياً جاهزاً من ملف"}</summary>
+            <div class="ai-body">
+              ${READY_ILESSONS.length ? `<div class="row">
+                <select id="lb-ready" style="flex:1 1 220px"><option value="">دروس لبيبة التفاعلية الجاهزة…</option>${READY_ILESSONS.map((r, i) => `<option value="${i}">${esc(r.title)} · ${esc(r.subject)}</option>`).join("")}</select>
+                <button class="btn ghost sm" type="button" id="lb-useready">إضافة</button>
+              </div>` : ""}
+              <label class="f">أو ارفعي ملف درس تفاعلي (HTML)<input type="file" id="lb-file" accept=".html,.htm,text/html"></label>
+              <label class="f">أو الصقي كود الدرس التفاعلي<textarea id="lb-paste" rows="4" dir="ltr" placeholder="&lt;!DOCTYPE html&gt; …"></textarea></label>
+              <button class="btn ghost sm" type="button" id="lb-usepaste" style="justify-self:start">استخدام الكود الملصق</button>
+            </div>
+          </details>
+        </div>
+      </section>
+      <section class="panel step s4"><h2><span class="n">٤</span>أسئلة الدرس التفاعلي</h2>
+        <p class="muted" style="font-size:.9rem;margin-bottom:12px">تظهر للطالبة تحت الدرس التفاعلي لتجيب عنها بعد التجربة، وتصل نتيجتها إليكِ في «النتائج». علّمي الإجابة الصحيحة بالدائرة.</p>
+        <details class="ai" id="lq-ai">
+          <summary>توليد الأسئلة بالذكاء الاصطناعي</summary>
+          <div class="ai-body">
+            <p class="muted">تُكتب الأسئلة من نص الدرس ووصف الدرس التفاعلي وما يظهر فيه من شرح ومهام، ثم تُضاف إلى القائمة لتراجعيها وتعدّليها.</p>
+            <div class="row">
+              <label class="row" style="gap:6px;font-size:.9rem">عدد الأسئلة
+                <select id="lq-count" style="width:auto">${[3, 5, 8, 10].map(n => `<option value="${n}" ${n === 5 ? "selected" : ""}>${num(n)}</option>`).join("")}</select>
+              </label>
+              <button class="btn sm" type="button" id="lq-gen">ولّدي الأسئلة</button>
+            </div>
+          </div>
+        </details>
+        <div class="stack" id="lq-list" style="margin-top:12px"></div>
+        <button class="btn ghost" type="button" id="lq-add" style="margin-top:12px">+ إضافة سؤال</button>
+      </section>
+      <div id="lb-msg" class="s-err"></div>
+     </div>
+     <aside class="ed-side">
+      <section class="panel step s3"><h2><span class="n">٣</span>جرّبي الدرس التفاعلي</h2>
+        <div class="stack">
+          <div id="lb-preview"></div>
+          <div class="stack" id="lb-refine" ${IL.html ? "" : "hidden"}>
+            <label class="f">اطلبي تعديلاً
+              <textarea id="lb-change" rows="3" placeholder="مثال: اختصري الشرح في الخطوة الثانية، وكبّري الرسم، وأضيفي سؤالاً سريعاً بعد الخطوة الأخيرة."></textarea>
+            </label>
+            <div class="row">
+              <button class="btn ghost" type="button" id="lb-apply">طبّقي التعديل</button>
+              <button class="linkbtn" type="button" id="lb-undo" ${IL.prevHtml ? "" : "hidden"}>التراجع عن آخر تعديل</button>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section class="panel step s5"><h2><span class="n">٥</span>النشر</h2>
+        <div class="row">
+          <label class="row" style="gap:6px"><input type="checkbox" id="lb-pub" ${IL.published ? "checked" : ""} style="accent-color:var(--accent);width:18px;height:18px"> منشور للطالبات</label>
+          <span style="flex:1"></span>
+          <button class="btn" type="button" id="lb-save">حفظ الدرس التفاعلي</button>
+        </div>
+      </section>
+     </aside>
+    </div>`;
+  const fillLessonSel = () => {
+    const opts = lessonOpts();
+    $("#lb-lesson").innerHTML = `<option value="">بدون</option>` + opts.map(x => `<option value="${esc(x.id)}" ${x.id === IL.lessonId ? "selected" : ""}>${esc(x.title)}</option>`).join("");
+  };
+  fillLessonSel();
+  drawILPreview();
+  $$("[data-l]").forEach(el => el.addEventListener("input", () => { IL[el.dataset.l] = el.value; if (el.dataset.l === "gradeId") fillLessonSel(); }));
+  $("#lb-source").addEventListener("input", e => (IL.source = e.target.value));
+  $("#lb-request").addEventListener("input", e => (IL.request = e.target.value));
+  $("#lb-pub").addEventListener("change", e => (IL.published = e.target.checked));
+  $("#lb-lesson").addEventListener("change", e => {
+    IL.lessonId = e.target.value;
+    const x = lessons.find(y => y.id === IL.lessonId); if (!x) return;
+    if (!IL.title.trim()) { IL.title = "درس تفاعلي: " + x.title; $("#lb-title").value = IL.title; }
+    if (x.subject) { IL.subject = x.subject; $("#lb-subject").value = x.subject; }
+    if (x.unit && !IL.unit) { IL.unit = x.unit; $("#lb-unit").value = x.unit; }
+    if (x.source && !IL.source.trim()) { IL.source = x.source; $("#lb-source").value = x.source; toast("أُضيف نص الدرس المرتبط."); }
+    else if (!x.source) toast("هذا الدرس ليس فيه نص محفوظ؛ الصقي نصه في خانة «نص الدرس».");
+  });
+  $("#lb-build").addEventListener("click", () => runILAI(false));
+  $("#lb-apply").addEventListener("click", () => runILAI(true));
+  $("#lb-undo").addEventListener("click", async () => {
+    if (!IL.prevHtml) return;
+    [IL.html, IL.prevHtml] = [IL.prevHtml, ""];
+    drawILPreview(); await saveIL("auto"); toast("رجع الدرس التفاعلي إلى النسخة السابقة.");
+  });
+  $("#lb-usepaste").addEventListener("click", async () => {
+    const html = extractHtml($("#lb-paste").value);
+    if (!html) { toast("هذا ليس ملف HTML كاملاً. يجب أن يبدأ بـ <!DOCTYPE html> أو <html>."); return; }
+    IL.prevHtml = IL.html || ""; IL.html = html; IL.readyFile = ""; drawILPreview(); await saveIL("auto");
+  });
+  const useHtml = async (html, meta, readyFile = "") => {
+    html = extractHtml(html);
+    if (!html) { toast("هذا ليس ملف HTML كاملاً. يجب أن يبدأ بـ <!DOCTYPE html> أو <html>."); return; }
+    IL.prevHtml = IL.html || ""; IL.html = html; IL.readyFile = readyFile;
+    if (meta) {
+      if (!IL.title.trim()) { IL.title = meta.title; $("#lb-title").value = meta.title; }
+      if (meta.subject) { IL.subject = meta.subject; const sel = $("#lb-subject"); if (![...sel.options].some(o => o.value === meta.subject)) sel.add(new Option(meta.subject, meta.subject)); sel.value = meta.subject; }
+      if (meta.unit && !IL.unit) { IL.unit = meta.unit; $("#lb-unit").value = meta.unit; }
+      if (meta.about && !IL.request.trim()) { IL.request = meta.about; $("#lb-request").value = meta.about; }
+    }
+    drawILPreview(); await saveIL("auto");
+    toast("أُضيف الدرس التفاعلي وحُفظ. اختاري الصف ثم انشريه.");
+  };
+  $("#lb-useready")?.addEventListener("click", async () => {
+    const r = READY_ILESSONS[Number($("#lb-ready").value)];
+    if (!r) { toast("اختاري درساً تفاعلياً من القائمة."); return; }
+    try {
+      const res = await fetch(r.file, { cache: "no-cache" });
+      if (!res.ok) throw new Error(res.status);
+      await useHtml(await res.text(), r, r.file);
+    } catch (e) { console.error(e); toast("تعذّر تحميل الدرس التفاعلي الجاهز. افتحي المنصة من رابطها على الإنترنت ثم جرّبي."); }
+  });
+  $("#lb-file").addEventListener("change", async e => {
+    const f = e.target.files && e.target.files[0]; if (!f) return;
+    if (f.size > 3 * 1024 * 1024) { toast("الملف أكبر من ٣ ميغابايت."); return; }
+    const name = f.name.replace(/\.html?$/i, "");
+    await useHtml(await f.text(), { title: name });
+    e.target.value = "";
+  });
+  $("#lb-save").addEventListener("click", () => saveIL("save"));
+  // أسئلة الدرس التفاعلي
+  drawILQs();
+  const lq = $("#lq-list");
+  lq.addEventListener("input", e => {
+    const t = e.target, i = Number(t.dataset.i), q = IL.questions[i]; if (!q) return;
+    if (t.dataset.k === "lqtext") q.text = t.value;
+    if (t.dataset.k === "lqopt") q.options[Number(t.dataset.o)] = t.value;
+  });
+  lq.addEventListener("change", e => {
+    const t = e.target; if (t.dataset.k === "lqcorrect") IL.questions[Number(t.dataset.i)].correct = Number(t.dataset.o);
+  });
+  lq.addEventListener("click", e => {
+    const b = e.target.closest("[data-lq]"); if (!b) return;
+    const i = Number(b.dataset.i), o = Number(b.dataset.o), q = IL.questions[i];
+    if (b.dataset.lq === "del") IL.questions.splice(i, 1);
+    if (b.dataset.lq === "addopt") q.options.push("");
+    if (b.dataset.lq === "delopt") { q.options.splice(o, 1); if (q.correct === o) q.correct = null; else if (q.correct > o) q.correct--; }
+    if (b.dataset.lq === "up" && i > 0) [IL.questions[i - 1], IL.questions[i]] = [IL.questions[i], IL.questions[i - 1]];
+    drawILQs();
+  });
+  $("#lq-add").addEventListener("click", () => { IL.questions.push(blankQ()); drawILQs(); $("#lq-list").lastElementChild?.scrollIntoView({ behavior: motionOK() ? "smooth" : "auto", block: "center" }); });
+  $("#lq-gen").addEventListener("click", generateILQuestions);
+}
+function drawILQs() {
+  const box = $("#lq-list"); if (!box) return;
+  const qs = IL.questions || [];
+  if (!qs.length) { box.innerHTML = `<p class="muted" style="font-size:.9rem">لا أسئلة بعد. أضيفي سؤالاً بنفسك أو ولّديها بالذكاء الاصطناعي. الدرس التفاعلي يعمل بدون أسئلة أيضاً.</p>`; return; }
+  box.innerHTML = qs.map((q, i) => `
+    <div class="q">
+      <div class="q-head"><span>سؤال ${num(i + 1)}</span>
+        <span class="row" style="gap:4px">${i > 0 ? `<button class="linkbtn" type="button" data-lq="up" data-i="${i}" title="نقل للأعلى">↑ للأعلى</button>` : ""}<button class="x" type="button" data-lq="del" data-i="${i}" aria-label="حذف السؤال">×</button></span></div>
+      <textarea id="lqt-${i}" rows="2" data-k="lqtext" data-i="${i}" placeholder="نص السؤال">${esc(q.text)}</textarea>
+      <div class="opts">${q.options.map((o, oi) => `
+        <div class="opt">
+          <input type="radio" id="lqc-${i}-${oi}" name="lqc-${i}" data-k="lqcorrect" data-i="${i}" data-o="${oi}" ${q.correct === oi ? "checked" : ""} aria-label="الإجابة الصحيحة" title="الإجابة الصحيحة">
+          <input id="lqo-${i}-${oi}" data-k="lqopt" data-i="${i}" data-o="${oi}" value="${esc(o)}" placeholder="الخيار ${num(oi + 1)}">
+          ${q.options.length > 2 ? `<button class="x" type="button" data-lq="delopt" data-i="${i}" data-o="${oi}" aria-label="حذف الخيار">×</button>` : ""}
+        </div>`).join("")}</div>
+      ${q.options.length < 6 ? `<button class="linkbtn" type="button" data-lq="addopt" data-i="${i}">+ خيار</button>` : ""}
+    </div>`).join("");
+}
+async function generateILQuestions() {
+  if (DEMO) { toast("توليد الأسئلة يعمل بعد ربط المنصة بـ Supabase."); return; }
+  const parts = [];
+  if ((IL.source || "").trim()) parts.push(IL.source.trim());
+  if ((IL.request || "").trim()) parts.push("وصف الدرس التفاعلي: " + IL.request.trim());
+  const inLab = labText(IL.html); if (inLab) parts.push("ما يظهر للطالبة داخل الدرس التفاعلي من شرح ومهام: " + inLab);
+  const text = parts.join("\n\n");
+  if (text.length < 120) { toast("الصقي نص الدرس أو اكتبي وصف الدرس التفاعلي أولاً، أو ابني الدرس التفاعلي."); return; }
+  const grade = GRADES.find(g => g.id === IL.gradeId);
+  const btn = $("#lq-gen"); btn.disabled = true; btn.textContent = "جارٍ التوليد…";
+  try {
+    const { data, error } = await sb.functions.invoke("generate-questions", {
+      body: { text, count: Number($("#lq-count").value) || 5, subject: IL.subject, grade: grade ? grade.name : "", title: IL.title || "" }
+    });
+    if (error) { let msg = error.message; try { const j = await error.context.json(); if (j && j.error) msg = j.error; } catch {} throw new Error(msg); }
+    const qs = (data && data.questions) || [];
+    if (!qs.length) throw new Error("لم تصل أسئلة. جرّبي مرة أخرى.");
+    IL.questions = IL.questions.filter(q => q.text.trim() || q.options.some(o => o.trim()));
+    qs.forEach(q => IL.questions.push({ text: q.text, options: [...q.options], correct: q.correct }));
+    drawILQs(); await saveIL("auto");
+    toast(`أُضيف ${nQs(qs.length)} وحُفظ الدرس التفاعلي. راجعيها وعدّلي ما تريدين.`);
+  } catch (e) { console.error(e); toast("تعذّر توليد الأسئلة: " + (e.message || e)); }
+  finally { btn.disabled = false; btn.textContent = "ولّدي الأسئلة"; }
+}
+function drawILPreview(progress) {
+  const box = $("#lb-preview"); if (!box) return;
+  if (progress != null) {
+    box.innerHTML = `<div class="lab-empty"><div class="stack" style="justify-items:center"><span class="progress">${esc(progress)}</span><span>يكتب Claude الدرس التفاعلي الآن… لا تغلقي الصفحة.</span></div></div>`;
+    return;
+  }
+  if (!IL.html) {
+    box.innerHTML = `<div class="lab-empty"><p>سيظهر الدرس التفاعلي هنا بعد بنائه، وتستطيعين تجربته كما ستراه الطالبة.</p></div>`;
+  } else {
+    box.innerHTML = `<div class="lab-wrap" id="lb-wrap"><iframe class="lab-frame" id="lb-frame" title="معاينة الدرس التفاعلي" sandbox="${LAB_SANDBOX}"></iframe></div>
+      <div class="row" style="margin-top:8px"><button class="linkbtn" type="button" id="lb-full">ملء الشاشة</button><button class="linkbtn" type="button" id="lb-reload">إعادة تشغيل المعاينة</button><span class="muted" style="font-size:.82rem">حجم الدرس التفاعلي ${num(Math.round(IL.html.length / 1024))} ك.ب</span></div>`;
+    setFrame($("#lb-frame"), IL.html);
+    $("#lb-reload").addEventListener("click", () => setFrame($("#lb-frame"), IL.html));
+    $("#lb-full").addEventListener("click", () => { const w = $("#lb-wrap"); (w.requestFullscreen ? w.requestFullscreen() : Promise.reject()).catch(() => toast("ملء الشاشة غير متاح.")); });
+  }
+  const r = $("#lb-refine"); if (r) r.hidden = !IL.html;
+  const u = $("#lb-undo"); if (u) u.hidden = !IL.prevHtml;
+  const bb = $("#lb-build"); if (bb) bb.textContent = IL.html ? "أعيدي بناء الدرس التفاعلي من جديد" : "ابني الدرس التفاعلي";
+}
+async function runILAI(isChange) {
+  if (DEMO) { toast("بناء الدرس التفاعلي يعمل بعد ربط المنصة بـ Supabase. يمكنك الآن لصق كود درس تفاعلي جاهز للتجربة."); return; }
+  const change = isChange ? ($("#lb-change").value || "").trim() : "";
+  if (isChange && change.length < 3) { toast("اكتبي التعديل المطلوب."); return; }
+  if (!isChange && (IL.request || "").trim().length < 10 && (IL.source || "").trim().length < 60) { toast("اكتبي وصف الدرس التفاعلي الذي تريدينه، أو الصقي نص الدرس."); return; }
+  const grade = GRADES.find(g => g.id === IL.gradeId);
+  const buttons = ["#lb-build", "#lb-apply", "#lb-save"].map(x => $(x)).filter(Boolean);
+  buttons.forEach(b => (b.disabled = true));
+  $("#lb-msg").innerHTML = "";
+  const started = Date.now();
+  let got = "";
+  const tick = setInterval(() => drawILPreview(`مرّ ${num(Math.round((Date.now() - started) / 1000))} ثانية · كُتب ${num(got.length)} حرف`), 1000);
+  drawILPreview("جارٍ الاتصال…");
+  try {
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session) throw new Error("انتهت جلسة الدخول، سجّلي الدخول مرة أخرى.");
+    const res = await fetch(SUPABASE_URL.replace(/\/$/, "") + "/functions/v1/generate-questions", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: "Bearer " + session.access_token, apikey: SUPABASE_ANON_KEY },
+      body: JSON.stringify({
+        kind: "interactive", title: IL.title, subject: IL.subject, grade: grade ? grade.name : "",
+        text: IL.source || "", request: IL.request || "",
+        previousHtml: isChange ? IL.html : "", change
+      })
+    });
+    if (!res.ok) {
+      let msg = res.status + " " + res.statusText;
+      try { const j = await res.json(); if (j.error) msg = j.error; } catch {}
+      if (res.status === 404) msg = "لم تُحدَّث دالة generate-questions في Supabase بعد بالنسخة التي تدعم الدروس التفاعلية.";
+      throw new Error(msg);
+    }
+    const reader = res.body.getReader(), dec = new TextDecoder();
+    while (true) {
+      const { value, done } = await reader.read();
+      if (done) break;
+      got += dec.decode(value, { stream: true });
+    }
+    const err = got.match(/<!--LABEEBA:ERROR:([\s\S]*?)-->/);
+    if (err) throw new Error("خطأ من خدمة Claude: " + err[1]);
+    const truncated = got.includes("<!--LABEEBA:TRUNCATED-->");
+    const html = extractHtml(got.replace("<!--LABEEBA:TRUNCATED-->", ""));
+    if (!html) throw new Error(truncated ? "انقطع البناء لأن الدرس التفاعلي أطول من الحد المسموح. اطلبي درساً تفاعلياً أبسط بمهام أقل." : "لم يصل ملف درس تفاعلي كامل. جرّبي مرة أخرى.");
+    IL.prevHtml = IL.html || "";
+    IL.html = html; IL.readyFile = "";
+    if (isChange) $("#lb-change").value = "";
+    clearInterval(tick);
+    drawILPreview();
+    await saveIL("auto");
+    toast(isChange ? "طُبّق التعديل وحُفظ الدرس التفاعلي." : "بُني الدرس التفاعلي وحُفظ. جرّبيه الآن.");
+  } catch (e) {
+    console.error(e);
+    clearInterval(tick);
+    drawILPreview();
+    $("#lb-msg").innerHTML = `<div class="errors"><b>تعذّر بناء الدرس التفاعلي:</b> ${esc(e.message || e)}</div>`;
+  } finally {
+    clearInterval(tick);
+    buttons.forEach(b => (b.disabled = false));
+  }
+}
+async function saveIL(mode) {
+  IL.title = (IL.title || "").trim();
+  const ready = !!IL.html;
+  const lab = {
+    title: IL.title || "درس تفاعلي بلا عنوان", subject: IL.subject, unit: (IL.unit || "").trim(), gradeId: IL.gradeId, lessonId: IL.lessonId || "",
+    source: (IL.source || "").trim(), request: (IL.request || "").trim(), html: IL.html || "", prevHtml: IL.prevHtml || "", readyFile: IL.readyFile || "",
+    published: ready && !!IL.published, order: Number(IL.order) || 0, updatedAt: new Date().toISOString(),
+    questions: (IL.questions || []).map(q => ({ text: q.text.trim(), options: q.options.map(o => o.trim()), correct: q.correct ?? null })),
+    kind: "interactive"
+  };
+  const filledQs = lab.questions.filter(q => q.text || q.options.some(Boolean));
+  const badQs = filledQs.filter(q => !q.text || q.options.some(o => !o) || q.correct == null || q.correct >= q.options.length).length;
+  if (IL.id) lab.id = IL.id;
+  try {
+    const id = await Store.saveLab(lab);
+    if (!IL.id) { IL.id = id; history.replaceState(null, "", "#iledit=" + encodeURIComponent(id)); }
+    $("#lb-h1") && ($("#lb-h1").textContent = lab.title);
+    if (mode === "save") {
+      toast((!ready ? "حُفظ الدرس التفاعلي كمسودة (لم يُبنَ بعد)" : lab.published ? "حُفظ الدرس التفاعلي ونُشر للطالبات" : "حُفظ الدرس التفاعلي (غير منشور)") + (badQs === 1 ? " · سؤال واحد غير مكتمل لن يظهر للطالبات" : badQs > 1 ? ` · ${nQs(badQs)} غير مكتملة لن تظهر للطالبات` : ""));
+      location.hash = "ilessons";
+    }
+    return true;
+  } catch (e) {
+    console.error(e);
+    const hint = e.code === "42P01" || /labs/.test(e.message || "") ? "جدول الدروس التفاعلية غير موجود: شغّلي آخر نسخة من ملف supabase.sql." : (e.message || e.code);
+    toast("تعذّر حفظ الدرس التفاعلي: " + hint);
+    return false;
+  }
+}
+/*</ILESSON-BLOCK>*/
 
 /* ======================= النتائج ======================= */
 async function viewResults() {
   app.innerHTML = `<p class="loading">جارٍ التحميل…</p>`;
   const [results, grades, lessonsOnly, labsAll] = await Promise.all([Store.results(), Store.grades(), Store.lessons(true), safeLabs(true)]);
-  const lessons = [...lessonsOnly, ...labsAll.map(l => ({ ...l, title: "مختبر: " + l.title }))];
+  const lessons = [...lessonsOnly, ...labsAll.map(l => ({ ...l, title: (l.kind === "interactive" ? "درس تفاعلي: " : "مختبر: ") + l.title }))];
   results.sort((a, b) => String(b.completedAt).localeCompare(String(a.completedAt)));
   const f = { grade: "", lesson: "", q: "" };
   app.innerHTML = `
