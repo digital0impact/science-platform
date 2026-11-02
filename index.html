@@ -190,6 +190,7 @@ td .row{flex-wrap:nowrap}
 .seg-head{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
 .seg-head h3{margin-inline-end:auto}
 .seg-head .end{display:flex;gap:6px;align-items:center;font-size:.9rem}
+.seg-head .end input.bad{border-color:var(--bad);background:var(--bad-soft)}
 .seg-head .end input{width:96px;direction:ltr;text-align:center;font-variant-numeric:tabular-nums}
 .q{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:12px;display:grid;gap:8px}
 .q-head .move{width:auto;padding:4px 8px;font-size:.82rem;font-weight:500}
@@ -302,10 +303,16 @@ const pct = x => num(Math.round(x)) + "٪";
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
 const fmtTime = s => { if (s == null || isNaN(s)) return ""; s = Math.max(0, Math.floor(s)); return Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0"); };
 const parseTime = str => {
-  str = String(str || "").trim().replace(/[٠-٩]/g, d => "٠١٢٣٤٥٦٧٨٩".indexOf(d)).replace(/[٫,.]/g, ":");
+  // يقبل 2:35 و ٢:٣٥ و 2.35 و ٢،٣٥ و 2-35 و 2 35 و 155 (ثوانٍ) و 1:02:35
+  str = String(str || "")
+    .replace(/[٠-٩]/g, d => "٠١٢٣٤٥٦٧٨٩".indexOf(d))
+    .replace(/[۰-۹]/g, d => "۰۱۲۳۴۵۶۷۸۹".indexOf(d))
+    .replace(/[\u200e\u200f\u061c]/g, "")
+    .trim();
   if (!str) return null;
-  const p = str.split(":").map(Number);
-  if (p.some(x => isNaN(x) || x < 0)) return NaN;
+  const p = str.split(/[^0-9]+/).filter(Boolean).map(Number);
+  if (!p.length || p.length > 3 || /[^0-9:.,٫،\-\s]/.test(str)) return NaN;
+  if (p.length > 1 && p.slice(1).some(x => x >= 60)) return NaN;
   return p.reduce((a, b) => a * 60 + b, 0);
 };
 const byOrder = (a, b) => (Number(a.order) || 0) - (Number(b.order) || 0) || String(a.name || a.title || "").localeCompare(String(b.name || b.title || ""), "ar");
@@ -977,7 +984,7 @@ async function viewEditor(arg) {
   const segBox = $("#e-segs");
   segBox.addEventListener("input", e => {
     const t = e.target, s = Number(t.dataset.s), q = Number(t.dataset.q), o = Number(t.dataset.o);
-    if (t.dataset.k === "end") E.segments[s].endText = t.value;
+    if (t.dataset.k === "end") { E.segments[s].endText = t.value; markEnd(t); }
     if (t.dataset.k === "qtext") E.segments[s].questions[q].text = t.value;
     if (t.dataset.k === "opt") E.segments[s].questions[q].options[o] = t.value;
   });
@@ -1034,13 +1041,19 @@ function loadEditPlayer() {
     EP.player = new YT.Player("e-yt", { videoId: E.videoId, playerVars: { rel: 0, playsinline: 1, modestbranding: 1, ...ytOrigin() } });
   });
 }
+function markEnd(el) {
+  const v = parseTime(el.value);
+  const bad = Number.isNaN(v);
+  el.classList.toggle("bad", bad);
+  el.title = bad ? "اكتب الوقت بصيغة دقائق:ثوانٍ، مثل 2:35" : (v != null ? "= " + num(v) + " ثانية" : "");
+}
 function drawEditorSegs() {
   const n = E.segments.length;
   $("#e-segs").innerHTML = E.segments.map((s, si) => `
     <div class="seg">
       <div class="seg-head">
         <h3>الجزء ${num(si + 1)}</h3>
-        <label class="end">ينتهي عند <input id="end-${si}" data-k="end" data-s="${si}" value="${esc(s.endText)}" placeholder="${si === n - 1 ? "نهاية المقطع" : "د:ث"}" inputmode="numeric"></label>
+        <label class="end">ينتهي عند <input id="end-${si}" data-k="end" data-s="${si}" value="${esc(s.endText)}" placeholder="${si === n - 1 ? "نهاية المقطع" : "د:ث"}" inputmode="text" autocomplete="off"></label>
         <button class="btn ghost sm" type="button" data-act="now" data-s="${si}">الوقت الحالي</button>
         ${n > 1 ? `<button class="btn danger sm" type="button" data-act="delSeg" data-s="${si}">حذف الجزء</button>` : ""}
       </div>
