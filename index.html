@@ -830,7 +830,7 @@ async function viewTeacher() {
           <td><span class="chip ${subjClass(l.subject)}">${esc(l.subject)}</span></td>
           <td>${esc(l.unit || "—")}</td>
           <td class="num">${num((l.segments || []).length)} / ${num(qCount(l))} س</td>
-          <td>${l.published ? `<span class="chip bio">منشور</span>` : `<span class="chip draft">مسودة</span>`}</td>
+          <td>${l.complete === false ? `<span class="chip draft">مسودة غير مكتملة</span>` : l.published ? `<span class="chip bio">منشور</span>` : `<span class="chip draft">غير منشور</span>`}</td>
           <td><div class="row">
             <a class="btn ghost sm" href="#edit=${encodeURIComponent(l.id)}">تعديل</a>
             <button class="btn ghost sm" type="button" data-act="link">نسخ الرابط</button>
@@ -843,6 +843,7 @@ async function viewTeacher() {
     const b = e.target.closest("button[data-act]"); if (!b) return;
     const id = b.closest("tr").dataset.id, l = lessons.find(x => x.id === id);
     if (b.dataset.act === "link") copy(lessonLink(id));
+    if (b.dataset.act === "pub" && l.complete === false && !l.published) { toast("الدرس غير مكتمل. افتحه بزر «تعديل» وأكمله ثم احفظه."); return; }
     if (b.dataset.act === "pub") { await Store.saveLesson({ ...l, published: !l.published }); toast(l.published ? "أُخفي الدرس عن الطلاب" : "نُشر الدرس"); viewTeacher(); }
     if (b.dataset.act === "del") armDelete(b, async () => { await Store.deleteLesson(id); toast("حُذف الدرس"); viewTeacher(); });
   });
@@ -868,7 +869,8 @@ async function viewEditor(arg) {
     if (!l) { app.innerHTML = `<div class="empty"><h2>الدرس غير موجود</h2><a class="btn ghost" href="#teacher">العودة</a></div>`; return; }
     E = JSON.parse(JSON.stringify(l));
     E.bank = (E.bank || []).map(q => ({ ...q, pick: false }));
-    E.segments = (E.segments || []).map(s => ({ endText: s.end != null ? fmtTime(s.end) : "", questions: (s.questions || []).map(q => ({ ...q, options: [...q.options] })) }));
+    if (E.complete === false && E.wantPublished != null) E.published = E.wantPublished;
+    E.segments = (E.segments || []).map(s => ({ endText: s.endText != null && s.endText !== "" ? s.endText : (s.end != null ? fmtTime(s.end) : ""), questions: (s.questions || []).map(q => ({ ...q, options: [...q.options] })) }));
   }
   if (!grades.some(g => g.id === E.gradeId)) E.gradeId = grades[0].id;
   const subjOpts = [...new Set([...SUBJECTS, E.subject].filter(Boolean))];
@@ -1031,8 +1033,8 @@ async function viewEditor(arg) {
   };
   segBox.addEventListener("click", onAct);
   $("#e-addseg").addEventListener("click", onAct);
-  $("#e-save").addEventListener("click", () => saveDraft(false));
-  $("#e-try").addEventListener("click", () => saveDraft(true));
+  $("#e-save").addEventListener("click", () => saveDraft("save"));
+  $("#e-try").addEventListener("click", () => saveDraft("try"));
 }
 function loadEditPlayer() {
   $("#e-vwrap").hidden = false;
@@ -1146,7 +1148,8 @@ async function generateLessonQuestions() {
     }));
     drawBank();
     $("#bank").scrollIntoView({ behavior: "smooth", block: "start" });
-    toast(`وصل ${num(qs.length)} سؤالاً إلى بنك الأسئلة. اختر الجزء لكل سؤال ثم أضفها.`);
+    await saveDraft("auto");
+    toast(`وصل ${num(qs.length)} سؤالاً إلى بنك الأسئلة وحُفظ مع الدرس. اختر الجزء لكل سؤال ثم أضفها.`);
   } catch (e) {
     console.error(e);
     toast("تعذّر توليد الأسئلة: " + (e.message || e));
@@ -1154,11 +1157,12 @@ async function generateLessonQuestions() {
     btn.disabled = false; btn.textContent = "ولّد الأسئلة";
   }
 }
-async function saveDraft(thenTry) {
+// mode: "save" (حفظ والعودة للوحة)، "try" (حفظ وتجربة كطالب)، "auto" (حفظ صامت والبقاء في الصفحة)
+async function saveDraft(mode = "save") {
+  if (mode === true) mode = "try"; else if (mode === false) mode = "save";
   const errs = [];
   E.title = (E.title || "").trim();
   if (!E.title) errs.push("اكتب عنوان الدرس.");
-  if (!E.gradeId) errs.push("اختر الصف.");
   if (!E.videoId) { const id = ytId($("#e-url").value); if (id) { E.videoId = id; E.videoUrl = $("#e-url").value.trim(); } else errs.push("أضف رابط مقطع يوتيوب صحيحاً ثم اضغط «تحميل»."); }
   if (!E.speeds.length) E.speeds = [1];
   let prev = 0;
@@ -1168,40 +1172,61 @@ async function saveDraft(thenTry) {
     if (Number.isNaN(end)) errs.push(`الجزء ${num(si + 1)}: وقت النهاية غير صحيح، اكتبه بصيغة د:ث مثل 2:35.`);
     else if (end == null && !last) errs.push(`الجزء ${num(si + 1)}: حدّد وقت نهايته.`);
     else if (end != null) { if (end <= prev) errs.push(`الجزء ${num(si + 1)}: يجب أن تكون نهايته بعد نهاية الجزء السابق.`); prev = end; }
-    if (!s.questions.length) errs.push(`الجزء ${num(si + 1)}: أضف سؤالاً واحداً على الأقل.`);
+    const filled = s.questions.filter(q => q.text.trim() || q.options.some(o => o.trim()));
+    if (!filled.length) errs.push(`الجزء ${num(si + 1)}: أضف سؤالاً واحداً على الأقل.`);
     const questions = s.questions.map((q, qi) => {
       const label = `الجزء ${num(si + 1)}، السؤال ${num(qi + 1)}`;
       const options = q.options.map(o => o.trim());
-      if (!q.text.trim()) errs.push(`${label}: اكتب نص السؤال.`);
-      if (options.some(o => !o)) errs.push(`${label}: املأ كل الخيارات أو احذف الفارغ منها.`);
-      if (q.correct == null || q.correct >= options.length) errs.push(`${label}: علّم الإجابة الصحيحة.`);
-      return { text: q.text.trim(), options, correct: q.correct };
+      const blank = !q.text.trim() && options.every(o => !o);
+      if (!blank) {
+        if (!q.text.trim()) errs.push(`${label}: اكتب نص السؤال.`);
+        if (options.some(o => !o)) errs.push(`${label}: املأ كل الخيارات أو احذف الفارغ منها.`);
+        if (q.correct == null || q.correct >= options.length) errs.push(`${label}: علّم الإجابة الصحيحة.`);
+      }
+      return { text: q.text.trim(), options, correct: q.correct ?? null };
     });
-    const seg = { end: Number.isNaN(end) ? null : end, questions };
-    return seg;
+    // يُحفظ النص كما كُتب أيضاً حتى لا يضيع وقت غير مكتمل في المسودة
+    return { end: Number.isNaN(end) ? null : end, endText: (s.endText || "").trim(), questions };
   });
-  if (errs.length) {
-    $("#e-errors").innerHTML = `<div class="errors"><b>قبل الحفظ:</b><ul>${errs.slice(0, 12).map(e => `<li>${esc(e)}</li>`).join("")}</ul></div>`;
-    $("#e-errors").scrollIntoView({ behavior: "smooth", block: "center" });
-    return;
-  }
-  $("#e-errors").innerHTML = "";
+  const complete = !errs.length;
+  // السؤال الفارغ تماماً لا يُنشر للطالب
+  if (complete) segments.forEach(sg => (sg.questions = sg.questions.filter(q => q.text || q.options.some(Boolean))));
+  const wasPublished = !!E.published;
+  const published = complete && wasPublished;
   const lesson = {
-    title: E.title, subject: E.subject, unit: (E.unit || "").trim(), gradeId: E.gradeId,
+    title: E.title || "درس بلا عنوان", subject: E.subject, unit: (E.unit || "").trim(), gradeId: E.gradeId,
     teacher: (E.teacher || "").trim(), school: (E.school || "").trim(),
-    videoId: E.videoId, videoUrl: E.videoUrl || "", passPct: Number(E.passPct) || 100,
-    speeds: E.speeds.slice().sort((a, b) => a - b), published: !!E.published, order: Number(E.order) || 0,
+    videoId: E.videoId || "", videoUrl: E.videoUrl || "", passPct: Number(E.passPct) || 100,
+    speeds: E.speeds.slice().sort((a, b) => a - b), published, complete, wantPublished: wasPublished, order: Number(E.order) || 0,
     segments, updatedAt: new Date().toISOString(),
     source: (E.source || "").trim(),
     bank: (E.bank || []).map(({ text, options, correct, time, seg }) => ({ text, options, correct, time: time ?? null, seg: seg ?? -1 }))
   };
   if (E.id) lesson.id = E.id;
+  let id;
   try {
-    const id = await Store.saveLesson(lesson);
-    ls.set("lastLesson", { gradeId: lesson.gradeId, subject: lesson.subject, teacher: lesson.teacher, school: lesson.school });
-    toast("حُفظ الدرس");
-    location.hash = thenTry ? "lesson=" + encodeURIComponent(id) : "teacher";
-  } catch (e) { console.error(e); toast("تعذّر الحفظ: " + (e.code || e.message)); }
+    id = await Store.saveLesson(lesson);
+  } catch (e) { console.error(e); toast("تعذّر الحفظ: " + (e.code || e.message)); return false; }
+  ls.set("lastLesson", { gradeId: lesson.gradeId, subject: lesson.subject, teacher: lesson.teacher, school: lesson.school });
+  if (!E.id) { E.id = id; history.replaceState(null, "", "#edit=" + encodeURIComponent(id)); }
+
+  if (complete && mode !== "auto") {
+    $("#e-errors").innerHTML = "";
+    toast(published ? "حُفظ الدرس" : "حُفظ الدرس (غير منشور للطلاب)");
+    location.hash = mode === "try" ? "lesson=" + encodeURIComponent(id) : "teacher";
+    return true;
+  }
+  if (mode === "auto") {
+    toast(complete ? "حُفظ الدرس تلقائياً" : "حُفظ الدرس تلقائياً كمسودة");
+  } else {
+    toast("حُفظ الدرس كمسودة");
+  }
+  if (!complete) {
+    if (wasPublished) { const cb = $("#e-pub"); if (cb) cb.checked = true; }
+    $("#e-errors").innerHTML = `<div class="errors"><b>حُفظ الدرس كمسودة${wasPublished ? "، ولن يظهر للطلاب حتى يكتمل" : ""}. أكمل ما يلي${mode === "try" ? " لتجربته كطالب" : ""}:</b><ul>${errs.slice(0, 12).map(e => `<li>${esc(e)}</li>`).join("")}${errs.length > 12 ? `<li>و${num(errs.length - 12)} ملاحظات أخرى.</li>` : ""}</ul></div>`;
+    if (mode !== "auto") $("#e-errors").scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+  return true;
 }
 
 /* ======================= النتائج ======================= */
