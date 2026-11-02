@@ -19,6 +19,7 @@
   --bad:#B4432A; --bad-soft:#F8E4DD; --good:#2C6E63; --good-soft:#DDF0EC;
   --note-bg:#FFF3D1; --note-ink:#5E4600;
   --t-gold:#A9770E; --t-silver:#5E6B78; --t-bronze:#A0602F;
+  --lab:#263A55; --lab-soft:#D9EEEA;
   --f-display:"Readex Pro","IBM Plex Sans Arabic",Tahoma,sans-serif;
   --f-body:"IBM Plex Sans Arabic",Tahoma,"Segoe UI",sans-serif;
   --r:12px;
@@ -28,13 +29,13 @@
   --bg:#131A26; --surface:#1B2434; --soft:#252F45; --ink:#EDEAF4; --muted:#A3ACC0; --line:#2E3A50;
   --accent:#A797D6; --accent-2:#BBAFE2; --on-accent:#1B1530;
   --sci:#BBAFE2; --sci-soft:#2C2748; --bio:#A8D8D0; --bio-soft:#1D3A38; --bad:#F08B6C; --bad-soft:#3A1F18; --good:#A8D8D0; --good-soft:#1D3A38;
-  --note-bg:#3A3112; --note-ink:#F2DC97; --t-gold:#F2C94C; --t-silver:#C9D2DB; --t-bronze:#E9A56E; color-scheme:dark;
+  --note-bg:#3A3112; --note-ink:#F2DC97; --t-gold:#F2C94C; --t-silver:#C9D2DB; --t-bronze:#E9A56E; --lab:#A8D8D0; --lab-soft:#1D3A38; color-scheme:dark;
 }}
 :root[data-theme="dark"]{
   --bg:#131A26; --surface:#1B2434; --soft:#252F45; --ink:#EDEAF4; --muted:#A3ACC0; --line:#2E3A50;
   --accent:#A797D6; --accent-2:#BBAFE2; --on-accent:#1B1530;
   --sci:#BBAFE2; --sci-soft:#2C2748; --bio:#A8D8D0; --bio-soft:#1D3A38; --bad:#F08B6C; --bad-soft:#3A1F18; --good:#A8D8D0; --good-soft:#1D3A38;
-  --note-bg:#3A3112; --note-ink:#F2DC97; --t-gold:#F2C94C; --t-silver:#C9D2DB; --t-bronze:#E9A56E; color-scheme:dark;
+  --note-bg:#3A3112; --note-ink:#F2DC97; --t-gold:#F2C94C; --t-silver:#C9D2DB; --t-bronze:#E9A56E; --lab:#A8D8D0; --lab-soft:#1D3A38; color-scheme:dark;
 }
 *{box-sizing:border-box}
 html,body{margin:0}
@@ -221,6 +222,15 @@ details.ai .ai-body{display:grid;gap:10px;padding:0 14px 14px;font-size:.92rem}
 .bq-side{display:flex;gap:4px;align-items:center}
 .bq-side select{width:auto;padding:6px 8px;font-size:.88rem}
 @media (max-width:560px){.bq{grid-template-columns:auto minmax(0,1fr)}.bq-side{grid-column:2}}
+.chip.lab{background:var(--lab-soft);color:var(--lab)}
+.labcard{border-style:dashed;border-color:var(--accent)}
+.lab-frame{display:block;width:100%;height:min(80vh,860px);border:1px solid var(--line);border-radius:var(--r);background:#fff}
+.ed-side .lab-frame{height:min(60vh,620px)}
+.lab-wrap:fullscreen{background:var(--bg);padding:8px}
+.lab-wrap:fullscreen .lab-frame{height:calc(100vh - 16px)}
+.lab-empty{display:grid;place-items:center;text-align:center;height:min(60vh,520px);border:1px dashed var(--line);border-radius:var(--r);color:var(--muted);padding:20px}
+.progress{font-variant-numeric:tabular-nums;color:var(--accent);font-weight:600}
+.labdone{background:var(--good-soft);color:var(--good);border-radius:var(--r);padding:14px 18px;font-weight:600}
 .linkbtn{border:0;background:none;color:var(--accent);cursor:pointer;font-weight:600;padding:4px 0;justify-self:start}
 .errors{background:var(--bad-soft);color:var(--bad);border-radius:8px;padding:12px 16px}
 .errors ul{margin:6px 0 0;padding-inline-start:20px}
@@ -308,6 +318,7 @@ const num = x => Number(x).toLocaleString("ar-SA");
 const plural = (n, one, two, few, many) => n === 1 ? one : n === 2 ? two : (n % 100 >= 3 && n % 100 <= 10) ? num(n) + " " + few : num(n) + " " + many;
 const nLessons = n => plural(n, "درس واحد", "درسان", "دروس", "درساً");
 const nParts = n => plural(n, "جزء واحد", "جزءان", "أجزاء", "جزءاً");
+const nLabs = n => plural(n, "مختبر واحد", "مختبران", "مختبرات", "مختبراً");
 const nQs = n => plural(n, "سؤال واحد", "سؤالان", "أسئلة", "سؤالاً");
 const pct = x => num(Math.round(x)) + "٪";
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
@@ -369,7 +380,11 @@ const LocalStore = {
   async deleteLesson(id) { this._save("lessons", this._all("lessons").filter(x => x.id !== id)); },
   async addResult(r) { this._upsert("results", { ...r }); },
   async results() { return this._all("results"); },
-  async deleteResult(id) { this._save("results", this._all("results").filter(x => x.id !== id)); }
+  async deleteResult(id) { this._save("results", this._all("results").filter(x => x.id !== id)); },
+  async labs(all) { const a = this._all("labs"); return all ? a : a.filter(l => l.published); },
+  async getLab(id) { return this._all("labs").find(l => l.id === id) || null; },
+  async saveLab(l) { return this._upsert("labs", { ...l }); },
+  async deleteLab(id) { this._save("labs", this._all("labs").filter(x => x.id !== id)); }
 };
 /* Supabase: جدولا lessons و results (انظر ملف supabase.sql) */
 let sb = null;
@@ -409,9 +424,27 @@ const SupaStore = {
     }));
   },
   async results() { return ok(await sb.from("results").select("*").order("completed_at", { ascending: false }).limit(5000)).map(rowToResult); },
-  async deleteResult(id) { ok(await sb.from("results").delete().eq("id", id)); }
+  async deleteResult(id) { ok(await sb.from("results").delete().eq("id", id)); },
+  async labs(all) {
+    let q = sb.from("labs").select("*");
+    if (!all) q = q.eq("published", true);
+    return ok(await q).map(rowToLesson);
+  },
+  async getLab(id) {
+    if (!isUuid(id)) return null;
+    const { data, error } = await sb.from("labs").select("*").eq("id", id).maybeSingle();
+    return error || !data ? null : rowToLesson(data);
+  },
+  async saveLab(l) {
+    const { id, gradeId, published, order, ...data } = l;
+    const row = { grade_id: gradeId || null, published: !!published, sort: Number(order) || 0, data, updated_at: new Date().toISOString() };
+    if (id) { ok(await sb.from("labs").update(row).eq("id", id)); return id; }
+    return ok(await sb.from("labs").insert(row).select("id").single()).id;
+  },
+  async deleteLab(id) { ok(await sb.from("labs").delete().eq("id", id)); }
 };
 let Store = LocalStore;
+const safeLabs = async all => { try { return await Store.labs(all); } catch (e) { console.warn("labs:", e); return []; } };
 const state = { user: null, isTeacher: DEMO, authReady: DEMO };
 
 /* ======================= التنقل ======================= */
@@ -422,15 +455,15 @@ function hashParts() {
 }
 function renderNav() {
   const { k } = hashParts();
-  const items = [["#", "الصفوف", ["home", "grade", "lesson"].includes(k)]];
-  if (state.isTeacher) items.push(["#teacher", "لوحة المعلمة", ["teacher", "edit"].includes(k)], ["#results", "النتائج", k === "results"]);
+  const items = [["#", "الصفوف", ["home", "grade", "lesson", "lab"].includes(k)]];
+  if (state.isTeacher) items.push(["#teacher", "لوحة المعلمة", ["teacher", "edit"].includes(k)], ["#labs", "المختبرات", ["labs", "labedit"].includes(k)], ["#results", "النتائج", k === "results"]);
   let html = items.map(([h, t, on]) => `<a href="${h}" class="${on ? "on" : ""}">${t}</a>`).join("");
   if (!DEMO) html += state.user ? `<button id="signout" type="button">خروج</button>` : `<a href="#teacher" class="${k === "teacher" ? "on" : ""}">دخول المعلمة</a>`;
   $("#nav").innerHTML = html;
   $("#signout")?.addEventListener("click", async () => { await sb.auth.signOut(); location.hash = ""; });
 }
 async function route() {
-  stopPlayer(); stopEditPlayer();
+  stopPlayer(); stopEditPlayer(); stopLab();
   app.classList.remove("wide");
   renderNav();
   const { k, v } = hashParts();
@@ -438,12 +471,15 @@ async function route() {
   try {
     if (k === "grade") return await viewGrade(v);
     if (k === "lesson") return await viewLesson(v);
-    if (["teacher", "edit", "results"].includes(k)) {
+    if (k === "lab") return await viewLab(v);
+    if (["teacher", "edit", "results", "labs", "labedit"].includes(k)) {
       if (!state.authReady) { app.innerHTML = `<p class="loading">جارٍ التحقق من الدخول…</p>`; return; }
       if (!state.isTeacher) return viewLogin();
       if (k === "teacher") return await viewTeacher();
       if (k === "edit") return await viewEditor(v);
       if (k === "results") return await viewResults();
+      if (k === "labs") return await viewLabs();
+      if (k === "labedit") return await viewLabEditor(v);
     }
     return await viewHome();
   } catch (e) {
@@ -477,8 +513,8 @@ function viewLogin() {
 /* ======================= الصفحة الرئيسية ======================= */
 async function viewHome() {
   app.innerHTML = `<p class="loading">جارٍ التحميل…</p>`;
-  const [allGrades, lessons] = await Promise.all([Store.grades(), Store.lessons(false)]);
-  const grades = allGrades.filter(g => lessons.some(l => l.gradeId === g.id));
+  const [allGrades, lessons, labs] = await Promise.all([Store.grades(), Store.lessons(false), safeLabs(false)]);
+  const grades = allGrades.filter(g => lessons.some(l => l.gradeId === g.id) || labs.some(l => l.gradeId === g.id));
   const head = `<section class="hero"><p class="tagline"><bdi lang="en" dir="ltr">${SITE_TAGLINE_EN}</bdi> · ${SITE_TAGLINE_AR}</p><h1>اختاري صفّك</h1><p class="muted">كل درس مقطع مرئي مقسّم إلى أجزاء، وفي نهاية كل جزء أسئلة قصيرة. أجيبي عنها لتنتقلي إلى الجزء التالي، وتحصلي على شارة إنجاز في النهاية.</p></section>`;
   if (!grades.length) {
     app.innerHTML = head + `<div class="empty"><h2>لا توجد دروس منشورة بعد</h2><p>${state.isTeacher ? "أنشئ أول درس واختر صفّه، وسيظهر الصف هنا للطالبات." : "ستضيف المعلمة الدروس قريباً."}</p>${state.isTeacher ? `<a class="btn" href="#edit=new">+ درس جديد</a>` : ""}</div>`;
@@ -491,7 +527,7 @@ async function viewHome() {
     return `<a class="grade" href="#grade=${encodeURIComponent(g.id)}">
       ${g.stage ? `<span class="stage">${esc(g.stage)}</span>` : ""}
       <h2>${esc(g.name)}</h2>
-      <div class="counts">${counts.map(([s, n]) => `<span class="chip ${subjClass(s)}">${esc(s)}: ${nLessons(n)}</span>`).join("")}${other ? `<span class="chip draft">أخرى: ${nLessons(other)}</span>` : ""}${!ls_.length ? `<span class="muted" style="font-size:.85rem">لا دروس بعد</span>` : ""}</div>
+      <div class="counts">${counts.map(([s, n]) => `<span class="chip ${subjClass(s)}">${esc(s)}: ${nLessons(n)}</span>`).join("")}${other ? `<span class="chip draft">أخرى: ${nLessons(other)}</span>` : ""}${(() => { const n = labs.filter(l => l.gradeId === g.id).length; return n ? `<span class="chip lab">المختبرات: ${nLabs(n)}</span>` : ""; })()}${!ls_.length && !labs.some(l => l.gradeId === g.id) ? `<span class="muted" style="font-size:.85rem">لا دروس بعد</span>` : ""}</div>
     </a>`;
   }).join("")}</section>`;
 }
@@ -499,11 +535,12 @@ async function viewHome() {
 /* ======================= صفحة الصف ======================= */
 async function viewGrade(id) {
   app.innerHTML = `<p class="loading">جارٍ التحميل…</p>`;
-  const [grades, all] = await Promise.all([Store.grades(), Store.lessons(false)]);
+  const [grades, all, allLabs] = await Promise.all([Store.grades(), Store.lessons(false), safeLabs(false)]);
   const g = grades.find(x => x.id === id);
+  const labs = allLabs.filter(l => l.gradeId === id).sort(byOrder);
   if (!g) { app.innerHTML = `<div class="empty"><h2>الصف غير موجود</h2><a class="btn ghost" href="#">العودة إلى الصفوف</a></div>`; return; }
   const lessons = all.filter(l => l.gradeId === id).sort(byOrder);
-  const subjects = [...new Set(lessons.map(l => l.subject))];
+  const subjects = [...new Set([...lessons, ...labs].map(l => l.subject))];
   let filter = "الكل";
   app.innerHTML = `
     <div class="lesson-head"><div class="crumbs"><a href="#">الصفوف</a> › ${esc(g.name)}</div><h1>${esc(g.name)}</h1></div>
@@ -511,10 +548,17 @@ async function viewGrade(id) {
     <div id="list" class="stack" style="gap:28px"></div>`;
   const draw = () => {
     const shown = lessons.filter(l => filter === "الكل" || l.subject === filter);
-    if (!shown.length) { $("#list").innerHTML = `<div class="empty"><p>لا توجد دروس منشورة لهذا الصف بعد.</p></div>`; return; }
+    const shownLabs = labs.filter(l => filter === "الكل" || l.subject === filter);
+    const labsHtml = shownLabs.length ? `<section class="unit"><h2>المختبرات الافتراضية</h2><div class="lessons">${shownLabs.map(l => `
+      <a class="lesson labcard" href="#lab=${encodeURIComponent(l.id)}">
+        <span class="row" style="gap:6px"><span class="chip lab">مختبر</span><span class="chip ${subjClass(l.subject)}">${esc(l.subject)}</span></span>
+        <h3>${esc(l.title)}</h3>
+        <span class="meta">${esc(l.unit || "جرّبي واكتشفي بنفسك")}</span>
+      </a>`).join("")}</div></section>` : "";
+    if (!shown.length && !shownLabs.length) { $("#list").innerHTML = `<div class="empty"><p>لا توجد دروس منشورة لهذا الصف بعد.</p></div>`; return; }
     const units = [];
     shown.forEach(l => { const u = (l.unit || "").trim() || "دروس الصف"; let e = units.find(x => x[0] === u); if (!e) units.push(e = [u, []]); e[1].push(l); });
-    $("#list").innerHTML = units.map(([u, arr]) => `<section class="unit"><h2>${esc(u)}</h2><div class="lessons">${arr.map(l => `
+    $("#list").innerHTML = labsHtml + units.map(([u, arr]) => `<section class="unit"><h2>${esc(u)}</h2><div class="lessons">${arr.map(l => `
       <a class="lesson" href="#lesson=${encodeURIComponent(l.id)}">
         <span><span class="chip ${subjClass(l.subject)}">${esc(l.subject)}</span></span>
         <h3>${esc(l.title)}</h3>
@@ -843,6 +887,7 @@ async function viewTeacher() {
           <td>${l.complete === false ? `<span class="chip draft">مسودة غير مكتملة</span>` : l.published ? `<span class="chip bio">منشور</span>` : `<span class="chip draft">غير منشور</span>`}</td>
           <td><div class="row">
             <a class="btn ghost sm" href="#edit=${encodeURIComponent(l.id)}">تعديل</a>
+            <a class="btn ghost sm" href="#labedit=new&lesson=${encodeURIComponent(l.id)}" title="إنشاء مختبر افتراضي لهذا الدرس">مختبر</a>
             <button class="btn ghost sm" type="button" data-act="link">نسخ الرابط</button>
             <button class="btn ghost sm" type="button" data-act="pub">${l.published ? "إخفاء" : "نشر"}</button>
             <button class="btn danger sm" type="button" data-act="del">حذف</button>
@@ -1244,6 +1289,317 @@ async function saveDraft(mode = "save") {
     if (mode !== "auto") $("#e-errors").scrollIntoView({ behavior: "smooth", block: "center" });
   }
   return true;
+}
+
+
+/* ======================= المختبرات الافتراضية ======================= */
+const LAB_SANDBOX = "allow-scripts allow-pointer-lock";
+let labMsgHandler = null;
+function stopLab() { if (labMsgHandler) { window.removeEventListener("message", labMsgHandler); labMsgHandler = null; } }
+function setFrame(frame, html) { frame.srcdoc = html || ""; }
+
+// صفحة المختبر للطالبة
+async function viewLab(id) {
+  app.innerHTML = `<p class="loading">جارٍ تحميل المختبر…</p>`;
+  const [lab, grades] = await Promise.all([Store.getLab(id), Store.grades()]);
+  if (!lab || !lab.html) { app.innerHTML = `<div class="empty"><h2>المختبر غير متاح</h2><p>ربما لم يُنشر بعد أو حُذف.</p><a class="btn ghost" href="#">العودة إلى الصفوف</a></div>`; return; }
+  app.classList.add("wide");
+  const g = grades.find(x => x.id === lab.gradeId);
+  app.innerHTML = `
+    <div class="lesson-head">
+      <div class="crumbs"><a href="#">الصفوف</a>${g ? ` › <a href="#grade=${encodeURIComponent(g.id)}">${esc(g.name)}</a>` : ""} › المختبرات</div>
+      <div class="row"><span class="chip lab">مختبر افتراضي</span><span class="chip ${subjClass(lab.subject)}">${esc(lab.subject)}</span>${lab.published ? "" : `<span class="chip draft">غير منشور</span>`}</div>
+      <h1>${esc(lab.title)}</h1>
+    </div>
+    <div class="row noprint">
+      <button class="btn ghost sm" type="button" id="lab-full">ملء الشاشة</button>
+      <button class="btn ghost sm" type="button" id="lab-reset">إعادة المختبر من البداية</button>
+    </div>
+    <div id="lab-done" aria-live="polite"></div>
+    <div class="lab-wrap" id="lab-wrap"><iframe class="lab-frame" id="lab-frame" title="${esc(lab.title)}" sandbox="${LAB_SANDBOX}"></iframe></div>`;
+  const frame = $("#lab-frame");
+  setFrame(frame, lab.html);
+  $("#lab-reset").addEventListener("click", () => { setFrame(frame, lab.html); $("#lab-done").innerHTML = ""; });
+  $("#lab-full").addEventListener("click", () => { const w = $("#lab-wrap"); (w.requestFullscreen ? w.requestFullscreen() : Promise.reject()).catch(() => toast("ملء الشاشة غير متاح في هذا المتصفح.")); });
+  labMsgHandler = e => {
+    if (e.source !== frame.contentWindow || !e.data || e.data.type !== "labeeba-lab-complete") return;
+    const score = Math.max(0, Math.min(100, Math.round(Number(e.data.score) || 100)));
+    $("#lab-done").innerHTML = `<div class="labdone">أحسنتِ! أنجزتِ مختبر «${esc(lab.title)}» بنسبة ${pct(score)}.</div>`;
+    $("#lab-done").scrollIntoView({ behavior: "smooth", block: "center" });
+    const mine = ls.get("labsDone", {}); mine[lab.id] = Math.max(mine[lab.id] || 0, score); ls.set("labsDone", mine);
+  };
+  window.addEventListener("message", labMsgHandler);
+}
+
+// قائمة مختبرات المعلمة
+async function viewLabs() {
+  app.innerHTML = `<p class="loading">جارٍ التحميل…</p>`;
+  let labs;
+  try { labs = await Store.labs(true); }
+  catch (e) {
+    app.innerHTML = `<div class="empty"><h2>جدول المختبرات غير موجود بعد</h2><p>شغّلي آخر نسخة من ملف supabase.sql في SQL Editor ثم حدّثي الصفحة. (${esc(e.code || e.message)})</p></div>`;
+    return;
+  }
+  const grades = await Store.grades();
+  app.innerHTML = `
+    <div class="dash-head">
+      <div><span class="eyebrow">لوحة المعلمة</span><h1>المختبرات الافتراضية</h1><p class="muted">صفي المختبر الذي تريدينه، ويبنيه الذكاء الاصطناعي من نص الدرس، ثم تجرّبينه وتعدّلينه قبل نشره.</p></div>
+      <a class="btn" href="#labedit=new">+ مختبر جديد</a>
+    </div>
+    <section class="stack" id="lab-groups"></section>`;
+  const groups = [...grades.map(g => [g, labs.filter(l => l.gradeId === g.id)]), [{ id: "", name: "مختبرات بلا صف" }, labs.filter(l => !grades.some(g => g.id === l.gradeId))]].filter(([, a]) => a.length);
+  if (!groups.length) {
+    $("#lab-groups").innerHTML = `<div class="empty"><h2>لا توجد مختبرات بعد</h2><p>ابدئي بمختبر لأحد دروسك: الصقي نص الدرس، واكتبي ما تريدين أن تجرّبه الطالبة.</p><a class="btn" href="#labedit=new">+ مختبر جديد</a></div>`;
+    return;
+  }
+  $("#lab-groups").innerHTML = groups.map(([g, arr]) => `
+    <div class="stack" style="gap:10px">
+      <h2>${esc(g.name)}</h2>
+      <div class="table-wrap"><table>
+        <thead><tr><th>المختبر</th><th>المادة</th><th>الحالة</th><th></th></tr></thead>
+        <tbody>${arr.sort(byOrder).map(l => `<tr data-id="${esc(l.id)}">
+          <td><b>${esc(l.title)}</b></td>
+          <td><span class="chip ${subjClass(l.subject)}">${esc(l.subject)}</span></td>
+          <td>${!l.html ? `<span class="chip draft">مسودة بلا مختبر</span>` : l.published ? `<span class="chip bio">منشور</span>` : `<span class="chip draft">غير منشور</span>`}</td>
+          <td><div class="row">
+            <a class="btn ghost sm" href="#labedit=${encodeURIComponent(l.id)}">تعديل</a>
+            <a class="btn ghost sm" href="#lab=${encodeURIComponent(l.id)}">فتح</a>
+            <button class="btn ghost sm" type="button" data-act="link">نسخ الرابط</button>
+            <button class="btn ghost sm" type="button" data-act="pub">${l.published ? "إخفاء" : "نشر"}</button>
+            <button class="btn danger sm" type="button" data-act="del">حذف</button>
+          </div></td></tr>`).join("")}</tbody></table></div>
+    </div>`).join("");
+  $("#lab-groups").addEventListener("click", async e => {
+    const b = e.target.closest("button[data-act]"); if (!b) return;
+    const id = b.closest("tr").dataset.id, l = labs.find(x => x.id === id);
+    if (b.dataset.act === "link") copy(location.origin + location.pathname + "#lab=" + encodeURIComponent(id));
+    if (b.dataset.act === "pub") {
+      if (!l.published && !l.html) { toast("ابني المختبر أولاً ثم انشريه."); return; }
+      await Store.saveLab({ ...l, published: !l.published }); toast(l.published ? "أُخفي المختبر عن الطالبات" : "نُشر المختبر"); viewLabs();
+    }
+    if (b.dataset.act === "del") armDelete(b, async () => { await Store.deleteLab(id); toast("حُذف المختبر"); viewLabs(); });
+  });
+}
+
+// محرر المختبر
+let LB = null;
+async function viewLabEditor(arg) {
+  app.innerHTML = `<p class="loading">جارٍ التحميل…</p>`;
+  const [idPart, ...rest] = arg.split("&");
+  const params = Object.fromEntries(rest.map(p => p.split("=")));
+  const [grades, lessons] = await Promise.all([Store.grades(), Store.lessons(true)]);
+  if (idPart === "new") {
+    const last = ls.get("lastLesson", {});
+    LB = { title: "", subject: last.subject || SUBJECTS[0], unit: "", gradeId: last.gradeId || grades[0].id, lessonId: params.lesson ? decodeURIComponent(params.lesson) : "", source: "", request: "", html: "", prevHtml: "", published: false, order: 0 };
+  } else {
+    let l;
+    try { l = await Store.getLab(idPart); } catch { l = null; }
+    if (!l) { app.innerHTML = `<div class="empty"><h2>المختبر غير موجود</h2><a class="btn ghost" href="#labs">العودة</a></div>`; return; }
+    LB = JSON.parse(JSON.stringify(l));
+  }
+  if (!grades.some(g => g.id === LB.gradeId)) LB.gradeId = grades[0].id;
+  if (LB.lessonId && !LB.source) { const ls0 = lessons.find(x => x.id === LB.lessonId); if (ls0) { LB.source = ls0.source || ""; LB.title = LB.title || ls0.title; LB.gradeId = ls0.gradeId || LB.gradeId; LB.subject = ls0.subject || LB.subject; } }
+  app.classList.add("wide");
+  const subjOpts = [...new Set([...SUBJECTS, LB.subject].filter(Boolean))];
+  const lessonOpts = () => lessons.filter(x => x.gradeId === LB.gradeId).sort(byOrder);
+  app.innerHTML = `
+    <div class="dash-head"><div><div class="crumbs"><a href="#labs">المختبرات</a> › ${LB.id ? "تعديل مختبر" : "مختبر جديد"}</div><h1 id="lb-h1">${LB.id ? esc(LB.title) : "مختبر جديد"}</h1></div></div>
+    <div class="ed-grid">
+     <div class="ed-main">
+      <section class="panel step s1"><h2><span class="n">١</span>بيانات المختبر</h2>
+        <div class="grid2">
+          <label class="f">عنوان المختبر<input id="lb-title" data-l="title" value="${esc(LB.title)}" placeholder="مثال: مختبر أنواع الصخور"></label>
+          <label class="f">الصف<select id="lb-grade" data-l="gradeId">${[...new Set(grades.map(g => g.stage || ""))].map(st => `<optgroup label="${esc(st || "الصفوف")}">${grades.filter(g => (g.stage || "") === st).map(g => `<option value="${esc(g.id)}" ${g.id === LB.gradeId ? "selected" : ""}>${esc(g.name)}</option>`).join("")}</optgroup>`).join("")}</select></label>
+          <label class="f">المادة<select id="lb-subject" data-l="subject">${subjOpts.map(x => `<option ${x === LB.subject ? "selected" : ""}>${esc(x)}</option>`).join("")}</select></label>
+          <label class="f">الوحدة (اختياري)<input id="lb-unit" data-l="unit" value="${esc(LB.unit || "")}"></label>
+          <label class="f">الدرس المرتبط (اختياري)<select id="lb-lesson"></select></label>
+        </div>
+      </section>
+      <section class="panel step s2"><h2><span class="n">٢</span>اطلبي المختبر</h2>
+        <div class="stack">
+          <label class="f">نص الدرس
+            <textarea id="lb-source" rows="7" placeholder="الصقي نص المقطع أو ملخص الدرس، أو اختاري الدرس المرتبط ليُملأ تلقائياً.">${esc(LB.source || "")}</textarea>
+          </label>
+          <label class="f">ماذا تريدين في المختبر؟
+            <textarea id="lb-request" rows="5" placeholder="مثال: مختبر تفرز فيه الطالبة عينات صخور بسحبها إلى ثلاث سلال (نارية، رسوبية، متحولة)، مع عدسة مكبّرة تُظهر النسيج والحبيبات، ثم سؤال عن كيفية تحوّل الصخر الرسوبي إلى متحول بالحرارة والضغط.">${esc(LB.request || "")}</textarea>
+          </label>
+          <div class="row">
+            <button class="btn" type="button" id="lb-build">${LB.html ? "أعيدي بناء المختبر من جديد" : "ابني المختبر"}</button>
+            <span class="muted" style="font-size:.85rem">يستغرق البناء من دقيقة إلى ثلاث دقائق.</span>
+          </div>
+          <details class="ai"><summary>لديكِ كود مختبر جاهز؟ الصقيه هنا</summary>
+            <div class="ai-body"><textarea id="lb-paste" rows="5" dir="ltr" placeholder="&lt;!DOCTYPE html&gt; …"></textarea><button class="btn ghost sm" type="button" id="lb-usepaste">استخدام هذا الكود</button></div>
+          </details>
+        </div>
+      </section>
+      <div id="lb-msg" class="s-err"></div>
+     </div>
+     <aside class="ed-side">
+      <section class="panel step s3"><h2><span class="n">٣</span>جرّبي المختبر</h2>
+        <div class="stack">
+          <div id="lb-preview"></div>
+          <div class="stack" id="lb-refine" ${LB.html ? "" : "hidden"}>
+            <label class="f">اطلبي تعديلاً
+              <textarea id="lb-change" rows="3" placeholder="مثال: كبّري العينات، وأضيفي مهمة رابعة عن الصخور المتحولة، واجعلي التغذية الراجعة أوضح."></textarea>
+            </label>
+            <div class="row">
+              <button class="btn ghost" type="button" id="lb-apply">طبّقي التعديل</button>
+              <button class="linkbtn" type="button" id="lb-undo" ${LB.prevHtml ? "" : "hidden"}>التراجع عن آخر تعديل</button>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section class="panel step s5"><h2><span class="n">٤</span>النشر</h2>
+        <div class="row">
+          <label class="row" style="gap:6px"><input type="checkbox" id="lb-pub" ${LB.published ? "checked" : ""} style="accent-color:var(--accent);width:18px;height:18px"> منشور للطالبات</label>
+          <span style="flex:1"></span>
+          <button class="btn" type="button" id="lb-save">حفظ المختبر</button>
+        </div>
+      </section>
+     </aside>
+    </div>`;
+  const fillLessonSel = () => {
+    const opts = lessonOpts();
+    $("#lb-lesson").innerHTML = `<option value="">بدون</option>` + opts.map(x => `<option value="${esc(x.id)}" ${x.id === LB.lessonId ? "selected" : ""}>${esc(x.title)}</option>`).join("");
+  };
+  fillLessonSel();
+  drawLabPreview();
+  $$("[data-l]").forEach(el => el.addEventListener("input", () => { LB[el.dataset.l] = el.value; if (el.dataset.l === "gradeId") fillLessonSel(); }));
+  $("#lb-source").addEventListener("input", e => (LB.source = e.target.value));
+  $("#lb-request").addEventListener("input", e => (LB.request = e.target.value));
+  $("#lb-pub").addEventListener("change", e => (LB.published = e.target.checked));
+  $("#lb-lesson").addEventListener("change", e => {
+    LB.lessonId = e.target.value;
+    const x = lessons.find(y => y.id === LB.lessonId); if (!x) return;
+    if (!LB.title.trim()) { LB.title = "مختبر: " + x.title; $("#lb-title").value = LB.title; }
+    if (x.subject) { LB.subject = x.subject; $("#lb-subject").value = x.subject; }
+    if (x.unit && !LB.unit) { LB.unit = x.unit; $("#lb-unit").value = x.unit; }
+    if (x.source && !LB.source.trim()) { LB.source = x.source; $("#lb-source").value = x.source; toast("أُضيف نص الدرس المرتبط."); }
+    else if (!x.source) toast("هذا الدرس ليس فيه نص محفوظ؛ الصقي نصه في خانة «نص الدرس».");
+  });
+  $("#lb-build").addEventListener("click", () => runLabAI(false));
+  $("#lb-apply").addEventListener("click", () => runLabAI(true));
+  $("#lb-undo").addEventListener("click", async () => {
+    if (!LB.prevHtml) return;
+    [LB.html, LB.prevHtml] = [LB.prevHtml, ""];
+    drawLabPreview(); await saveLab("auto"); toast("رجع المختبر إلى النسخة السابقة.");
+  });
+  $("#lb-usepaste").addEventListener("click", async () => {
+    const html = extractHtml($("#lb-paste").value);
+    if (!html) { toast("هذا ليس ملف HTML كاملاً. يجب أن يبدأ بـ <!DOCTYPE html> أو <html>."); return; }
+    LB.prevHtml = LB.html || ""; LB.html = html; drawLabPreview(); await saveLab("auto");
+  });
+  $("#lb-save").addEventListener("click", () => saveLab("save"));
+}
+function drawLabPreview(progress) {
+  const box = $("#lb-preview"); if (!box) return;
+  if (progress != null) {
+    box.innerHTML = `<div class="lab-empty"><div class="stack" style="justify-items:center"><span class="progress">${esc(progress)}</span><span>يكتب Claude المختبر الآن… لا تغلقي الصفحة.</span></div></div>`;
+    return;
+  }
+  if (!LB.html) {
+    box.innerHTML = `<div class="lab-empty"><p>سيظهر المختبر هنا بعد بنائه، وتستطيعين تجربته كما ستراه الطالبة.</p></div>`;
+  } else {
+    box.innerHTML = `<div class="lab-wrap" id="lb-wrap"><iframe class="lab-frame" id="lb-frame" title="معاينة المختبر" sandbox="${LAB_SANDBOX}"></iframe></div>
+      <div class="row" style="margin-top:8px"><button class="linkbtn" type="button" id="lb-full">ملء الشاشة</button><button class="linkbtn" type="button" id="lb-reload">إعادة تشغيل المعاينة</button><span class="muted" style="font-size:.82rem">حجم المختبر ${num(Math.round(LB.html.length / 1024))} ك.ب</span></div>`;
+    setFrame($("#lb-frame"), LB.html);
+    $("#lb-reload").addEventListener("click", () => setFrame($("#lb-frame"), LB.html));
+    $("#lb-full").addEventListener("click", () => { const w = $("#lb-wrap"); (w.requestFullscreen ? w.requestFullscreen() : Promise.reject()).catch(() => toast("ملء الشاشة غير متاح.")); });
+  }
+  const r = $("#lb-refine"); if (r) r.hidden = !LB.html;
+  const u = $("#lb-undo"); if (u) u.hidden = !LB.prevHtml;
+  const bb = $("#lb-build"); if (bb) bb.textContent = LB.html ? "أعيدي بناء المختبر من جديد" : "ابني المختبر";
+}
+function extractHtml(text) {
+  text = String(text || "").replace(/^\s*```(?:html)?\s*/i, "").replace(/```\s*$/i, "");
+  const start = text.search(/<!doctype html|<html[\s>]/i);
+  const end = text.toLowerCase().lastIndexOf("</html>");
+  if (start < 0 || end < start) return "";
+  return text.slice(start, end + 7);
+}
+async function runLabAI(isChange) {
+  if (DEMO) { toast("بناء المختبر يعمل بعد ربط المنصة بـ Supabase. يمكنك الآن لصق كود مختبر جاهز للتجربة."); return; }
+  const change = isChange ? ($("#lb-change").value || "").trim() : "";
+  if (isChange && change.length < 3) { toast("اكتبي التعديل المطلوب."); return; }
+  if (!isChange && (LB.request || "").trim().length < 10 && (LB.source || "").trim().length < 60) { toast("اكتبي وصف المختبر الذي تريدينه، أو الصقي نص الدرس."); return; }
+  const grade = GRADES.find(g => g.id === LB.gradeId);
+  const buttons = ["#lb-build", "#lb-apply", "#lb-save"].map(x => $(x)).filter(Boolean);
+  buttons.forEach(b => (b.disabled = true));
+  $("#lb-msg").innerHTML = "";
+  const started = Date.now();
+  let got = "";
+  const tick = setInterval(() => drawLabPreview(`مرّ ${num(Math.round((Date.now() - started) / 1000))} ثانية · كُتب ${num(got.length)} حرف`), 1000);
+  drawLabPreview("جارٍ الاتصال…");
+  try {
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session) throw new Error("انتهت جلسة الدخول، سجّلي الدخول مرة أخرى.");
+    const res = await fetch(SUPABASE_URL.replace(/\/$/, "") + "/functions/v1/generate-questions", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: "Bearer " + session.access_token, apikey: SUPABASE_ANON_KEY },
+      body: JSON.stringify({
+        kind: "lab", title: LB.title, subject: LB.subject, grade: grade ? grade.name : "",
+        text: LB.source || "", request: LB.request || "",
+        previousHtml: isChange ? LB.html : "", change
+      })
+    });
+    if (!res.ok) {
+      let msg = res.status + " " + res.statusText;
+      try { const j = await res.json(); if (j.error) msg = j.error; } catch {}
+      if (res.status === 404) msg = "لم تُحدَّث دالة generate-questions في Supabase بعد بالنسخة التي تدعم المختبرات.";
+      throw new Error(msg);
+    }
+    const reader = res.body.getReader(), dec = new TextDecoder();
+    while (true) {
+      const { value, done } = await reader.read();
+      if (done) break;
+      got += dec.decode(value, { stream: true });
+    }
+    const err = got.match(/<!--LABEEBA:ERROR:([\s\S]*?)-->/);
+    if (err) throw new Error("خطأ من خدمة Claude: " + err[1]);
+    const truncated = got.includes("<!--LABEEBA:TRUNCATED-->");
+    const html = extractHtml(got.replace("<!--LABEEBA:TRUNCATED-->", ""));
+    if (!html) throw new Error(truncated ? "انقطع البناء لأن المختبر أطول من الحد المسموح. اطلبي مختبراً أبسط بمهام أقل." : "لم يصل ملف مختبر كامل. جرّبي مرة أخرى.");
+    LB.prevHtml = LB.html || "";
+    LB.html = html;
+    if (isChange) $("#lb-change").value = "";
+    clearInterval(tick);
+    drawLabPreview();
+    await saveLab("auto");
+    toast(isChange ? "طُبّق التعديل وحُفظ المختبر." : "بُني المختبر وحُفظ. جرّبيه الآن.");
+  } catch (e) {
+    console.error(e);
+    clearInterval(tick);
+    drawLabPreview();
+    $("#lb-msg").innerHTML = `<div class="errors"><b>تعذّر بناء المختبر:</b> ${esc(e.message || e)}</div>`;
+  } finally {
+    clearInterval(tick);
+    buttons.forEach(b => (b.disabled = false));
+  }
+}
+async function saveLab(mode) {
+  LB.title = (LB.title || "").trim();
+  const ready = !!LB.html;
+  const lab = {
+    title: LB.title || "مختبر بلا عنوان", subject: LB.subject, unit: (LB.unit || "").trim(), gradeId: LB.gradeId, lessonId: LB.lessonId || "",
+    source: (LB.source || "").trim(), request: (LB.request || "").trim(), html: LB.html || "", prevHtml: LB.prevHtml || "",
+    published: ready && !!LB.published, order: Number(LB.order) || 0, updatedAt: new Date().toISOString()
+  };
+  if (LB.id) lab.id = LB.id;
+  try {
+    const id = await Store.saveLab(lab);
+    if (!LB.id) { LB.id = id; history.replaceState(null, "", "#labedit=" + encodeURIComponent(id)); }
+    $("#lb-h1") && ($("#lb-h1").textContent = lab.title);
+    if (mode === "save") {
+      toast(!ready ? "حُفظ المختبر كمسودة (لم يُبنَ بعد)" : lab.published ? "حُفظ المختبر ونُشر للطالبات" : "حُفظ المختبر (غير منشور)");
+      location.hash = "labs";
+    }
+    return true;
+  } catch (e) {
+    console.error(e);
+    const hint = e.code === "42P01" || /labs/.test(e.message || "") ? "جدول المختبرات غير موجود: شغّلي آخر نسخة من ملف supabase.sql." : (e.message || e.code);
+    toast("تعذّر حفظ المختبر: " + hint);
+    return false;
+  }
 }
 
 /* ======================= النتائج ======================= */
