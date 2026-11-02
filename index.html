@@ -4,36 +4,36 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="referrer" content="strict-origin-when-cross-origin">
-<title>منصة العلوم والأحياء</title>
+<title>لبيبة | LABEEBA</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600&family=Readex+Pro:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
 /* التخطيط: عمود واحد بعرض مريح، شريط علوي ثابت، بطاقات للصفوف والدروس، ومشغّل بخط زمني مقسّم إلى أجزاء */
 :root{
-  --bg:#EDF3F0; --surface:#FFFFFF; --soft:#E1EBE6; --ink:#10261F; --muted:#55695F; --line:#D2DED8;
-  --accent:#0E7A57; --accent-2:#0A5F44; --on-accent:#FFFFFF;
-  --sci:#2556A8; --sci-soft:#E2EAF7; --bio:#0E7A57; --bio-soft:#DCEFE6;
-  --bad:#B4432A; --bad-soft:#F8E4DD; --good:#0E7A57; --good-soft:#DCEFE6;
+  /* هوية لبيبة: بنفسجي ذكي، كحلي معرفي، نعناعي هادئ، عاجي دافئ */
+  --brand-violet:#7864A8; --brand-navy:#263A55; --brand-mint:#A8D8D0; --brand-ivory:#F5F0E9;
+  --bg:#F5F0E9; --surface:#FFFDF9; --soft:#ECE6F2; --ink:#263A55; --muted:#5D6A80; --line:#E2DACF;
+  --accent:#7864A8; --accent-2:#62508F; --on-accent:#FFFFFF;
+  --sci:#5B4890; --sci-soft:#ECE6F5; --bio:#2C6E63; --bio-soft:#DDF0EC;
+  --bad:#B4432A; --bad-soft:#F8E4DD; --good:#2C6E63; --good-soft:#DDF0EC;
   --note-bg:#FFF3D1; --note-ink:#5E4600;
   --t-gold:#A9770E; --t-silver:#5E6B78; --t-bronze:#A0602F;
   --f-display:"Readex Pro","IBM Plex Sans Arabic",Tahoma,sans-serif;
   --f-body:"IBM Plex Sans Arabic",Tahoma,"Segoe UI",sans-serif;
-  --r:10px;
+  --r:12px;
   color-scheme:light;
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
-  --bg:#0C1613; --surface:#13201C; --soft:#1A2B26; --ink:#E3EEE9; --muted:#93A89F; --line:#25372F;
-  --accent:#3DBE8C; --accent-2:#5AD3A3; --on-accent:#06261A;
-  --sci:#86AEF2; --sci-soft:#1A2740; --bio:#3DBE8C; --bio-soft:#16332A;
-  --bad:#F08B6C; --bad-soft:#3A1F18; --good:#3DBE8C; --good-soft:#16332A;
+  --bg:#131A26; --surface:#1B2434; --soft:#252F45; --ink:#EDEAF4; --muted:#A3ACC0; --line:#2E3A50;
+  --accent:#A797D6; --accent-2:#BBAFE2; --on-accent:#1B1530;
+  --sci:#BBAFE2; --sci-soft:#2C2748; --bio:#A8D8D0; --bio-soft:#1D3A38; --bad:#F08B6C; --bad-soft:#3A1F18; --good:#A8D8D0; --good-soft:#1D3A38;
   --note-bg:#3A3112; --note-ink:#F2DC97; --t-gold:#F2C94C; --t-silver:#C9D2DB; --t-bronze:#E9A56E; color-scheme:dark;
 }}
 :root[data-theme="dark"]{
-  --bg:#0C1613; --surface:#13201C; --soft:#1A2B26; --ink:#E3EEE9; --muted:#93A89F; --line:#25372F;
-  --accent:#3DBE8C; --accent-2:#5AD3A3; --on-accent:#06261A;
-  --sci:#86AEF2; --sci-soft:#1A2740; --bio:#3DBE8C; --bio-soft:#16332A;
-  --bad:#F08B6C; --bad-soft:#3A1F18; --good:#3DBE8C; --good-soft:#16332A;
+  --bg:#131A26; --surface:#1B2434; --soft:#252F45; --ink:#EDEAF4; --muted:#A3ACC0; --line:#2E3A50;
+  --accent:#A797D6; --accent-2:#BBAFE2; --on-accent:#1B1530;
+  --sci:#BBAFE2; --sci-soft:#2C2748; --bio:#A8D8D0; --bio-soft:#1D3A38; --bad:#F08B6C; --bad-soft:#3A1F18; --good:#A8D8D0; --good-soft:#1D3A38;
   --note-bg:#3A3112; --note-ink:#F2DC97; --t-gold:#F2C94C; --t-silver:#C9D2DB; --t-bronze:#E9A56E; color-scheme:dark;
 }
 *{box-sizing:border-box}
@@ -57,6 +57,7 @@ button,input,select,textarea{font:inherit;color:inherit}
 .brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--ink);margin-inline-end:auto}
 .brand svg{width:38px;height:38px;flex:none}
 .brand b{font-family:var(--f-display);font-size:1.1rem;font-weight:700;display:block;line-height:1.2}
+.brand .latin{font-family:"Readex Pro",sans-serif;font-weight:500;font-size:.72em;letter-spacing:.14em;color:var(--accent);margin-inline-start:4px}
 .brand small{color:var(--muted);font-size:.8rem;letter-spacing:.02em}
 nav{display:flex;gap:4px;flex-wrap:wrap;align-items:center}
 nav a,nav button{padding:6px 12px;border-radius:999px;text-decoration:none;color:var(--muted);font-weight:500;background:none;border:0;cursor:pointer;font-size:.95rem}
@@ -96,6 +97,8 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent);
 .grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
 
 /* الصفحة الرئيسية */
+.hero .tagline{font-family:var(--f-display);font-weight:500;color:var(--accent);font-size:.95rem}
+.hero .tagline bdi{letter-spacing:.04em}
 .hero{display:grid;gap:8px;max-width:640px}
 .grades{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px}
 .grade{display:grid;gap:10px;padding:20px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);text-decoration:none;color:var(--ink);transition:border-color .15s,transform .15s}
@@ -164,7 +167,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent);
 .award svg.medal{animation:pop .7s cubic-bezier(.2,.8,.3,1.2) both}
 @media (prefers-reduced-motion:reduce){.award svg.medal{animation:none}}
 
-/* لوحة المعلم */
+/* لوحة المعلمة */
 .dash-head{display:flex;gap:12px;flex-wrap:wrap;align-items:end;justify-content:space-between}
 .gradelist{display:grid;gap:8px}
 .gradeitem{display:grid;grid-template-columns:1fr 90px auto auto;gap:8px;align-items:center}
@@ -254,14 +257,14 @@ main.wide{max-width:1360px}
 <body>
 <header class="top">
   <div class="wrap top-in">
-    <a href="#" class="brand" aria-label="الصفحة الرئيسية">
-      <svg viewBox="0 0 40 40" aria-hidden="true"><ellipse cx="20" cy="20" rx="17" ry="14" fill="var(--bio-soft)" stroke="var(--accent)" stroke-width="2"/><circle cx="23" cy="18" r="5.5" fill="var(--accent)"/><circle cx="12" cy="24" r="2" fill="var(--sci)"/><circle cx="15" cy="13" r="1.5" fill="var(--sci)"/><circle cx="28" cy="27" r="1.5" fill="var(--sci)"/></svg>
-      <span><b id="site-name">منصة العلوم والأحياء</b><small>شاهد · أجب · تقدّم</small></span>
+    <a href="#" class="brand" aria-label="لبيبة، الصفحة الرئيسية">
+      <svg viewBox="0 0 40 40" aria-hidden="true"><rect x="1" y="1" width="38" height="38" rx="11" fill="var(--brand-violet)"/><path d="M12 13h5v10.5c0 1.4.8 2 2 2h9v4.5h-10c-4 0-6-2.2-6-6z" fill="var(--brand-ivory)"/><circle cx="27.5" cy="13.5" r="3.6" fill="var(--brand-mint)"/></svg>
+      <span class="brand-txt"><b id="site-name">لبيبة <span class="latin">LABEEBA</span></b><small id="site-tag">فكّري بذكاء، تعلّمي بعمق.</small></span>
     </a>
     <nav id="nav"></nav>
   </div>
 </header>
-<div id="demo" class="demo" hidden><div class="wrap">وضع التجربة: البيانات محفوظة في هذا المتصفح فقط. اربط المنصة بـ Supabase ليراها الطلاب وتصلك نتائجهم.</div></div>
+<div id="demo" class="demo" hidden><div class="wrap">وضع التجربة: البيانات محفوظة في هذا المتصفح فقط. اربط المنصة بـ Supabase ليراها الطالبات وتصلك نتائجهم.</div></div>
 <main id="app" class="wrap"><p class="loading">جارٍ التحميل…</p></main>
 <div id="toast" class="toast" role="status" hidden></div>
 
@@ -275,10 +278,12 @@ main.wide{max-width:1360px}
 const SUPABASE_URL = "https://rolgdadzqoylohahyzlm.supabase.co";        // مثال: https://abcdefgh.supabase.co
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJvbGdkYWR6cW95bG9oYWh5emxtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM1MjYyMTQsImV4cCI6MjEwOTEwMjIxNH0.L5FcS1HB1nHiUGStt2R40AIMMjEuAYZfkFEeqvl227w";   // المفتاح العام: anon public أو publishable (وليس service_role أبداً)
 // ٢) اسم المنصة والمواد
-const SITE_NAME = "منصة العلوم والأحياء";
+const SITE_NAME = "لبيبة | LABEEBA";
+const SITE_TAGLINE_AR = "فكّري بذكاء، تعلّمي بعمق.";
+const SITE_TAGLINE_EN = "Think Smart. Learn Deep.";
 const SUBJECTS = ["علوم الأرض والفضاء","علوم", "أحياء"];
-// ٣) الصفوف التي يختار منها المعلم عند إنشاء الدرس (احذف ما لا تحتاجه أو غيّر الأسماء،
-//    ولا تغيّر قيمة id لصف عليه دروس). يرى الطلاب فقط الصفوف التي فيها دروس منشورة.
+// ٣) الصفوف التي يختار منها المعلمة عند إنشاء الدرس (احذف ما لا تحتاجه أو غيّر الأسماء،
+//    ولا تغيّر قيمة id لصف عليه دروس). يرى الطالبات فقط الصفوف التي فيها دروس منشورة.
 const GRADES = [
   { id: "p3", name: "الصف الثالث الابتدائي", stage: "المرحلة الابتدائية" },
   { id: "p4", name: "الصف الرابع الابتدائي", stage: "المرحلة الابتدائية" },
@@ -299,6 +304,11 @@ const $$ = (s, r = document) => [...r.querySelectorAll(s)];
 const app = $("#app");
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const num = x => Number(x).toLocaleString("ar-SA");
+// صيغ العدد بالعربية: ١ درس واحد، ٢ درسان، ٣–١٠ دروس، ١١+ درساً
+const plural = (n, one, two, few, many) => n === 1 ? one : n === 2 ? two : (n % 100 >= 3 && n % 100 <= 10) ? num(n) + " " + few : num(n) + " " + many;
+const nLessons = n => plural(n, "درس واحد", "درسان", "دروس", "درساً");
+const nParts = n => plural(n, "جزء واحد", "جزءان", "أجزاء", "جزءاً");
+const nQs = n => plural(n, "سؤال واحد", "سؤالان", "أسئلة", "سؤالاً");
 const pct = x => num(Math.round(x)) + "٪";
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
 const fmtTime = s => { if (s == null || isNaN(s)) return ""; s = Math.max(0, Math.floor(s)); return Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0"); };
@@ -413,9 +423,9 @@ function hashParts() {
 function renderNav() {
   const { k } = hashParts();
   const items = [["#", "الصفوف", ["home", "grade", "lesson"].includes(k)]];
-  if (state.isTeacher) items.push(["#teacher", "لوحة المعلم", ["teacher", "edit"].includes(k)], ["#results", "النتائج", k === "results"]);
+  if (state.isTeacher) items.push(["#teacher", "لوحة المعلمة", ["teacher", "edit"].includes(k)], ["#results", "النتائج", k === "results"]);
   let html = items.map(([h, t, on]) => `<a href="${h}" class="${on ? "on" : ""}">${t}</a>`).join("");
-  if (!DEMO) html += state.user ? `<button id="signout" type="button">خروج</button>` : `<a href="#teacher" class="${k === "teacher" ? "on" : ""}">دخول المعلم</a>`;
+  if (!DEMO) html += state.user ? `<button id="signout" type="button">خروج</button>` : `<a href="#teacher" class="${k === "teacher" ? "on" : ""}">دخول المعلمة</a>`;
   $("#nav").innerHTML = html;
   $("#signout")?.addEventListener("click", async () => { await sb.auth.signOut(); location.hash = ""; });
 }
@@ -443,13 +453,13 @@ async function route() {
 }
 function viewLogin() {
   if (state.user) {
-    app.innerHTML = `<div class="empty"><h2>هذا الحساب ليس حساب معلم</h2><p>الحساب ${esc(state.user.email)} غير مضاف إلى جدول المعلمين في Supabase.</p><button class="btn ghost" id="lo" type="button">خروج</button></div>`;
+    app.innerHTML = `<div class="empty"><h2>هذا الحساب ليس حساب معلمة</h2><p>الحساب ${esc(state.user.email)} غير مضاف إلى جدول المعلمات في Supabase.</p><button class="btn ghost" id="lo" type="button">خروج</button></div>`;
     $("#lo").addEventListener("click", () => sb.auth.signOut());
     return;
   }
   app.innerHTML = `
     <form class="panel start stack" id="loginf" style="margin-inline:auto;width:100%">
-      <div><span class="eyebrow">لوحة المعلم</span><h1>دخول المعلم</h1></div>
+      <div><span class="eyebrow">لوحة المعلمة</span><h1>دخول المعلمة</h1></div>
       <label class="f">البريد الإلكتروني<input id="li-email" type="email" required autocomplete="username" dir="ltr"></label>
       <label class="f">كلمة المرور<input id="li-pass" type="password" required autocomplete="current-password" dir="ltr"></label>
       <div id="li-err"></div>
@@ -469,9 +479,9 @@ async function viewHome() {
   app.innerHTML = `<p class="loading">جارٍ التحميل…</p>`;
   const [allGrades, lessons] = await Promise.all([Store.grades(), Store.lessons(false)]);
   const grades = allGrades.filter(g => lessons.some(l => l.gradeId === g.id));
-  const head = `<section class="hero"><h1>اختر صفّك</h1><p class="muted">كل درس مقطع مرئي مقسّم إلى أجزاء، وفي نهاية كل جزء أسئلة قصيرة. أجب عنها لتنتقل إلى الجزء التالي، وتحصل على شارة إنجاز في النهاية.</p></section>`;
+  const head = `<section class="hero"><p class="tagline"><bdi lang="en" dir="ltr">${SITE_TAGLINE_EN}</bdi> · ${SITE_TAGLINE_AR}</p><h1>اختاري صفّك</h1><p class="muted">كل درس مقطع مرئي مقسّم إلى أجزاء، وفي نهاية كل جزء أسئلة قصيرة. أجيبي عنها لتنتقلي إلى الجزء التالي، وتحصلي على شارة إنجاز في النهاية.</p></section>`;
   if (!grades.length) {
-    app.innerHTML = head + `<div class="empty"><h2>لا توجد دروس منشورة بعد</h2><p>${state.isTeacher ? "أنشئ أول درس واختر صفّه، وسيظهر الصف هنا للطلاب." : "سيضيف المعلم الدروس قريباً."}</p>${state.isTeacher ? `<a class="btn" href="#edit=new">+ درس جديد</a>` : ""}</div>`;
+    app.innerHTML = head + `<div class="empty"><h2>لا توجد دروس منشورة بعد</h2><p>${state.isTeacher ? "أنشئ أول درس واختر صفّه، وسيظهر الصف هنا للطالبات." : "ستضيف المعلمة الدروس قريباً."}</p>${state.isTeacher ? `<a class="btn" href="#edit=new">+ درس جديد</a>` : ""}</div>`;
     return;
   }
   app.innerHTML = head + `<section class="grades">${grades.map(g => {
@@ -481,7 +491,7 @@ async function viewHome() {
     return `<a class="grade" href="#grade=${encodeURIComponent(g.id)}">
       ${g.stage ? `<span class="stage">${esc(g.stage)}</span>` : ""}
       <h2>${esc(g.name)}</h2>
-      <div class="counts">${counts.map(([s, n]) => `<span class="chip ${subjClass(s)}">${esc(s)} · ${num(n)}</span>`).join("")}${other ? `<span class="chip draft">أخرى · ${num(other)}</span>` : ""}${!ls_.length ? `<span class="muted" style="font-size:.85rem">لا دروس بعد</span>` : ""}</div>
+      <div class="counts">${counts.map(([s, n]) => `<span class="chip ${subjClass(s)}">${esc(s)}: ${nLessons(n)}</span>`).join("")}${other ? `<span class="chip draft">أخرى: ${nLessons(other)}</span>` : ""}${!ls_.length ? `<span class="muted" style="font-size:.85rem">لا دروس بعد</span>` : ""}</div>
     </a>`;
   }).join("")}</section>`;
 }
@@ -508,7 +518,7 @@ async function viewGrade(id) {
       <a class="lesson" href="#lesson=${encodeURIComponent(l.id)}">
         <span><span class="chip ${subjClass(l.subject)}">${esc(l.subject)}</span></span>
         <h3>${esc(l.title)}</h3>
-        <span class="meta">${num((l.segments || []).length)} أجزاء · ${num(qCount(l))} سؤالاً${l.teacher ? " · " + esc(l.teacher) : ""}</span>
+        <span class="meta">${nParts((l.segments || []).length)} · ${nQs(qCount(l))}${l.teacher ? " · " + esc(l.teacher) : ""}</span>
       </a>`).join("")}</div></section>`).join("");
   };
   draw();
@@ -554,20 +564,20 @@ async function viewLesson(id) {
       <div class="crumbs"><a href="#">الصفوف</a>${g ? ` › <a href="#grade=${encodeURIComponent(g.id)}">${esc(g.name)}</a>` : ""}${lesson.unit ? " › " + esc(lesson.unit) : ""}</div>
       <div class="row"><span class="chip ${subjClass(lesson.subject)}">${esc(lesson.subject)}</span>${lesson.published ? "" : `<span class="chip draft">مسودة</span>`}</div>
       <h1>${esc(lesson.title)}</h1>
-      <p class="muted">${[lesson.teacher && "المعلم: " + esc(lesson.teacher), lesson.school && esc(lesson.school), num((lesson.segments || []).length) + " أجزاء", num(qCount(lesson)) + " سؤالاً"].filter(Boolean).join(" · ")}</p>
+      <p class="muted">${[lesson.teacher && "المعلمة: " + esc(lesson.teacher), lesson.school && esc(lesson.school), nParts((lesson.segments || []).length), nQs(qCount(lesson))].filter(Boolean).join(" · ")}</p>
     </div>
     <div id="stage"></div>`;
-  if (preview) $("#stage").insertAdjacentHTML("beforebegin", `<p class="demo" style="padding:8px 12px;border-radius:8px">معاينة المعلم: لن تُحفظ نتيجتك في سجل الطلاب.</p>`);
+  if (preview) $("#stage").insertAdjacentHTML("beforebegin", `<p class="demo" style="padding:8px 12px;border-radius:8px">معاينة المعلمة: لن تُحفظ نتيجتك في سجل الطالبات.</p>`);
   const me = ls.get("student", { name: "", cls: "" });
   $("#stage").innerHTML = `
     <form class="panel start stack" id="startf">
-      <h2>قبل أن تبدأ</h2>
-      <p class="muted">اكتب اسمك كما تريد أن يظهر على شارة الإنجاز. ستصل نتيجتك إلى المعلم.</p>
+      <h2>قبل أن تبدئي</h2>
+      <p class="muted">اكتبي اسمك كما تريدين أن يظهر على شارة الإنجاز. ستصل نتيجتك إلى المعلمة.</p>
       <div class="grid2">
         <label class="f">الاسم الكامل<input id="st-name" required maxlength="80" value="${esc(me.name)}" autocomplete="name"></label>
         <label class="f">الفصل / الشعبة<input id="st-cls" maxlength="30" value="${esc(me.cls)}" placeholder="مثال: ٢/أ"></label>
       </div>
-      <div class="row"><button class="btn" type="submit">ابدأ الدرس</button><span class="muted" style="font-size:.88rem">في نهاية كل جزء يتوقف المقطع حتى تجيب عن أسئلته.</span></div>
+      <div class="row"><button class="btn" type="submit">ابدئي الدرس</button><span class="muted" style="font-size:.88rem">في نهاية كل جزء يتوقف المقطع حتى تجيبي عن أسئلته.</span></div>
     </form>`;
   $("#startf").addEventListener("submit", e => {
     e.preventDefault();
@@ -659,18 +669,18 @@ function openQuiz() {
   const q = $("#quiz");
   q.innerHTML = `
     <form class="panel quiz" id="qf">
-      <div><span class="eyebrow">أسئلة الجزء ${num(P.seg + 1)} من ${num(P.segs.length)}</span><h2>أجب لتتابع</h2><p class="muted">المطلوب للاجتياز: ${pct(P.lesson.passPct ?? 100)} فأكثر.</p></div>
+      <div><span class="eyebrow">أسئلة الجزء ${num(P.seg + 1)} من ${num(P.segs.length)}</span><h2>أجيبي لتتابعي</h2><p class="muted">المطلوب للاجتياز: ${pct(P.lesson.passPct ?? 100)} فأكثر.</p></div>
       ${qs.map((x, qi) => `<fieldset class="qq" id="qq${qi}" style="border:0;padding:0;margin:0"><p>${num(qi + 1)}. ${esc(x.text)}</p>
         ${x.options.map((o, oi) => `<label class="choice"><input type="radio" name="a${qi}" value="${oi}" id="a${qi}_${oi}">${esc(o)}</label>`).join("")}</fieldset>`).join("")}
       <div id="verdict"></div>
-      <div class="row" id="qbtns"><button class="btn" type="submit">تحقّق من إجاباتي</button></div>
+      <div class="row" id="qbtns"><button class="btn" type="submit">تحقّقي من إجاباتي</button></div>
     </form>`;
   q.scrollIntoView({ behavior: "smooth", block: "start" });
   $("#qf").addEventListener("change", () => { $$(".qq").forEach(f => f.classList.remove("wrong", "right")); });
   $("#qf").addEventListener("submit", e => {
     e.preventDefault();
     const picks = qs.map((_, qi) => { const r = $(`input[name="a${qi}"]:checked`); return r ? Number(r.value) : null; });
-    if (picks.some(p => p === null)) { $("#verdict").innerHTML = `<div class="verdict no">أجب عن جميع الأسئلة أولاً.</div>`; return; }
+    if (picks.some(p => p === null)) { $("#verdict").innerHTML = `<div class="verdict no">أجيبي عن جميع الأسئلة أولاً.</div>`; return; }
     let correct = 0;
     picks.forEach((p, qi) => { const ok = p === Number(qs[qi].correct); if (ok) correct++; $("#qq" + qi).classList.add(ok ? "right" : "wrong"); });
     if (P.first[P.seg] == null) P.first[P.seg] = correct;
@@ -679,14 +689,14 @@ function openQuiz() {
     if (score >= (P.lesson.passPct ?? 100)) {
       $$("input", $("#qf")).forEach(i => (i.disabled = true));
       const last = P.seg === P.segs.length - 1;
-      $("#verdict").innerHTML = `<div class="verdict ok">أحسنت! أجبت عن ${num(correct)} من ${num(qs.length)} إجابة صحيحة.</div>`;
+      $("#verdict").innerHTML = `<div class="verdict ok">أحسنتِ! أجبتِ عن ${num(correct)} من ${num(qs.length)} إجابة صحيحة.</div>`;
       $("#qbtns").innerHTML = `<button class="btn" type="button" id="go">${last ? "إنهاء الدرس" : "متابعة إلى الجزء " + num(P.seg + 2)}</button>`;
       $("#go").addEventListener("click", passSeg); $("#go").focus();
     } else {
-      $("#verdict").innerHTML = `<div class="verdict no">أجبت عن ${num(correct)} من ${num(qs.length)} إجابة صحيحة. الإجابات المظلّلة بالأحمر تحتاج مراجعة.</div>`;
-      $("#qbtns").innerHTML = `<button class="btn" type="button" id="rewatch">أعد مشاهدة الجزء</button><button class="btn ghost" type="button" id="retry">حاول مرة أخرى</button>`;
+      $("#verdict").innerHTML = `<div class="verdict no">أجبتِ عن ${num(correct)} من ${num(qs.length)} إجابة صحيحة. الإجابات المظلّلة بالأحمر تحتاج مراجعة.</div>`;
+      $("#qbtns").innerHTML = `<button class="btn" type="button" id="rewatch">أعيدي مشاهدة الجزء</button><button class="btn ghost" type="button" id="retry">حاولي مرة أخرى</button>`;
       $("#rewatch").addEventListener("click", () => { $("#quiz").innerHTML = ""; P.quizOpen = false; P.player.seekTo(segStart(P.seg), true); P.player.playVideo(); $(".video").scrollIntoView({ behavior: "smooth", block: "center" }); });
-      $("#retry").addEventListener("click", () => { $$(".qq").forEach(f => f.classList.remove("wrong", "right")); $$("input", $("#qf")).forEach(i => (i.checked = false)); $("#verdict").innerHTML = ""; $("#qbtns").innerHTML = `<button class="btn" type="submit">تحقّق من إجاباتي</button>`; });
+      $("#retry").addEventListener("click", () => { $$(".qq").forEach(f => f.classList.remove("wrong", "right")); $$("input", $("#qf")).forEach(i => (i.checked = false)); $("#verdict").innerHTML = ""; $("#qbtns").innerHTML = `<button class="btn" type="submit">تحقّقي من إجاباتي</button>`; });
     }
   });
 }
@@ -716,8 +726,8 @@ async function finish() {
   };
   let saveNote = "";
   if (!P.preview) {
-    try { await Store.addResult(result); saveNote = "وصلت نتيجتك إلى المعلم."; }
-    catch (e) { console.error(e); saveNote = "تعذّر إرسال النتيجة إلى المعلم. التقط صورة لشارتك وأرسلها له."; }
+    try { await Store.addResult(result); saveNote = "وصلت نتيجتك إلى المعلمة."; }
+    catch (e) { console.error(e); saveNote = "تعذّر إرسال النتيجة إلى المعلمة. التقطي صورة لشارتك وأرسليها لها."; }
   }
   const tier = badgeTier(score);
   // شارات الطالب في هذا المتصفح (أفضل شارة لكل درس)
@@ -733,9 +743,9 @@ async function finish() {
       ${medalSVG(tier, P.lesson.subject)}
       <div class="tier" style="color:var(--t-${tier.key})">${tier.title}</div>
       <div class="who">${esc(P.student.name)}</div>
-      <p>أنجزتَ درس <b>${esc(P.lesson.title)}</b></p>
+      <p>أنجزتِ درس <b>${esc(P.lesson.title)}</b></p>
       <p class="score">${pct(score)} · ${num(correct)} من ${num(total)} إجابات صحيحة من المحاولة الأولى</p>
-      ${nextT ? `<p class="next">أعد الدرس وأجب صحيحاً من المحاولة الأولى بنسبة ${pct(nextT.min)} لتحصل على ${nextT.title}.</p>` : ""}
+      ${nextT ? `<p class="next">أعيدي الدرس وأجيبي صحيحاً من المحاولة الأولى بنسبة ${pct(nextT.min)} لتحصلي على ${nextT.title}.</p>` : ""}
       ${counts.length ? `<p class="next">شاراتك حتى الآن: ${counts.map(([t, n]) => `${num(n)} ${t.short}`).join(" · ")}</p>` : ""}
     </section>
     <div class="row noprint" style="margin-top:14px">
@@ -749,9 +759,9 @@ async function finish() {
 
 /* ===== شارات الإنجاز ===== */
 const TIERS = [
-  { key: "gold",   min: 90, title: "شارة العالِم المتميّز", short: "ذهبية",  c1: "#F6D365", c2: "#C9941A", rim: "#8A6410", ink: "#A9770E" },
-  { key: "silver", min: 70, title: "شارة الباحث النشِط",   short: "فضية",   c1: "#EEF2F5", c2: "#9AA6B2", rim: "#5E6B78", ink: "#6B7785" },
-  { key: "bronze", min: 0,  title: "شارة المستكشف",        short: "برونزية", c1: "#F0B985", c2: "#B06A35", rim: "#6E3E1C", ink: "#A0602F" }
+  { key: "gold",   min: 90, title: "شارة العالِمة المتميّزة", short: "ذهبية",  c1: "#F6D365", c2: "#C9941A", rim: "#8A6410", ink: "#A9770E" },
+  { key: "silver", min: 70, title: "شارة الباحثة النشِطة",   short: "فضية",   c1: "#EEF2F5", c2: "#9AA6B2", rim: "#5E6B78", ink: "#6B7785" },
+  { key: "bronze", min: 0,  title: "شارة المستكشفة",        short: "برونزية", c1: "#F0B985", c2: "#B06A35", rim: "#6E3E1C", ink: "#A0602F" }
 ];
 const badgeTier = score => TIERS.find(t => score >= t.min);
 function medalSVG(t, subject) {
@@ -791,7 +801,7 @@ async function saveBadgePNG(tier, score) {
     const line = (txt, y, size, color, weight = 700) => { ctx.font = `${weight} ${size}px "Readex Pro","IBM Plex Sans Arabic",Tahoma,sans-serif`; ctx.fillStyle = color; ctx.fillText(txt, W / 2, y, W - 80); };
     line(tier.title, 520, 46, tier.ink);
     line(P.student.name, 590, 38, "#10261F");
-    line("أنجز درس: " + P.lesson.title, 650, 28, "#10261F", 500);
+    line("أنجزت درس: " + P.lesson.title, 650, 28, "#10261F", 500);
     line(pct(score) + " من المحاولة الأولى · " + P.lesson.subject, 700, 26, "#55695F", 500);
     line(new Date().toLocaleDateString("ar-SA", { year: "numeric", month: "long", day: "numeric" }) + (P.lesson.school ? " · " + P.lesson.school : ""), 750, 24, "#55695F", 500);
     line(SITE_NAME, 840, 24, tier.c2, 600);
@@ -802,15 +812,15 @@ async function saveBadgePNG(tier, score) {
   } catch (e) { console.error(e); toast("تعذّر حفظ الصورة. التقط صورة للشاشة بدلاً منها."); }
 }
 
-/* ======================= لوحة المعلم ======================= */
+/* ======================= لوحة المعلمة ======================= */
 async function viewTeacher() {
   app.innerHTML = `<p class="loading">جارٍ التحميل…</p>`;
   const [grades, lessons] = await Promise.all([Store.grades(), Store.lessons(true)]);
   const home = location.origin + location.pathname;
   app.innerHTML = `
     <div class="dash-head">
-      <div><span class="eyebrow">لوحة المعلم</span><h1>دروسي</h1></div>
-      <div class="row"><button class="btn ghost" type="button" id="copyhome">نسخ رابط المنصة للطلاب</button><a class="btn" href="#edit=new">+ درس جديد</a></div>
+      <div><span class="eyebrow">لوحة المعلمة</span><h1>دروسي</h1></div>
+      <div class="row"><button class="btn ghost" type="button" id="copyhome">نسخ رابط المنصة للطالبات</button><a class="btn" href="#edit=new">+ درس جديد</a></div>
     </div>
     <section class="stack" id="lessons-by-grade"></section>`;
   $("#copyhome").addEventListener("click", () => copy(home));
@@ -844,7 +854,7 @@ async function viewTeacher() {
     const id = b.closest("tr").dataset.id, l = lessons.find(x => x.id === id);
     if (b.dataset.act === "link") copy(lessonLink(id));
     if (b.dataset.act === "pub" && l.complete === false && !l.published) { toast("الدرس غير مكتمل. افتحه بزر «تعديل» وأكمله ثم احفظه."); return; }
-    if (b.dataset.act === "pub") { await Store.saveLesson({ ...l, published: !l.published }); toast(l.published ? "أُخفي الدرس عن الطلاب" : "نُشر الدرس"); viewTeacher(); }
+    if (b.dataset.act === "pub") { await Store.saveLesson({ ...l, published: !l.published }); toast(l.published ? "أُخفي الدرس عن الطالبات" : "نُشر الدرس"); viewTeacher(); }
     if (b.dataset.act === "del") armDelete(b, async () => { await Store.deleteLesson(id); toast("حُذف الدرس"); viewTeacher(); });
   });
 }
@@ -876,7 +886,7 @@ async function viewEditor(arg) {
   const subjOpts = [...new Set([...SUBJECTS, E.subject].filter(Boolean))];
   app.classList.add("wide");
   app.innerHTML = `
-    <div class="dash-head"><div><div class="crumbs"><a href="#teacher">لوحة المعلم</a> › ${E.id ? "تعديل درس" : "درس جديد"}</div><h1>${E.id ? esc(E.title) : "درس جديد"}</h1></div></div>
+    <div class="dash-head"><div><div class="crumbs"><a href="#teacher">لوحة المعلمة</a> › ${E.id ? "تعديل درس" : "درس جديد"}</div><h1>${E.id ? esc(E.title) : "درس جديد"}</h1></div></div>
     <div class="ed-grid">
      <div class="ed-main">
       <section class="panel step s1"><h2><span class="n">١</span>بيانات الدرس</h2>
@@ -885,7 +895,7 @@ async function viewEditor(arg) {
           <label class="f">الصف<select id="e-grade" data-b="gradeId">${[...new Set(grades.map(g => g.stage || ""))].map(st => `<optgroup label="${esc(st || "الصفوف")}">${grades.filter(g => (g.stage || "") === st).map(g => `<option value="${esc(g.id)}" ${g.id === E.gradeId ? "selected" : ""}>${esc(g.name)}</option>`).join("")}</optgroup>`).join("")}</select></label>
           <label class="f">المادة<select id="e-subject" data-b="subject">${subjOpts.map(s => `<option ${s === E.subject ? "selected" : ""}>${esc(s)}</option>`).join("")}</select></label>
           <label class="f">الوحدة / الفصل (اختياري)<input id="e-unit" data-b="unit" value="${esc(E.unit)}" placeholder="مثال: الوحدة الثانية: الخلية"></label>
-          <label class="f">اسم المعلم<input id="e-teacher" data-b="teacher" value="${esc(E.teacher)}"></label>
+          <label class="f">اسم المعلمة<input id="e-teacher" data-b="teacher" value="${esc(E.teacher)}"></label>
           <label class="f">المدرسة<input id="e-school" data-b="school" value="${esc(E.school)}"></label>
           <label class="f">ترتيب الدرس داخل الصف<input id="e-order" type="number" data-b="order" value="${esc(E.order ?? 0)}"></label>
         </div>
@@ -893,7 +903,7 @@ async function viewEditor(arg) {
       <section class="panel step s3"><h2><span class="n">٣</span>إعدادات المشاهدة</h2>
         <div class="stack">
           <label class="f" style="max-width:320px">نسبة الاجتياز لكل جزء<select id="e-pass">${[[100, "١٠٠٪ (جميع الإجابات صحيحة)"], [80, "٨٠٪ فأكثر"], [70, "٧٠٪ فأكثر"], [60, "٦٠٪ فأكثر"], [50, "٥٠٪ فأكثر"]].map(([v, t]) => `<option value="${v}" ${Number(E.passPct) === v ? "selected" : ""}>${t}</option>`).join("")}</select></label>
-          <div class="f"><span style="font-size:.9rem;font-weight:500">السرعات المسموح للطالب باختيارها</span><div class="speedbox" id="e-speeds">${ALL_SPEEDS.map(s => `<label><input type="checkbox" value="${s}" ${E.speeds.includes(s) ? "checked" : ""}>×${s}</label>`).join("")}</div></div>
+          <div class="f"><span style="font-size:.9rem;font-weight:500">السرعات المسموح للطالبة باختيارها</span><div class="speedbox" id="e-speeds">${ALL_SPEEDS.map(s => `<label><input type="checkbox" value="${s}" ${E.speeds.includes(s) ? "checked" : ""}>×${s}</label>`).join("")}</div></div>
         </div>
       </section>
       <section class="panel step s4"><h2><span class="n">٤</span>الأجزاء والأسئلة</h2>
@@ -923,13 +933,13 @@ async function viewEditor(arg) {
         <div class="row"><input id="e-url" value="${esc(E.videoUrl || (E.videoId ? "https://youtu.be/" + E.videoId : ""))}" placeholder="رابط يوتيوب (عادي أو قصير أو Shorts)" style="flex:1 1 260px;direction:ltr;text-align:right"><button class="btn ghost" type="button" id="e-load">تحميل</button></div>
         <div class="video" id="e-vwrap" style="margin-top:12px" ${E.videoId ? "" : "hidden"}><div id="e-yt"></div></div>
         ${IS_LOCAL_FILE ? LOCAL_NOTE : ""}
-        <p class="muted" style="font-size:.88rem;margin-top:8px">حرّك المقطع بحرية هنا، ثم اضغط «الوقت الحالي» في أي جزء لتعيين نهايته. يُعرض المقطع للطالب دون أزرار التحكم.</p>
+        <p class="muted" style="font-size:.88rem;margin-top:8px">حرّك المقطع بحرية هنا، ثم اضغط «الوقت الحالي» في أي جزء لتعيين نهايته. يُعرض المقطع للطالبة دون أزرار التحكم.</p>
       </section>
       <section class="panel step s5"><h2><span class="n">٥</span>النشر</h2>
         <div class="row">
-          <label class="row" style="gap:6px"><input type="checkbox" id="e-pub" ${E.published ? "checked" : ""} style="accent-color:var(--accent);width:18px;height:18px"> منشور للطلاب</label>
+          <label class="row" style="gap:6px"><input type="checkbox" id="e-pub" ${E.published ? "checked" : ""} style="accent-color:var(--accent);width:18px;height:18px"> منشور للطالبات</label>
           <span style="flex:1"></span>
-          <button class="btn ghost" type="button" id="e-try">حفظ وتجربة كطالب</button>
+          <button class="btn ghost" type="button" id="e-try">حفظ وتجربة كطالبة</button>
           <button class="btn" type="button" id="e-save">حفظ الدرس</button>
         </div>
       </section>
@@ -1219,7 +1229,7 @@ async function saveDraft(mode = "save") {
 
   if (complete && mode !== "auto") {
     $("#e-errors").innerHTML = "";
-    toast(published ? "حُفظ الدرس" : "حُفظ الدرس (غير منشور للطلاب)");
+    toast(published ? "حُفظ الدرس" : "حُفظ الدرس (غير منشور للطالبات)");
     location.hash = mode === "try" ? "lesson=" + encodeURIComponent(id) : "teacher";
     return true;
   }
@@ -1230,7 +1240,7 @@ async function saveDraft(mode = "save") {
   }
   if (!complete) {
     if (wasPublished) { const cb = $("#e-pub"); if (cb) cb.checked = true; }
-    $("#e-errors").innerHTML = `<div class="errors"><b>حُفظ الدرس كمسودة${wasPublished ? "، ولن يظهر للطلاب حتى يكتمل" : ""}. أكمل ما يلي${mode === "try" ? " لتجربته كطالب" : ""}:</b><ul>${errs.slice(0, 12).map(e => `<li>${esc(e)}</li>`).join("")}${errs.length > 12 ? `<li>و${num(errs.length - 12)} ملاحظات أخرى.</li>` : ""}</ul></div>`;
+    $("#e-errors").innerHTML = `<div class="errors"><b>حُفظ الدرس كمسودة${wasPublished ? "، ولن يظهر للطالبات حتى يكتمل" : ""}. أكمل ما يلي${mode === "try" ? " لتجربته كطالب" : ""}:</b><ul>${errs.slice(0, 12).map(e => `<li>${esc(e)}</li>`).join("")}${errs.length > 12 ? `<li>و${num(errs.length - 12)} ملاحظات أخرى.</li>` : ""}</ul></div>`;
     if (mode !== "auto") $("#e-errors").scrollIntoView({ behavior: "smooth", block: "center" });
   }
   return true;
@@ -1243,7 +1253,7 @@ async function viewResults() {
   results.sort((a, b) => String(b.completedAt).localeCompare(String(a.completedAt)));
   const f = { grade: "", lesson: "", q: "" };
   app.innerHTML = `
-    <div class="dash-head"><div><span class="eyebrow">لوحة المعلم</span><h1>نتائج الطلاب</h1></div><button class="btn ghost" type="button" id="csv">تنزيل ملف Excel (CSV)</button></div>
+    <div class="dash-head"><div><span class="eyebrow">لوحة المعلمة</span><h1>نتائج الطالبات</h1></div><button class="btn ghost" type="button" id="csv">تنزيل ملف Excel (CSV)</button></div>
     <div class="panel grid2">
       <label class="f">الصف<select id="f-grade"><option value="">كل الصفوف</option>${grades.map(g => `<option value="${esc(g.id)}">${esc(g.name)}</option>`).join("")}</select></label>
       <label class="f">الدرس<select id="f-lesson"></select></label>
@@ -1263,12 +1273,12 @@ async function viewResults() {
     const students = new Set(rows.map(r => r.studentName + "|" + r.studentClass)).size;
     $("#stats").innerHTML = `<div><span class="muted">دروس مكتملة</span><b>${num(rows.length)}</b></div><div><span class="muted">طلاب</span><b>${num(students)}</b></div><div><span class="muted">متوسط الدرجة</span><b>${rows.length ? pct(avg) : "—"}</b></div>`;
     $("#rtable").innerHTML = rows.length ? `<div class="table-wrap"><table>
-      <thead><tr><th>الطالب</th><th>الفصل</th><th>الدرس</th><th>الصف</th><th>الدرجة</th><th>المحاولات</th><th>التاريخ</th><th></th></tr></thead>
+      <thead><tr><th>الطالبة</th><th>الفصل</th><th>الدرس</th><th>الصف</th><th>الدرجة</th><th>المحاولات</th><th>التاريخ</th><th></th></tr></thead>
       <tbody>${rows.map(r => `<tr data-id="${esc(r.id)}"><td><b>${esc(r.studentName)}</b></td><td>${esc(r.studentClass || "—")}</td><td>${esc(r.lessonTitle)}</td><td>${esc(r.gradeName || "")}</td>
         <td class="num"><span class="chip ${Number(r.score) >= 80 ? "bio" : Number(r.score) >= 50 ? "sci" : "draft"}">${pct(r.score)}</span> <span class="muted">${num(r.correct)}/${num(r.total)}</span></td>
         <td class="num">${num(r.attempts)}</td><td class="num">${esc(new Date(r.completedAt).toLocaleString("ar-SA", { dateStyle: "medium", timeStyle: "short" }))}</td>
         <td><button class="btn danger sm" type="button" data-act="del">حذف</button></td></tr>`).join("")}</tbody></table></div>`
-      : `<div class="empty"><h2>لا نتائج بعد</h2><p>تظهر هنا نتيجة كل طالب يُكمل درساً: اسمه وفصله ودرجته من المحاولة الأولى.</p></div>`;
+      : `<div class="empty"><h2>لا نتائج بعد</h2><p>تظهر هنا نتيجة كل طالبة تُكمل درساً: اسمها وفصلها ودرجتها من المحاولة الأولى.</p></div>`;
   };
   fillLessons(); draw();
   $("#f-grade").addEventListener("change", e => { f.grade = e.target.value; fillLessons(); draw(); });
@@ -1281,18 +1291,18 @@ async function viewResults() {
   });
   $("#csv").addEventListener("click", () => {
     const rows = filtered();
-    const head = ["الطالب", "الفصل", "الصف", "المادة", "الدرس", "الدرجة %", "الصحيح", "عدد الأسئلة", "المحاولات", "الدقائق", "التاريخ"];
+    const head = ["الطالبة", "الفصل", "الصف", "المادة", "الدرس", "الدرجة %", "الصحيح", "عدد الأسئلة", "المحاولات", "الدقائق", "التاريخ"];
     const cell = v => `"${String(v ?? "").replace(/"/g, '""')}"`;
     const csv = "﻿" + [head, ...rows.map(r => [r.studentName, r.studentClass, r.gradeName, r.subject, r.lessonTitle, r.score, r.correct, r.total, r.attempts, r.minutes, new Date(r.completedAt).toLocaleString("en-GB")])].map(r => r.map(cell).join(",")).join("\r\n");
     const a = document.createElement("a");
     a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }));
-    a.download = "نتائج-الطلاب.csv"; document.body.appendChild(a); a.click(); a.remove();
+    a.download = "نتائج-الطالبات.csv"; document.body.appendChild(a); a.click(); a.remove();
   });
 }
 
 /* ======================= التشغيل ======================= */
 (function boot() {
-  document.title = SITE_NAME; $("#site-name").textContent = SITE_NAME;
+  document.title = SITE_NAME; $("#site-tag").textContent = SITE_TAGLINE_AR;
   if (DEMO) {
     $("#demo").hidden = false;
   } else {
