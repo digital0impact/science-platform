@@ -23,6 +23,8 @@
   --f-display:"Readex Pro","IBM Plex Sans Arabic",Tahoma,sans-serif;
   --f-body:"IBM Plex Sans Arabic",Tahoma,"Segoe UI",sans-serif;
   --r:12px;
+  /* الحركة: منحنيات قوية (مبادئ Emil Kowalski، MIT) */
+  --ease-out:cubic-bezier(0.23,1,0.32,1); --ease-in-out:cubic-bezier(0.77,0,0.175,1);
   color-scheme:light;
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
@@ -102,8 +104,8 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent);
 .hero .tagline bdi{letter-spacing:.04em}
 .hero{display:grid;gap:8px;max-width:640px}
 .grades{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px}
-.grade{display:grid;gap:10px;padding:20px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);text-decoration:none;color:var(--ink);transition:border-color .15s,transform .15s}
-.grade:hover{border-color:var(--accent);transform:translateY(-2px)}
+.grade{display:grid;gap:10px;padding:20px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);text-decoration:none;color:var(--ink)}
+.grade:hover{border-color:var(--accent)}
 .grade .stage{font-size:.8rem;color:var(--muted);font-weight:600;letter-spacing:.04em}
 .grade h2{font-size:1.2rem}
 .grade .counts{display:flex;gap:6px;flex-wrap:wrap}
@@ -164,9 +166,9 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent);
 .award .who{font-weight:600;font-size:1.1rem}
 .award .score{font-variant-numeric:tabular-nums;color:var(--muted)}
 .award .next{font-size:.9rem;color:var(--muted);max-width:44ch}
-@keyframes pop{0%{transform:scale(.4) rotate(-12deg);opacity:0}70%{transform:scale(1.08) rotate(3deg);opacity:1}100%{transform:scale(1) rotate(0)}}
+@keyframes pop{0%{transform:scale(.6) rotate(-10deg);opacity:0}70%{transform:scale(1.08) rotate(3deg);opacity:1}100%{transform:scale(1) rotate(0)}}
 .award svg.medal{animation:pop .7s cubic-bezier(.2,.8,.3,1.2) both}
-@media (prefers-reduced-motion:reduce){.award svg.medal{animation:none}}
+@media (prefers-reduced-motion:reduce){.award svg.medal{animation:fade 300ms ease both}}
 
 /* لوحة المعلمة */
 .dash-head{display:flex;gap:12px;flex-wrap:wrap;align-items:end;justify-content:space-between}
@@ -256,11 +258,38 @@ main.wide{max-width:1360px}
   .gradeitem{grid-template-columns:1fr 70px;}
   .gradeitem .btn{grid-row:2}
 }
-@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
 @media print{
   .top,.demo,.noprint,nav{display:none!important}
   body{background:#fff;color:#000}
   main{padding:0}
+}
+
+/* ===== الحركة =====
+   ضغطة الأزرار، دخول اللوحات، الرسائل، التغذية الراجعة. transform وopacity فقط، وأقل من 300ms. */
+.btn,.ctl,.filters button,.linkbtn,.x{transition:background-color 150ms ease,border-color 150ms ease,color 150ms ease,transform 160ms var(--ease-out)}
+.btn:active:not(:disabled),.ctl:active,.filters button:active{transform:scale(.97)}
+.choice{transition:background-color 150ms ease,border-color 150ms ease}
+.choice:active{transform:scale(.99)}
+.grade,.lesson{transition:border-color 150ms ease,transform 200ms var(--ease-out)}
+@media (hover:hover) and (pointer:fine){.grade:hover,.lesson:hover{transform:translateY(-2px)}}
+@keyframes enter{from{opacity:0;transform:translateY(8px) scale(.98)}to{opacity:1;transform:none}}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+.quiz,.verdict,.award,.errors,.labdone,.empty{animation:enter 240ms var(--ease-out) both}
+.bank-fresh .bq{animation:enter 240ms var(--ease-out) both}
+.bank-fresh .bq:nth-child(3){animation-delay:40ms}.bank-fresh .bq:nth-child(4){animation-delay:80ms}.bank-fresh .bq:nth-child(5){animation-delay:120ms}.bank-fresh .bq:nth-child(n+6){animation-delay:160ms}
+@keyframes nudge{0%,100%{transform:none}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+.qq.wrong .choice:has(input:checked){animation:nudge 240ms var(--ease-in-out)}
+.toast{opacity:0;transform:translateX(50%) translateY(12px);transition:opacity 150ms ease,transform 150ms ease}
+.toast.show{opacity:1;transform:translateX(50%);transition:opacity 220ms var(--ease-out),transform 220ms var(--ease-out)}
+.track .fill{width:100%;transform:scaleX(0);transform-origin:right center;transition:transform 200ms linear}
+[dir="ltr"] .track .fill{transform-origin:left center}
+@media (prefers-reduced-motion:reduce){
+  .btn:active:not(:disabled),.ctl:active,.filters button:active,.choice:active,.grade:hover,.lesson:hover{transform:none}
+  .quiz,.verdict,.award,.errors,.labdone,.empty,.bank-fresh .bq{animation:fade 200ms ease both}
+  .qq.wrong .choice:has(input:checked){animation:none}
+  .toast,.toast.show{transform:translateX(50%)}
+  .track .fill{transition:none}
 }
 </style>
 </head>
@@ -312,6 +341,7 @@ const DEMO = !SUPABASE_URL;
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
 const app = $("#app");
+const motionOK = () => !window.matchMedia || !matchMedia("(prefers-reduced-motion: reduce)").matches;
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const num = x => Number(x).toLocaleString("ar-SA");
 // صيغ العدد بالعربية: ١ درس واحد، ٢ درسان، ٣–١٠ دروس، ١١+ درساً
@@ -343,8 +373,11 @@ const ls = {
   set(k, v) { try { localStorage.setItem("sbp_" + k, JSON.stringify(v)); } catch {} }
 };
 function toast(msg) {
-  const t = $("#toast"); t.textContent = msg; t.hidden = false;
-  clearTimeout(toast.t); toast.t = setTimeout(() => (t.hidden = true), 2600);
+  const t = $("#toast"); t.textContent = msg;
+  clearTimeout(toast.t); clearTimeout(toast.h);
+  if (t.hidden) { t.hidden = false; void t.offsetWidth; }
+  t.classList.add("show");
+  toast.t = setTimeout(() => { t.classList.remove("show"); toast.h = setTimeout(() => (t.hidden = true), 160); }, 2600);
 }
 async function copy(text) {
   try { await navigator.clipboard.writeText(text); toast("نُسخ الرابط"); }
@@ -695,7 +728,7 @@ const segStart = i => (i <= 0 ? 0 : P.ends[i - 1] || 0);
 function tick() {
   if (!P.player || !P.player.getCurrentTime) return;
   const t = P.player.getCurrentTime() || 0;
-  if (P.dur) { $("#fill").style.width = Math.min(100, (t / P.dur) * 100) + "%"; $("#time").textContent = fmtTime(t) + " / " + fmtTime(P.dur); }
+  if (P.dur) { $("#fill").style.transform = "scaleX(" + Math.min(1, t / P.dur).toFixed(4) + ")"; $("#time").textContent = fmtTime(t) + " / " + fmtTime(P.dur); }
   if (P.quizOpen || P.done) return;
   const end = P.ends[P.seg];
   const isLast = P.seg === P.segs.length - 1;
@@ -719,7 +752,7 @@ function openQuiz() {
       <div id="verdict"></div>
       <div class="row" id="qbtns"><button class="btn" type="submit">تحقّقي من إجاباتي</button></div>
     </form>`;
-  q.scrollIntoView({ behavior: "smooth", block: "start" });
+  q.scrollIntoView({ behavior: motionOK() ? "smooth" : "auto", block: "start" });
   $("#qf").addEventListener("change", () => { $$(".qq").forEach(f => f.classList.remove("wrong", "right")); });
   $("#qf").addEventListener("submit", e => {
     e.preventDefault();
@@ -739,7 +772,7 @@ function openQuiz() {
     } else {
       $("#verdict").innerHTML = `<div class="verdict no">أجبتِ عن ${num(correct)} من ${num(qs.length)} إجابة صحيحة. الإجابات المظلّلة بالأحمر تحتاج مراجعة.</div>`;
       $("#qbtns").innerHTML = `<button class="btn" type="button" id="rewatch">أعيدي مشاهدة الجزء</button><button class="btn ghost" type="button" id="retry">حاولي مرة أخرى</button>`;
-      $("#rewatch").addEventListener("click", () => { $("#quiz").innerHTML = ""; P.quizOpen = false; P.player.seekTo(segStart(P.seg), true); P.player.playVideo(); $(".video").scrollIntoView({ behavior: "smooth", block: "center" }); });
+      $("#rewatch").addEventListener("click", () => { $("#quiz").innerHTML = ""; P.quizOpen = false; P.player.seekTo(segStart(P.seg), true); P.player.playVideo(); $(".video").scrollIntoView({ behavior: motionOK() ? "smooth" : "auto", block: "center" }); });
       $("#retry").addEventListener("click", () => { $$(".qq").forEach(f => f.classList.remove("wrong", "right")); $$("input", $("#qf")).forEach(i => (i.checked = false)); $("#verdict").innerHTML = ""; $("#qbtns").innerHTML = `<button class="btn" type="submit">تحقّقي من إجاباتي</button>`; });
     }
   });
@@ -750,7 +783,7 @@ function passSeg() {
   if (P.seg >= P.segs.length) return finish();
   drawSegs(); P.quizOpen = false;
   P.player.seekTo(segStart(P.seg), true); P.player.playVideo();
-  $(".video").scrollIntoView({ behavior: "smooth", block: "center" });
+  $(".video").scrollIntoView({ behavior: motionOK() ? "smooth" : "auto", block: "center" });
 }
 async function finish() {
   P.done = true; P.quizOpen = false; clearInterval(P.timer);
@@ -798,7 +831,7 @@ async function finish() {
       ${saveNote ? `<span class="muted">${saveNote}</span>` : ""}
     </div>`;
   $("#savebadge").addEventListener("click", () => saveBadgePNG(tier, score));
-  $("#award").scrollIntoView({ behavior: "smooth", block: "start" });
+  $("#award").scrollIntoView({ behavior: motionOK() ? "smooth" : "auto", block: "start" });
 }
 
 /* ===== شارات الإنجاز ===== */
@@ -1084,7 +1117,7 @@ async function viewEditor(arg) {
       if (qq.correct === o) qq.correct = null; else if (qq.correct > o) qq.correct--;
     } else return;
     drawEditorSegs();
-    if (act === "addSeg") $("#e-segs").lastElementChild.scrollIntoView({ behavior: "smooth", block: "center" });
+    if (act === "addSeg") $("#e-segs").lastElementChild.scrollIntoView({ behavior: motionOK() ? "smooth" : "auto", block: "center" });
   };
   segBox.addEventListener("click", onAct);
   $("#e-addseg").addEventListener("click", onAct);
@@ -1202,7 +1235,8 @@ async function generateLessonQuestions() {
       return { text: q.text, options: [...q.options], correct: q.correct, time, seg: segmentForTime(time), pick: true };
     }));
     drawBank();
-    $("#bank").scrollIntoView({ behavior: "smooth", block: "start" });
+    $("#bank").classList.add("bank-fresh"); setTimeout(() => $("#bank") && $("#bank").classList.remove("bank-fresh"), 700);
+    $("#bank").scrollIntoView({ behavior: motionOK() ? "smooth" : "auto", block: "start" });
     await saveDraft("auto");
     toast(`وصل ${num(qs.length)} سؤالاً إلى بنك الأسئلة وحُفظ مع الدرس. اختر الجزء لكل سؤال ثم أضفها.`);
   } catch (e) {
@@ -1286,7 +1320,7 @@ async function saveDraft(mode = "save") {
   if (!complete) {
     if (wasPublished) { const cb = $("#e-pub"); if (cb) cb.checked = true; }
     $("#e-errors").innerHTML = `<div class="errors"><b>حُفظ الدرس كمسودة${wasPublished ? "، ولن يظهر للطالبات حتى يكتمل" : ""}. أكمل ما يلي${mode === "try" ? " لتجربته كطالب" : ""}:</b><ul>${errs.slice(0, 12).map(e => `<li>${esc(e)}</li>`).join("")}${errs.length > 12 ? `<li>و${num(errs.length - 12)} ملاحظات أخرى.</li>` : ""}</ul></div>`;
-    if (mode !== "auto") $("#e-errors").scrollIntoView({ behavior: "smooth", block: "center" });
+    if (mode !== "auto") $("#e-errors").scrollIntoView({ behavior: motionOK() ? "smooth" : "auto", block: "center" });
   }
   return true;
 }
@@ -1325,7 +1359,7 @@ async function viewLab(id) {
     if (e.source !== frame.contentWindow || !e.data || e.data.type !== "labeeba-lab-complete") return;
     const score = Math.max(0, Math.min(100, Math.round(Number(e.data.score) || 100)));
     $("#lab-done").innerHTML = `<div class="labdone">أحسنتِ! أنجزتِ مختبر «${esc(lab.title)}» بنسبة ${pct(score)}.</div>`;
-    $("#lab-done").scrollIntoView({ behavior: "smooth", block: "center" });
+    $("#lab-done").scrollIntoView({ behavior: motionOK() ? "smooth" : "auto", block: "center" });
     const mine = ls.get("labsDone", {}); mine[lab.id] = Math.max(mine[lab.id] || 0, score); ls.set("labsDone", mine);
   };
   window.addEventListener("message", labMsgHandler);
