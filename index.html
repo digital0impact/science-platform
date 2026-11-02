@@ -16,6 +16,7 @@
   --sci:#2556A8; --sci-soft:#E2EAF7; --bio:#0E7A57; --bio-soft:#DCEFE6;
   --bad:#B4432A; --bad-soft:#F8E4DD; --good:#0E7A57; --good-soft:#DCEFE6;
   --note-bg:#FFF3D1; --note-ink:#5E4600;
+  --t-gold:#A9770E; --t-silver:#5E6B78; --t-bronze:#A0602F;
   --f-display:"Readex Pro","IBM Plex Sans Arabic",Tahoma,sans-serif;
   --f-body:"IBM Plex Sans Arabic",Tahoma,"Segoe UI",sans-serif;
   --r:10px;
@@ -26,14 +27,14 @@
   --accent:#3DBE8C; --accent-2:#5AD3A3; --on-accent:#06261A;
   --sci:#86AEF2; --sci-soft:#1A2740; --bio:#3DBE8C; --bio-soft:#16332A;
   --bad:#F08B6C; --bad-soft:#3A1F18; --good:#3DBE8C; --good-soft:#16332A;
-  --note-bg:#3A3112; --note-ink:#F2DC97; color-scheme:dark;
+  --note-bg:#3A3112; --note-ink:#F2DC97; --t-gold:#F2C94C; --t-silver:#C9D2DB; --t-bronze:#E9A56E; color-scheme:dark;
 }}
 :root[data-theme="dark"]{
   --bg:#0C1613; --surface:#13201C; --soft:#1A2B26; --ink:#E3EEE9; --muted:#93A89F; --line:#25372F;
   --accent:#3DBE8C; --accent-2:#5AD3A3; --on-accent:#06261A;
   --sci:#86AEF2; --sci-soft:#1A2740; --bio:#3DBE8C; --bio-soft:#16332A;
   --bad:#F08B6C; --bad-soft:#3A1F18; --good:#3DBE8C; --good-soft:#16332A;
-  --note-bg:#3A3112; --note-ink:#F2DC97; color-scheme:dark;
+  --note-bg:#3A3112; --note-ink:#F2DC97; --t-gold:#F2C94C; --t-silver:#C9D2DB; --t-bronze:#E9A56E; color-scheme:dark;
 }
 *{box-sizing:border-box}
 html,body{margin:0}
@@ -153,10 +154,15 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent);
 .verdict.no{background:var(--bad-soft);color:var(--bad)}
 
 .start{max-width:520px}
-.cert{text-align:center;display:grid;gap:10px;justify-items:center;padding:36px 24px;border:2px solid var(--accent);border-radius:var(--r);background:var(--surface);position:relative}
-.cert::before{content:"";position:absolute;inset:8px;border:1px solid var(--line);border-radius:6px;pointer-events:none}
-.cert .who{font-family:var(--f-display);font-size:clamp(1.5rem,5vw,2.2rem);font-weight:700;color:var(--accent)}
-.cert .score{font-family:var(--f-display);font-size:2.4rem;font-weight:700;font-variant-numeric:tabular-nums}
+.award{text-align:center;display:grid;gap:8px;justify-items:center;padding:32px 20px;border-radius:var(--r);background:var(--surface);border:1px solid var(--line)}
+.award svg.medal{width:min(220px,60vw);height:auto;filter:drop-shadow(0 6px 14px rgba(0,0,0,.18))}
+.award .tier{font-family:var(--f-display);font-size:clamp(1.4rem,4.5vw,1.9rem);font-weight:700}
+.award .who{font-weight:600;font-size:1.1rem}
+.award .score{font-variant-numeric:tabular-nums;color:var(--muted)}
+.award .next{font-size:.9rem;color:var(--muted);max-width:44ch}
+@keyframes pop{0%{transform:scale(.4) rotate(-12deg);opacity:0}70%{transform:scale(1.08) rotate(3deg);opacity:1}100%{transform:scale(1) rotate(0)}}
+.award svg.medal{animation:pop .7s cubic-bezier(.2,.8,.3,1.2) both}
+@media (prefers-reduced-motion:reduce){.award svg.medal{animation:none}}
 
 /* لوحة المعلم */
 .dash-head{display:flex;gap:12px;flex-wrap:wrap;align-items:end;justify-content:space-between}
@@ -425,7 +431,7 @@ async function viewHome() {
   app.innerHTML = `<p class="loading">جارٍ التحميل…</p>`;
   const [allGrades, lessons] = await Promise.all([Store.grades(), Store.lessons(false)]);
   const grades = allGrades.filter(g => lessons.some(l => l.gradeId === g.id));
-  const head = `<section class="hero"><h1>اختر صفّك</h1><p class="muted">كل درس مقطع مرئي مقسّم إلى أجزاء، وفي نهاية كل جزء أسئلة قصيرة. أجب عنها لتنتقل إلى الجزء التالي، وتحصل على شهادة في النهاية.</p></section>`;
+  const head = `<section class="hero"><h1>اختر صفّك</h1><p class="muted">كل درس مقطع مرئي مقسّم إلى أجزاء، وفي نهاية كل جزء أسئلة قصيرة. أجب عنها لتنتقل إلى الجزء التالي، وتحصل على شارة إنجاز في النهاية.</p></section>`;
   if (!grades.length) {
     app.innerHTML = head + `<div class="empty"><h2>لا توجد دروس منشورة بعد</h2><p>${state.isTeacher ? "أنشئ أول درس واختر صفّه، وسيظهر الصف هنا للطلاب." : "سيضيف المعلم الدروس قريباً."}</p>${state.isTeacher ? `<a class="btn" href="#edit=new">+ درس جديد</a>` : ""}</div>`;
     return;
@@ -518,7 +524,7 @@ async function viewLesson(id) {
   $("#stage").innerHTML = `
     <form class="panel start stack" id="startf">
       <h2>قبل أن تبدأ</h2>
-      <p class="muted">اكتب اسمك كما تريد أن يظهر في الشهادة. ستصل نتيجتك إلى المعلم.</p>
+      <p class="muted">اكتب اسمك كما تريد أن يظهر على شارة الإنجاز. ستصل نتيجتك إلى المعلم.</p>
       <div class="grid2">
         <label class="f">الاسم الكامل<input id="st-name" required maxlength="80" value="${esc(me.name)}" autocomplete="name"></label>
         <label class="f">الفصل / الشعبة<input id="st-cls" maxlength="30" value="${esc(me.cls)}" placeholder="مثال: ٢/أ"></label>
@@ -673,26 +679,89 @@ async function finish() {
   let saveNote = "";
   if (!P.preview) {
     try { await Store.addResult(result); saveNote = "وصلت نتيجتك إلى المعلم."; }
-    catch (e) { console.error(e); saveNote = "تعذّر إرسال النتيجة إلى المعلم. التقط صورة لهذه الشهادة وأرسلها له."; }
+    catch (e) { console.error(e); saveNote = "تعذّر إرسال النتيجة إلى المعلم. التقط صورة لشارتك وأرسلها له."; }
   }
-  const d = date.toLocaleDateString("ar-SA", { year: "numeric", month: "long", day: "numeric" });
+  const tier = badgeTier(score);
+  // شارات الطالب في هذا المتصفح (أفضل شارة لكل درس)
+  const mine = ls.get("badges", {});
+  const prev = mine[P.lesson.id];
+  if (!prev || TIERS.findIndex(t => t.key === prev) > TIERS.indexOf(tier)) mine[P.lesson.id] = tier.key;
+  ls.set("badges", mine);
+  const counts = TIERS.map(t => [t, Object.values(mine).filter(k => k === t.key).length]).filter(x => x[1]);
+  const nextT = TIERS[TIERS.indexOf(tier) - 1];
   $("#quiz").innerHTML = `
-    <section class="cert" id="cert">
-      <span class="eyebrow">شهادة إتمام درس</span>
-      <p>يشهد ${esc(P.lesson.teacher ? "المعلم " + P.lesson.teacher : "معلم المادة")} بأن الطالب</p>
+    <section class="award" id="award">
+      <span class="eyebrow">شارة إنجاز · ${esc(P.lesson.subject)}</span>
+      ${medalSVG(tier, P.lesson.subject)}
+      <div class="tier" style="color:var(--t-${tier.key})">${tier.title}</div>
       <div class="who">${esc(P.student.name)}</div>
-      ${P.student.cls ? `<p class="muted">الفصل ${esc(P.student.cls)}${P.grade ? " · " + esc(P.grade.name) : ""}</p>` : ""}
-      <p>أتمّ درس <b>${esc(P.lesson.title)}</b> في مادة ${esc(P.lesson.subject)}</p>
-      <div class="score">${pct(score)}</div>
-      <p class="muted">إجابات صحيحة من المحاولة الأولى: ${num(correct)} من ${num(total)}</p>
-      <p class="muted">${esc(d)}${P.lesson.school ? " · " + esc(P.lesson.school) : ""}</p>
+      <p>أنجزتَ درس <b>${esc(P.lesson.title)}</b></p>
+      <p class="score">${pct(score)} · ${num(correct)} من ${num(total)} إجابات صحيحة من المحاولة الأولى</p>
+      ${nextT ? `<p class="next">أعد الدرس وأجب صحيحاً من المحاولة الأولى بنسبة ${pct(nextT.min)} لتحصل على ${nextT.title}.</p>` : ""}
+      ${counts.length ? `<p class="next">شاراتك حتى الآن: ${counts.map(([t, n]) => `${num(n)} ${t.short}`).join(" · ")}</p>` : ""}
     </section>
     <div class="row noprint" style="margin-top:14px">
-      <button class="btn" type="button" onclick="window.print()">طباعة الشهادة</button>
+      <button class="btn" type="button" id="savebadge">حفظ الشارة كصورة</button>
       ${P.grade ? `<a class="btn ghost" href="#grade=${encodeURIComponent(P.grade.id)}">دروس ${esc(P.grade.name)}</a>` : ""}
       ${saveNote ? `<span class="muted">${saveNote}</span>` : ""}
     </div>`;
-  $("#cert").scrollIntoView({ behavior: "smooth", block: "start" });
+  $("#savebadge").addEventListener("click", () => saveBadgePNG(tier, score));
+  $("#award").scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+/* ===== شارات الإنجاز ===== */
+const TIERS = [
+  { key: "gold",   min: 90, title: "شارة العالِم المتميّز", short: "ذهبية",  c1: "#F6D365", c2: "#C9941A", rim: "#8A6410", ink: "#A9770E" },
+  { key: "silver", min: 70, title: "شارة الباحث النشِط",   short: "فضية",   c1: "#EEF2F5", c2: "#9AA6B2", rim: "#5E6B78", ink: "#6B7785" },
+  { key: "bronze", min: 0,  title: "شارة المستكشف",        short: "برونزية", c1: "#F0B985", c2: "#B06A35", rim: "#6E3E1C", ink: "#A0602F" }
+];
+const badgeTier = score => TIERS.find(t => score >= t.min);
+function medalSVG(t, subject) {
+  // وردة مسنّنة حولها شريطان، وفي الوسط رمز المادة
+  const pts = [];
+  for (let i = 0; i < 32; i++) { const r = i % 2 ? 78 : 88, a = (Math.PI * 2 * i) / 32; pts.push((100 + r * Math.sin(a)).toFixed(1) + "," + (100 - r * Math.cos(a)).toFixed(1)); }
+  const bio = /أحياء|حياة/.test(subject || "");
+  const earth = /أرض|فضاء/.test(subject || "");
+  const icon = bio
+    ? `<path d="M100 62c-26 8-38 28-34 56 28 2 46-14 50-40 1-6-4-13-16-16z" fill="#fff" opacity=".95"/><path d="M72 116c12-14 24-26 40-40" stroke="${t.rim}" stroke-width="3.5" fill="none" stroke-linecap="round"/><path d="M118 70c10 14 14 30 10 46-14 2-24-6-26-18" fill="#fff" opacity=".75"/>`
+    : earth
+    ? `<circle cx="100" cy="100" r="28" fill="#fff" opacity=".95"/><path d="M84 92c6-6 14-2 16 4s10 6 12 0M88 112c6 2 10-4 16-2" stroke="${t.rim}" stroke-width="3.5" fill="none" stroke-linecap="round"/><ellipse cx="100" cy="100" rx="46" ry="13" fill="none" stroke="#fff" stroke-width="4" transform="rotate(-20 100 100)"/>`
+    : `<g fill="none" stroke="#fff" stroke-width="4.5"><ellipse cx="100" cy="100" rx="40" ry="15"/><ellipse cx="100" cy="100" rx="40" ry="15" transform="rotate(60 100 100)"/><ellipse cx="100" cy="100" rx="40" ry="15" transform="rotate(-60 100 100)"/></g><circle cx="100" cy="100" r="8" fill="#fff"/>`;
+  const id = "g" + t.key;
+  return `<svg class="medal" viewBox="0 0 200 250" role="img" aria-label="${t.title}" xmlns="http://www.w3.org/2000/svg">
+    <defs><linearGradient id="${id}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${t.c1}"/><stop offset="1" stop-color="${t.c2}"/></linearGradient></defs>
+    <path d="M62 160 L40 240 L70 226 L86 250 L104 172 Z" fill="${t.rim}"/>
+    <path d="M138 160 L160 240 L130 226 L114 250 L96 172 Z" fill="${t.c2}"/>
+    <polygon points="${pts.join(" ")}" fill="url(#${id})" stroke="${t.rim}" stroke-width="2"/>
+    <circle cx="100" cy="100" r="62" fill="${t.c2}" stroke="${t.c1}" stroke-width="4"/>
+    <circle cx="100" cy="100" r="54" fill="none" stroke="#fff" stroke-opacity=".35" stroke-width="1.5" stroke-dasharray="3 5"/>
+    ${icon}
+  </svg>`;
+}
+async function saveBadgePNG(tier, score) {
+  try {
+    const W = 720, H = 900, cv = document.createElement("canvas"); cv.width = W; cv.height = H;
+    const ctx = cv.getContext("2d");
+    ctx.fillStyle = "#FFFFFF"; ctx.fillRect(0, 0, W, H);
+    ctx.strokeStyle = tier.c2; ctx.lineWidth = 6; ctx.strokeRect(18, 18, W - 36, H - 36);
+    const svg = medalSVG(tier, P.lesson.subject).replace('class="medal"', 'width="400" height="500"');
+    const img = new Image();
+    await new Promise((res, rej) => { img.onload = res; img.onerror = rej; img.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg); });
+    ctx.drawImage(img, (W - 320) / 2, 50, 320, 400);
+    try { await document.fonts.ready; } catch {}
+    ctx.direction = "rtl"; ctx.textAlign = "center";
+    const line = (txt, y, size, color, weight = 700) => { ctx.font = `${weight} ${size}px "Readex Pro","IBM Plex Sans Arabic",Tahoma,sans-serif`; ctx.fillStyle = color; ctx.fillText(txt, W / 2, y, W - 80); };
+    line(tier.title, 520, 46, tier.ink);
+    line(P.student.name, 590, 38, "#10261F");
+    line("أنجز درس: " + P.lesson.title, 650, 28, "#10261F", 500);
+    line(pct(score) + " من المحاولة الأولى · " + P.lesson.subject, 700, 26, "#55695F", 500);
+    line(new Date().toLocaleDateString("ar-SA", { year: "numeric", month: "long", day: "numeric" }) + (P.lesson.school ? " · " + P.lesson.school : ""), 750, 24, "#55695F", 500);
+    line(SITE_NAME, 840, 24, tier.c2, 600);
+    const a = document.createElement("a");
+    a.href = cv.toDataURL("image/png");
+    a.download = "شارة-" + P.lesson.title.replace(/[\\/:*?"<>|]/g, "").slice(0, 40) + ".png";
+    document.body.appendChild(a); a.click(); a.remove();
+  } catch (e) { console.error(e); toast("تعذّر حفظ الصورة. التقط صورة للشاشة بدلاً منها."); }
 }
 
 /* ======================= لوحة المعلم ======================= */
