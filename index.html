@@ -201,6 +201,19 @@ td .row{flex-wrap:nowrap}
 details.ai{border:1px dashed var(--accent);border-radius:8px;background:var(--surface)}
 details.ai summary{cursor:pointer;padding:10px 14px;font-weight:600;color:var(--accent)}
 details.ai .ai-body{display:grid;gap:10px;padding:0 14px 14px;font-size:.92rem}
+#bank{display:grid;gap:10px}
+#bank:empty{display:none}
+.bank-head{display:flex;gap:14px;align-items:center;flex-wrap:wrap;padding-top:6px;border-top:1px solid var(--line)}
+.bq{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:start;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--bg)}
+.bq.on{border-color:var(--accent)}
+.bq input[type=checkbox]{accent-color:var(--accent);width:18px;height:18px;margin-top:3px}
+.bq-text{font-weight:600;cursor:pointer;display:block}
+.bq ul{margin:4px 0 0;padding-inline-start:18px;font-size:.88rem;color:var(--muted)}
+.bq li.ok{color:var(--good);font-weight:600}
+.bq-time{font-size:.8rem;font-variant-numeric:tabular-nums}
+.bq-side{display:flex;gap:4px;align-items:center}
+.bq-side select{width:auto;padding:6px 8px;font-size:.88rem}
+@media (max-width:560px){.bq{grid-template-columns:auto minmax(0,1fr)}.bq-side{grid-column:2}}
 .linkbtn{border:0;background:none;color:var(--accent);cursor:pointer;font-weight:600;padding:4px 0;justify-self:start}
 .errors{background:var(--bad-soft);color:var(--bad);border-radius:8px;padding:12px 16px}
 .errors ul{margin:6px 0 0;padding-inline-start:20px}
@@ -839,12 +852,13 @@ async function viewEditor(arg) {
   const grades = await Store.grades();
   if (idPart === "new") {
     const last = ls.get("lastLesson", {});
-    E = { title: "", subject: last.subject || SUBJECTS[0], unit: "", gradeId: params.grade ? decodeURIComponent(params.grade) : (last.gradeId || grades[0]?.id || ""), teacher: last.teacher || "", school: last.school || "", videoUrl: "", videoId: "", passPct: 80, speeds: [0.75, 1, 1.25, 1.5], published: true, order: 0, segments: [{ endText: "", questions: [blankQ()] }] };
+    E = { title: "", subject: last.subject || SUBJECTS[0], unit: "", gradeId: params.grade ? decodeURIComponent(params.grade) : (last.gradeId || grades[0]?.id || ""), teacher: last.teacher || "", school: last.school || "", videoUrl: "", videoId: "", passPct: 80, speeds: [0.75, 1, 1.25, 1.5], published: true, order: 0, source: "", bank: [], segments: [{ endText: "", questions: [blankQ()] }] };
   } else {
     const l = await Store.getLesson(idPart);
     if (!l) { app.innerHTML = `<div class="empty"><h2>الدرس غير موجود</h2><a class="btn ghost" href="#teacher">العودة</a></div>`; return; }
     E = JSON.parse(JSON.stringify(l));
-    E.segments = (E.segments || []).map(s => ({ endText: s.end != null ? fmtTime(s.end) : "", source: s.source || "", questions: (s.questions || []).map(q => ({ ...q, options: [...q.options] })) }));
+    E.bank = (E.bank || []).map(q => ({ ...q, pick: false }));
+    E.segments = (E.segments || []).map(s => ({ endText: s.end != null ? fmtTime(s.end) : "", questions: (s.questions || []).map(q => ({ ...q, options: [...q.options] })) }));
   }
   if (!grades.some(g => g.id === E.gradeId)) E.gradeId = grades[0].id;
   const subjOpts = [...new Set([...SUBJECTS, E.subject].filter(Boolean))];
@@ -872,6 +886,21 @@ async function viewEditor(arg) {
       </section>
       <section class="panel step s4"><h2><span class="n">٤</span>الأجزاء والأسئلة</h2>
         <p class="muted" style="font-size:.9rem;margin-bottom:12px">حدّد وقت نهاية كل جزء (دقائق:ثوانٍ). اترك نهاية آخر جزء فارغة ليستمر حتى نهاية المقطع. علّم الإجابة الصحيحة بالدائرة.</p>
+        <details class="ai" id="ai-box" ${E.source || (E.bank || []).length ? "open" : ""}>
+          <summary>توليد أسئلة الدرس كاملاً بالذكاء الاصطناعي</summary>
+          <div class="ai-body">
+            <p class="muted">الصق نص المقطع كاملاً. في يوتيوب: افتح المقطع، ثم «المزيد» تحت الوصف، ثم «عرض النص» (Show transcript)، وانسخ النص كله <b>مع التوقيتات</b>، فهي التي تساعد على اقتراح الجزء المناسب لكل سؤال. يمكنك أيضاً كتابة أهم أفكار الدرس بنفسك.</p>
+            <textarea id="ai-src" rows="6" placeholder="نص المقطع كاملاً…">${esc(E.source || "")}</textarea>
+            <div class="row">
+              <label class="row" style="gap:6px;font-size:.9rem">عدد الأسئلة
+                <select id="ai-count" style="width:auto">${[5, 8, 10, 12, 15, 20].map(n => `<option value="${n}" ${(E.aiCount || 10) === n ? "selected" : ""}>${num(n)}</option>`).join("")}</select>
+              </label>
+              <button class="btn sm" type="button" id="ai-gen">ولّد الأسئلة</button>
+              <span class="muted" style="font-size:.85rem">حدّد أوقات نهاية الأجزاء أولاً ليُقترح الجزء بدقة.</span>
+            </div>
+            <div id="bank"></div>
+          </div>
+        </details>
         <div class="stack" id="e-segs"></div>
         <button class="btn ghost" type="button" data-act="addSeg" id="e-addseg" style="margin-top:12px">+ إضافة جزء</button>
       </section>
@@ -905,27 +934,52 @@ async function viewEditor(arg) {
   });
   if (E.videoId) loadEditPlayer();
   drawEditorSegs();
+  $("#ai-src").addEventListener("input", e => (E.source = e.target.value));
+  $("#ai-count").addEventListener("change", e => (E.aiCount = Number(e.target.value)));
+  $("#ai-gen").addEventListener("click", generateLessonQuestions);
+  $("#bank").addEventListener("change", e => {
+    const t = e.target, i = Number(t.dataset.i); if (!E.bank[i]) return;
+    if (t.dataset.k === "bpick") E.bank[i].pick = t.checked;
+    if (t.dataset.k === "bseg") E.bank[i].seg = Number(t.value);
+  });
+  $("#bank").addEventListener("click", e => {
+    const b = e.target.closest("[data-bact]"); if (!b) return;
+    const act = b.dataset.bact;
+    if (act === "drop") E.bank.splice(Number(b.dataset.i), 1);
+    if (act === "all") { const on = !E.bank.every(q => q.pick); E.bank.forEach(q => (q.pick = on)); }
+    if (act === "suggest") E.bank.forEach(q => (q.seg = segmentForTime(q.time)));
+    if (act === "add") {
+      const chosen = E.bank.filter(q => q.pick);
+      if (!chosen.length) { toast("حدّد سؤالاً واحداً على الأقل."); return; }
+      if (chosen.some(q => !(q.seg >= 0 && q.seg < E.segments.length))) { toast("اختر الجزء لكل سؤال محدد."); return; }
+      const touched = new Set();
+      chosen.forEach(q => {
+        const seg = E.segments[q.seg];
+        if (!touched.has(q.seg)) { seg.questions = seg.questions.filter(x => x.text.trim() || x.options.some(o => o.trim())); touched.add(q.seg); }
+        seg.questions.push({ text: q.text, options: [...q.options], correct: q.correct });
+      });
+      E.bank = E.bank.filter(q => !q.pick);
+      drawEditorSegs();
+      toast(`أُضيف ${num(chosen.length)} سؤالاً إلى ${num(touched.size)} ${touched.size === 1 ? "جزء" : "أجزاء"}. راجعها قبل الحفظ.`);
+      return;
+    }
+    drawBank();
+  });
   const segBox = $("#e-segs");
   segBox.addEventListener("input", e => {
     const t = e.target, s = Number(t.dataset.s), q = Number(t.dataset.q), o = Number(t.dataset.o);
     if (t.dataset.k === "end") E.segments[s].endText = t.value;
     if (t.dataset.k === "qtext") E.segments[s].questions[q].text = t.value;
     if (t.dataset.k === "opt") E.segments[s].questions[q].options[o] = t.value;
-    if (t.dataset.k === "src") E.segments[s].source = t.value;
   });
   segBox.addEventListener("change", e => {
     const t = e.target;
     if (t.dataset.k === "correct") E.segments[Number(t.dataset.s)].questions[Number(t.dataset.q)].correct = Number(t.dataset.o);
-    if (t.dataset.k === "aicount") E.segments[Number(t.dataset.s)].aiCount = Number(t.value);
   });
-  segBox.addEventListener("toggle", e => {
-    if (e.target.matches("details.ai")) E.segments[Number(e.target.dataset.s)].aiOpen = e.target.open;
-  }, true);
   const onAct = e => {
     const b = e.target.closest("[data-act]"); if (!b) return;
     const s = Number(b.dataset.s), q = Number(b.dataset.q), o = Number(b.dataset.o);
     const act = b.dataset.act;
-    if (act === "ai") { generateQuestions(s); return; }
     if (act === "addSeg") { E.segments.push({ endText: "", questions: [blankQ()] }); }
     else if (act === "delSeg") { if (E.segments.length > 1) E.segments.splice(s, 1); }
     else if (act === "now") {
@@ -977,32 +1031,56 @@ function drawEditorSegs() {
           ${q.options.length < 6 ? `<button class="linkbtn" type="button" data-act="addOpt" data-s="${si}" data-q="${qi}">+ خيار</button>` : ""}
         </div>`).join("")}
       <button class="linkbtn" type="button" data-act="addQ" data-s="${si}">+ سؤال لهذا الجزء</button>
-      <details class="ai" data-s="${si}" ${s.aiOpen ? "open" : ""}>
-        <summary>توليد أسئلة هذا الجزء بالذكاء الاصطناعي</summary>
-        <div class="ai-body">
-          <p class="muted">الصق نص هذا الجزء من المقطع، أو اكتب أهم أفكاره بنفسك. في يوتيوب: افتح المقطع، ثم «المزيد» تحت الوصف، ثم «عرض النص» (Show transcript)، وانسخ الأسطر من بداية الجزء إلى نهايته.</p>
-          <textarea id="src-${si}" rows="5" data-k="src" data-s="${si}" placeholder="نص الجزء ${num(si + 1)}…">${esc(s.source || "")}</textarea>
-          <div class="row">
-            <label class="row" style="gap:6px;font-size:.9rem">عدد الأسئلة
-              <select id="aic-${si}" data-k="aicount" data-s="${si}" style="width:auto">${[1, 2, 3, 4, 5].map(n => `<option value="${n}" ${(s.aiCount || 3) === n ? "selected" : ""}>${num(n)}</option>`).join("")}</select>
-            </label>
-            <button class="btn sm" type="button" data-act="ai" data-s="${si}" ${s.aiBusy ? "disabled" : ""}>${s.aiBusy ? "جارٍ التوليد…" : "ولّد الأسئلة"}</button>
-            <span class="muted" style="font-size:.85rem">تُضاف الأسئلة إلى هذا الجزء، فراجعها قبل الحفظ.</span>
-          </div>
-        </div>
-      </details>
+
     </div>`).join("");
+  drawBank();
 }
-async function generateQuestions(si) {
-  const seg = E.segments[si];
-  const text = (seg.source || "").trim();
+function segmentForTime(t) {
+  if (t == null || isNaN(t)) return -1;
+  for (let i = 0; i < E.segments.length; i++) {
+    const end = parseTime(E.segments[i].endText);
+    if (end == null || Number.isNaN(end) || t < end) return i;
+  }
+  return E.segments.length - 1;
+}
+function drawBank() {
+  const box = $("#bank"); if (!box) return;
+  const bank = E.bank || [];
+  if (!bank.length) { box.innerHTML = ""; return; }
+  const n = E.segments.length;
+  box.innerHTML = `
+    <div class="bank-head">
+      <b>بنك الأسئلة (${num(bank.length)})</b>
+      <button class="linkbtn" type="button" data-bact="all">${bank.every(q => q.pick) ? "إلغاء تحديد الكل" : "تحديد الكل"}</button>
+      <button class="linkbtn" type="button" data-bact="suggest">إعادة اقتراح الأجزاء</button>
+    </div>
+    ${bank.map((q, i) => `
+      <div class="bq ${q.pick ? "on" : ""}">
+        <input type="checkbox" id="bp-${i}" data-k="bpick" data-i="${i}" ${q.pick ? "checked" : ""} aria-label="تحديد السؤال">
+        <div class="bq-body">
+          <label for="bp-${i}" class="bq-text">${esc(q.text)}</label>
+          <ul>${q.options.map((o, oi) => `<li class="${oi === q.correct ? "ok" : ""}">${oi === q.correct ? "✓ " : ""}${esc(o)}</li>`).join("")}</ul>
+          ${q.time != null ? `<span class="muted bq-time">ورد عند ${fmtTime(q.time)}</span>` : ""}
+        </div>
+        <div class="bq-side">
+          <select id="bs-${i}" data-k="bseg" data-i="${i}" aria-label="الجزء">
+            <option value="-1" ${!(q.seg >= 0 && q.seg < n) ? "selected" : ""}>اختر الجزء</option>
+            ${E.segments.map((_, si) => `<option value="${si}" ${q.seg === si ? "selected" : ""}>الجزء ${num(si + 1)}</option>`).join("")}
+          </select>
+          <button class="x" type="button" data-bact="drop" data-i="${i}" aria-label="استبعاد السؤال" title="استبعاد">×</button>
+        </div>
+      </div>`).join("")}
+    <div class="row"><button class="btn sm" type="button" data-bact="add">أضف الأسئلة المحددة إلى أجزائها</button><span class="muted" style="font-size:.85rem">يُحفظ البنك مع الدرس، فتستطيع الرجوع إليه لاحقاً.</span></div>`;
+}
+async function generateLessonQuestions() {
+  const text = (E.source || "").trim();
   if (DEMO) { toast("توليد الأسئلة يعمل بعد ربط المنصة بـ Supabase وإضافة دالة الذكاء الاصطناعي."); return; }
-  if (text.length < 60) { toast("الصق نصاً أطول لهذا الجزء (سطرين على الأقل)."); return; }
+  if (text.length < 120) { toast("الصق نص المقطع كاملاً (فقرة واحدة على الأقل)."); return; }
   const grade = GRADES.find(g => g.id === E.gradeId);
-  seg.aiBusy = true; seg.aiOpen = true; drawEditorSegs();
+  const btn = $("#ai-gen"); btn.disabled = true; btn.textContent = "جارٍ التوليد… قد يستغرق دقيقة";
   try {
     const { data, error } = await sb.functions.invoke("generate-questions", {
-      body: { text, count: seg.aiCount || 3, subject: E.subject, grade: grade ? grade.name : "", title: E.title || "" }
+      body: { text, count: E.aiCount || 10, subject: E.subject, grade: grade ? grade.name : "", title: E.title || "" }
     });
     if (error) {
       let msg = error.message;
@@ -1011,14 +1089,18 @@ async function generateQuestions(si) {
     }
     const qs = (data && data.questions) || [];
     if (!qs.length) throw new Error("لم تصل أسئلة. جرّب مرة أخرى.");
-    seg.questions = seg.questions.filter(q => q.text.trim() || q.options.some(o => o.trim()));
-    qs.forEach(q => seg.questions.push({ text: q.text, options: [...q.options], correct: q.correct }));
-    toast(`أُضيف ${num(qs.length)} أسئلة إلى الجزء ${num(si + 1)}. راجعها قبل الحفظ.`);
+    E.bank = (E.bank || []).concat(qs.map(q => {
+      const time = Number.isFinite(q.time) ? q.time : null;
+      return { text: q.text, options: [...q.options], correct: q.correct, time, seg: segmentForTime(time), pick: true };
+    }));
+    drawBank();
+    $("#bank").scrollIntoView({ behavior: "smooth", block: "start" });
+    toast(`وصل ${num(qs.length)} سؤالاً إلى بنك الأسئلة. اختر الجزء لكل سؤال ثم أضفها.`);
   } catch (e) {
     console.error(e);
     toast("تعذّر توليد الأسئلة: " + (e.message || e));
   } finally {
-    seg.aiBusy = false; drawEditorSegs();
+    btn.disabled = false; btn.textContent = "ولّد الأسئلة";
   }
 }
 async function saveDraft(thenTry) {
@@ -1045,7 +1127,6 @@ async function saveDraft(thenTry) {
       return { text: q.text.trim(), options, correct: q.correct };
     });
     const seg = { end: Number.isNaN(end) ? null : end, questions };
-    if ((s.source || "").trim()) seg.source = s.source.trim();
     return seg;
   });
   if (errs.length) {
@@ -1059,7 +1140,9 @@ async function saveDraft(thenTry) {
     teacher: (E.teacher || "").trim(), school: (E.school || "").trim(),
     videoId: E.videoId, videoUrl: E.videoUrl || "", passPct: Number(E.passPct) || 100,
     speeds: E.speeds.slice().sort((a, b) => a - b), published: !!E.published, order: Number(E.order) || 0,
-    segments, updatedAt: new Date().toISOString()
+    segments, updatedAt: new Date().toISOString(),
+    source: (E.source || "").trim(),
+    bank: (E.bank || []).map(({ text, options, correct, time, seg }) => ({ text, options, correct, time: time ?? null, seg: seg ?? -1 }))
   };
   if (E.id) lesson.id = E.id;
   try {
