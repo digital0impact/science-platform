@@ -39,6 +39,13 @@ body{background:var(--bg);color:var(--ink);font-family:var(--f-body);overflow:hi
 .eyebrow{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:12px;color:var(--muted)}
 .eyebrow b{color:var(--accent);font-weight:600;letter-spacing:.02em}
 .eyebrow i{font-family:var(--f-mono);font-style:normal;font-size:11px;direction:ltr;letter-spacing:.04em}
+.eb-end{display:inline-flex;align-items:center;gap:8px}
+.fold{font:inherit;font-size:11.5px;color:var(--muted);background:none;border:1px solid var(--line);border-radius:999px;padding:2px 9px;cursor:pointer;transition:color 150ms ease,border-color 150ms ease}
+.fold:hover{color:var(--ink);border-color:rgba(170,215,220,.4)}
+.fold:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.cap-body{display:flex;flex-direction:column;gap:7px}
+.card.folded .cap-body{display:none}
+.card.folded{gap:4px}
 .card h2{margin:0;font-family:var(--f-display);font-weight:500;font-size:26px;line-height:1.25;text-wrap:balance}
 .card p{margin:0;font-size:14.5px;line-height:1.75;color:#cfdedc}
 .chip{align-self:flex-start;margin-top:3px;font-size:12.5px;padding:3px 10px;border-radius:999px;background:rgba(240,163,94,.12);border:1px solid rgba(240,163,94,.35);color:#f6c99d}
@@ -91,8 +98,9 @@ body{background:var(--bg);color:var(--ink);font-family:var(--f-body);overflow:hi
     <div class="top">
       <div class="brand"><h1>الانقسام المتساوي</h1><span>خلية حيوانية · نموذج ثلاثي الأبعاد</span></div>
       <section class="card" aria-live="polite">
-        <div class="eyebrow"><b id="cap-step">قبل الانقسام</b><i id="cap-en">INTERPHASE</i></div>
+        <div class="eyebrow"><b id="cap-step">قبل الانقسام</b><span class="eb-end"><i id="cap-en">INTERPHASE</i><button type="button" class="fold" id="cap-fold" aria-expanded="true" aria-controls="cap-body">إخفاء الشرح</button></span></div>
         <h2 id="cap-title">الطور البيني</h2>
+        <div id="cap-body" class="cap-body">
         <p id="cap-text"></p>
         <span class="chip" id="cap-chip"></span>
         <div class="legend" aria-label="ألوان الكروموسومات">
@@ -100,6 +108,7 @@ body{background:var(--bg);color:var(--ink);font-family:var(--f-body);overflow:hi
           <span><em style="background:#ee4b45"></em>كروموسوم 2</span>
           <span><em style="background:#33c870"></em>كروموسوم 3</span>
           <span><em style="background:#ab63f2"></em>كروموسوم 4</span>
+        </div>
         </div>
       </section>
     </div>
@@ -490,9 +499,25 @@ function placeCamera(t){
   const needW=lerp(7.4,11.2,ss(22,33,t));
   const vf=THREE.MathUtils.degToRad(camera.fov)/2,hf=Math.atan(Math.tan(vf)*aspect);
   const need=Math.max((needW/2)/Math.tan(hf),(needW*0.62)/Math.tan(vf))+1.2;
-  const rad=Math.max(need,9)*zoom;
+  const rad=Math.max(need,9)*zoom*frameFit;
   camera.position.set(rad*Math.cos(el)*Math.sin(az),rad*Math.sin(el),rad*Math.cos(el)*Math.cos(az));
-  camera.lookAt(0,aspect<0.8?0.9:0,0);
+  camera.lookAt(0,0,0);
+}
+/* المساحة الخالية من بطاقة الشرح وشريط التحكم: تُوضع الخلية في وسطها */
+let frameFit=1,lastLayout=0;
+function fitToFreeArea(force){
+  const now=performance.now(); if(!force&&now-lastLayout<250)return; lastLayout=now;
+  const st=document.getElementById("stage").getBoundingClientRect(),W=st.width,H=st.height; if(!W||!H)return;
+  const card=document.querySelector(".top").getBoundingClientRect(),dock=document.querySelector(".dock").getBoundingClientRect();
+  const pad=12,bottom=Math.min(H,dock.top-st.top-pad);
+  let x0=0,x1=W,y0=0,y1=bottom;
+  const cardL=card.left-st.left,cardR=card.right-st.left,cardB=card.bottom-st.top;
+  const side=Math.max(cardL,W-cardR);
+  if(side>=Math.min(W*0.5,bottom*0.9)){ if(cardL>=W-cardR){x1=cardL-pad;}else{x0=cardR+pad;} }
+  else{ y0=cardB+pad; }
+  const fw=Math.max(80,x1-x0),fh=Math.max(80,y1-y0);
+  camera.setViewOffset(W,H,W/2-(x0+x1)/2,H/2-(y0+y1)/2,W,H);
+  frameFit=clamp(Math.max(W/fw,H/fh)*(W<561?0.8:0.92),1,2.4);
 }
 let drag=null;
 canvas.addEventListener("pointerdown",e=>{drag={x:e.clientX,y:e.clientY};canvas.setPointerCapture(e.pointerId);});
@@ -534,11 +559,15 @@ function phaseIndex(t){for(let i=0;i<PHASES.length;i++)if(t<PHASES[i].end)return
 let curPhase=-1;
 function showPhase(i){const p=PHASES[i];$("cap-step").textContent=p.step;$("cap-en").textContent=p.en;$("cap-title").textContent=p.title;$("cap-text").textContent=p.text;$("cap-chip").textContent=p.chip;
   PHASES.forEach((q,j)=>q.btn.classList.toggle("on",j===i));}
+(function(){const b=$("cap-fold"),card=document.querySelector(".card");
+  function set(f){card.classList.toggle("folded",f);b.setAttribute("aria-expanded",String(!f));b.textContent=f?"إظهار الشرح":"إخفاء الشرح";fitToFreeArea(true);}
+  b.addEventListener("click",()=>set(!card.classList.contains("folded")));
+  if(window.innerWidth<561&&window.innerHeight<620)set(true);})();
 const fmt=s=>{s=Math.floor(s);return String(Math.floor(s/60)).padStart(2,"0")+":"+String(s%60).padStart(2,"0");};
 
 /* ---------------- Resize & loop ---------------- */
 const stage=$("stage");
-function resize(){const w=stage.clientWidth,h=stage.clientHeight;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();}
+function resize(){const w=stage.clientWidth,h=stage.clientHeight;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();fitToFreeArea(true);}
 new ResizeObserver(resize).observe(stage);resize();
 
 let last=performance.now();
@@ -548,7 +577,7 @@ function frame(now){
   if(playing&&!scrub){t+=dt*speed;if(t>=TOTAL){t=TOTAL;setPlaying(false);if(!window.__labeebaDone){window.__labeebaDone=true;try{parent.postMessage({type:"labeeba-lab-complete",score:100,tasks:6},"*");}catch(e){}}}}
   if(orbitOn&&!drag)orbitClock+=dt;
   amb+=dt*(reduced?0.3:1);
-  update(t,amb);placeCamera(t);
+  fitToFreeArea(false);update(t,amb);placeCamera(t);
   dust.rotation.y=amb*0.01;
   renderer.render(scene,camera);
 

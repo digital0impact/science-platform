@@ -228,6 +228,7 @@ details.ai .ai-body{display:grid;gap:10px;padding:0 14px 14px;font-size:.92rem}
 .labcard{border-style:dashed;border-color:var(--accent)}
 .lab-frame{display:block;width:100%;height:min(80vh,860px);border:1px solid var(--line);border-radius:var(--r);background:#fff}
 .ed-side .lab-frame{height:min(60vh,620px)}
+@media (max-width:560px){.lab-frame{height:86vh}}
 .lab-wrap:fullscreen{background:var(--bg);padding:8px}
 .lab-wrap:fullscreen .lab-frame{height:calc(100vh - 16px)}
 .lab-empty{display:grid;place-items:center;text-align:center;height:min(60vh,520px);border:1px dashed var(--line);border-radius:var(--r);color:var(--muted);padding:20px}
@@ -1336,6 +1337,12 @@ const READY_LABS = [
 let labMsgHandler = null;
 function stopLab() { if (labMsgHandler) { window.removeEventListener("message", labMsgHandler); labMsgHandler = null; } }
 function setFrame(frame, html) { frame.srcdoc = html || ""; }
+// المختبر الجاهز يُقرأ من ملفه في الموقع حتى تصل تحسيناته للجميع، والنسخة المحفوظة احتياط
+async function freshLabHtml(lab) {
+  if (!lab.readyFile || !/^labs\/[\w.-]+\.html$/.test(lab.readyFile)) return lab.html;
+  try { const r = await fetch(lab.readyFile, { cache: "no-cache" }); if (r.ok) { const h = extractHtml(await r.text()); if (h) return h; } } catch {}
+  return lab.html;
+}
 
 // صفحة المختبر للطالبة
 async function viewLab(id) {
@@ -1357,6 +1364,7 @@ async function viewLab(id) {
     <div id="lab-done" aria-live="polite"></div>
     <div class="lab-wrap" id="lab-wrap"><iframe class="lab-frame" id="lab-frame" title="${esc(lab.title)}" sandbox="${LAB_SANDBOX}"></iframe></div>`;
   const frame = $("#lab-frame");
+  lab.html = await freshLabHtml(lab);
   setFrame(frame, lab.html);
   $("#lab-reset").addEventListener("click", () => { setFrame(frame, lab.html); $("#lab-done").innerHTML = ""; });
   $("#lab-full").addEventListener("click", () => { const w = $("#lab-wrap"); (w.requestFullscreen ? w.requestFullscreen() : Promise.reject()).catch(() => toast("ملء الشاشة غير متاح في هذا المتصفح.")); });
@@ -1435,6 +1443,7 @@ async function viewLabEditor(arg) {
     try { l = await Store.getLab(idPart); } catch { l = null; }
     if (!l) { app.innerHTML = `<div class="empty"><h2>المختبر غير موجود</h2><a class="btn ghost" href="#labs">العودة</a></div>`; return; }
     LB = JSON.parse(JSON.stringify(l));
+    if (LB.readyFile) LB.html = await freshLabHtml(LB);
   }
   if (!grades.some(g => g.id === LB.gradeId)) LB.gradeId = grades[0].id;
   if (LB.lessonId && !LB.source) { const ls0 = lessons.find(x => x.id === LB.lessonId); if (ls0) { LB.source = ls0.source || ""; LB.title = LB.title || ls0.title; LB.gradeId = ls0.gradeId || LB.gradeId; LB.subject = ls0.subject || LB.subject; } }
@@ -1534,12 +1543,12 @@ async function viewLabEditor(arg) {
   $("#lb-usepaste").addEventListener("click", async () => {
     const html = extractHtml($("#lb-paste").value);
     if (!html) { toast("هذا ليس ملف HTML كاملاً. يجب أن يبدأ بـ <!DOCTYPE html> أو <html>."); return; }
-    LB.prevHtml = LB.html || ""; LB.html = html; drawLabPreview(); await saveLab("auto");
+    LB.prevHtml = LB.html || ""; LB.html = html; LB.readyFile = ""; drawLabPreview(); await saveLab("auto");
   });
-  const useHtml = async (html, meta) => {
+  const useHtml = async (html, meta, readyFile = "") => {
     html = extractHtml(html);
     if (!html) { toast("هذا ليس ملف HTML كاملاً. يجب أن يبدأ بـ <!DOCTYPE html> أو <html>."); return; }
-    LB.prevHtml = LB.html || ""; LB.html = html;
+    LB.prevHtml = LB.html || ""; LB.html = html; LB.readyFile = readyFile;
     if (meta) {
       if (!LB.title.trim()) { LB.title = meta.title; $("#lb-title").value = meta.title; }
       if (meta.subject) { LB.subject = meta.subject; const sel = $("#lb-subject"); if (![...sel.options].some(o => o.value === meta.subject)) sel.add(new Option(meta.subject, meta.subject)); sel.value = meta.subject; }
@@ -1555,7 +1564,7 @@ async function viewLabEditor(arg) {
     try {
       const res = await fetch(r.file, { cache: "no-cache" });
       if (!res.ok) throw new Error(res.status);
-      await useHtml(await res.text(), r);
+      await useHtml(await res.text(), r, r.file);
     } catch (e) { console.error(e); toast("تعذّر تحميل المختبر الجاهز. افتحي المنصة من رابطها على الإنترنت ثم جرّبي."); }
   });
   $("#lb-file").addEventListener("change", async e => {
@@ -1636,7 +1645,7 @@ async function runLabAI(isChange) {
     const html = extractHtml(got.replace("<!--LABEEBA:TRUNCATED-->", ""));
     if (!html) throw new Error(truncated ? "انقطع البناء لأن المختبر أطول من الحد المسموح. اطلبي مختبراً أبسط بمهام أقل." : "لم يصل ملف مختبر كامل. جرّبي مرة أخرى.");
     LB.prevHtml = LB.html || "";
-    LB.html = html;
+    LB.html = html; LB.readyFile = "";
     if (isChange) $("#lb-change").value = "";
     clearInterval(tick);
     drawLabPreview();
@@ -1657,7 +1666,7 @@ async function saveLab(mode) {
   const ready = !!LB.html;
   const lab = {
     title: LB.title || "مختبر بلا عنوان", subject: LB.subject, unit: (LB.unit || "").trim(), gradeId: LB.gradeId, lessonId: LB.lessonId || "",
-    source: (LB.source || "").trim(), request: (LB.request || "").trim(), html: LB.html || "", prevHtml: LB.prevHtml || "",
+    source: (LB.source || "").trim(), request: (LB.request || "").trim(), html: LB.html || "", prevHtml: LB.prevHtml || "", readyFile: LB.readyFile || "",
     published: ready && !!LB.published, order: Number(LB.order) || 0, updatedAt: new Date().toISOString()
   };
   if (LB.id) lab.id = LB.id;
