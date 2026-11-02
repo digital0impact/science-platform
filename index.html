@@ -1206,7 +1206,14 @@ async function saveDraft(mode = "save") {
   let id;
   try {
     id = await Store.saveLesson(lesson);
-  } catch (e) { console.error(e); toast("تعذّر الحفظ: " + (e.code || e.message)); return false; }
+  } catch (e) {
+    console.error(e);
+    const hint = e.code === "22P02" || e.code === "42703" || e.code === "42P01"
+      ? "قاعدة البيانات تحتاج تحديثاً: شغّل آخر نسخة من ملف supabase.sql في SQL Editor."
+      : (e.message || e.code);
+    toast("تعذّر الحفظ: " + hint + (e.code ? " (" + e.code + ")" : ""));
+    return false;
+  }
   ls.set("lastLesson", { gradeId: lesson.gradeId, subject: lesson.subject, teacher: lesson.teacher, school: lesson.school });
   if (!E.id) { E.id = id; history.replaceState(null, "", "#edit=" + encodeURIComponent(id)); }
 
