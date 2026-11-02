@@ -192,6 +192,7 @@ td .row{flex-wrap:nowrap}
 .seg-head .end{display:flex;gap:6px;align-items:center;font-size:.9rem}
 .seg-head .end input{width:96px;direction:ltr;text-align:center;font-variant-numeric:tabular-nums}
 .q{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:12px;display:grid;gap:8px}
+.q-head .move{width:auto;padding:4px 8px;font-size:.82rem;font-weight:500}
 .q-head{display:flex;justify-content:space-between;align-items:center;font-size:.85rem;color:var(--muted);font-weight:600}
 .opts{display:grid;gap:6px}
 .opt{display:flex;gap:8px;align-items:center}
@@ -207,7 +208,9 @@ details.ai .ai-body{display:grid;gap:10px;padding:0 14px 14px;font-size:.92rem}
 .bq{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:start;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--bg)}
 .bq.on{border-color:var(--accent)}
 .bq input[type=checkbox]{accent-color:var(--accent);width:18px;height:18px;margin-top:3px}
-.bq-text{font-weight:600;cursor:pointer;display:block}
+.bq-body{display:grid;gap:6px}
+.bq-body textarea{font-weight:600}
+.bq .opt input:not([type=radio]){padding:6px 10px;font-size:.9rem}
 .bq ul{margin:4px 0 0;padding-inline-start:18px;font-size:.88rem;color:var(--muted)}
 .bq li.ok{color:var(--good);font-weight:600}
 .bq-time{font-size:.8rem;font-variant-numeric:tabular-nums}
@@ -941,6 +944,12 @@ async function viewEditor(arg) {
     const t = e.target, i = Number(t.dataset.i); if (!E.bank[i]) return;
     if (t.dataset.k === "bpick") E.bank[i].pick = t.checked;
     if (t.dataset.k === "bseg") E.bank[i].seg = Number(t.value);
+    if (t.dataset.k === "bcorrect") E.bank[i].correct = Number(t.dataset.o);
+  });
+  $("#bank").addEventListener("input", e => {
+    const t = e.target, i = Number(t.dataset.i); if (!E.bank[i]) return;
+    if (t.dataset.k === "btext") E.bank[i].text = t.value;
+    if (t.dataset.k === "bopt") E.bank[i].options[Number(t.dataset.o)] = t.value;
   });
   $("#bank").addEventListener("click", e => {
     const b = e.target.closest("[data-bact]"); if (!b) return;
@@ -975,6 +984,23 @@ async function viewEditor(arg) {
   segBox.addEventListener("change", e => {
     const t = e.target;
     if (t.dataset.k === "correct") E.segments[Number(t.dataset.s)].questions[Number(t.dataset.q)].correct = Number(t.dataset.o);
+    if (t.dataset.k === "move" && t.value !== "") {
+      const si = Number(t.dataset.s), qi = Number(t.dataset.q);
+      const [q] = E.segments[si].questions.splice(qi, 1);
+      if (!E.segments[si].questions.length) E.segments[si].questions.push(blankQ());
+      if (t.value === "bank") {
+        E.bank = E.bank || [];
+        E.bank.push({ text: q.text, options: [...q.options], correct: q.correct, time: null, seg: -1, pick: false });
+        $("#ai-box").open = true;
+        toast("نُقل السؤال إلى بنك الأسئلة.");
+      } else {
+        const to = E.segments[Number(t.value)];
+        to.questions = to.questions.filter(x => x.text.trim() || x.options.some(o => o.trim()));
+        to.questions.push(q);
+        toast(`نُقل السؤال إلى الجزء ${num(Number(t.value) + 1)}.`);
+      }
+      drawEditorSegs();
+    }
   });
   const onAct = e => {
     const b = e.target.closest("[data-act]"); if (!b) return;
@@ -1020,7 +1046,15 @@ function drawEditorSegs() {
       </div>
       ${s.questions.map((q, qi) => `
         <div class="q">
-          <div class="q-head"><span>سؤال ${num(qi + 1)}</span>${s.questions.length > 1 ? `<button class="x" type="button" data-act="delQ" data-s="${si}" data-q="${qi}" aria-label="حذف السؤال">×</button>` : ""}</div>
+          <div class="q-head"><span>سؤال ${num(qi + 1)}</span>
+            <span class="row" style="gap:4px">
+              <select class="move" id="mv-${si}-${qi}" data-k="move" data-s="${si}" data-q="${qi}" aria-label="نقل السؤال">
+                <option value="">نقل إلى…</option>
+                ${E.segments.map((_, ti) => ti === si ? "" : `<option value="${ti}">الجزء ${num(ti + 1)}</option>`).join("")}
+                <option value="bank">بنك الأسئلة</option>
+              </select>
+              ${s.questions.length > 1 ? `<button class="x" type="button" data-act="delQ" data-s="${si}" data-q="${qi}" aria-label="حذف السؤال">×</button>` : ""}
+            </span></div>
           <textarea id="qt-${si}-${qi}" rows="2" data-k="qtext" data-s="${si}" data-q="${qi}" placeholder="نص السؤال">${esc(q.text)}</textarea>
           <div class="opts">${q.options.map((o, oi) => `
             <div class="opt">
@@ -1058,8 +1092,12 @@ function drawBank() {
       <div class="bq ${q.pick ? "on" : ""}">
         <input type="checkbox" id="bp-${i}" data-k="bpick" data-i="${i}" ${q.pick ? "checked" : ""} aria-label="تحديد السؤال">
         <div class="bq-body">
-          <label for="bp-${i}" class="bq-text">${esc(q.text)}</label>
-          <ul>${q.options.map((o, oi) => `<li class="${oi === q.correct ? "ok" : ""}">${oi === q.correct ? "✓ " : ""}${esc(o)}</li>`).join("")}</ul>
+          <textarea id="bt-${i}" rows="2" data-k="btext" data-i="${i}" aria-label="نص السؤال">${esc(q.text)}</textarea>
+          <div class="opts">${q.options.map((o, oi) => `
+            <div class="opt">
+              <input type="radio" id="bc-${i}-${oi}" name="bc-${i}" data-k="bcorrect" data-i="${i}" data-o="${oi}" ${oi === q.correct ? "checked" : ""} aria-label="الإجابة الصحيحة" title="الإجابة الصحيحة">
+              <input id="bo-${i}-${oi}" data-k="bopt" data-i="${i}" data-o="${oi}" value="${esc(o)}" aria-label="الخيار ${num(oi + 1)}">
+            </div>`).join("")}</div>
           ${q.time != null ? `<span class="muted bq-time">ورد عند ${fmtTime(q.time)}</span>` : ""}
         </div>
         <div class="bq-side">
