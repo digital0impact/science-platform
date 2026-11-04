@@ -1,0 +1,413 @@
+<!doctype html><html lang="ar" dir="rtl"><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>التكاثر والانقسام المنصّف</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Reem+Kufi:wght@500;700&family=IBM+Plex+Sans+Arabic:wght@400;500;700&display=swap">
+<style>
+/* Layout: a single reading column like a lab notebook, with a sticky chapter strip; colours borrowed from H&E-stained slides (hematoxylin violet, eosin pink) */
+:root{
+  --bg:#f6f3f8; --paper:#fffdfe; --ink:#231a2e; --muted:#6c6178; --line:#e3dbea;
+  --hema:#5b3f9e; --eosin:#d6457a; --hema-soft:#ece6f8; --eosin-soft:#fbe6ee;
+  --good:#1f8a5b; --good-soft:#e2f4ea; --bad:#c2352f; --bad-soft:#fbe7e5;
+  --display:"Reem Kufi","IBM Plex Sans Arabic",Tahoma,sans-serif;
+  --body:"IBM Plex Sans Arabic","Segoe UI",Tahoma,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#17121d; --paper:#211a29; --ink:#f0eaf6; --muted:#a99db6; --line:#382d44;
+  --hema:#a891ec; --eosin:#f07aa5; --hema-soft:#2e2545; --eosin-soft:#3a2130;
+  --good:#5fd39b; --good-soft:#173528; --bad:#f08a83; --bad-soft:#3b1d1c; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#17121d; --paper:#211a29; --ink:#f0eaf6; --muted:#a99db6; --line:#382d44;
+  --hema:#a891ec; --eosin:#f07aa5; --hema-soft:#2e2545; --eosin-soft:#3a2130;
+  --good:#5fd39b; --good-soft:#173528; --bad:#f08a83; --bad-soft:#3b1d1c; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:17px;line-height:1.85;direction:rtl}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--paper)}
+.wrap{max-width:860px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 64px}
+nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--paper);border-bottom:1px solid var(--line)}
+nav .in{max-width:860px;margin:0 auto;display:flex;gap:4px;overflow-x:auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:8px;scrollbar-width:none}
+nav a{flex:none;font-size:14px;color:var(--muted);text-decoration:none;padding:6px 12px;border-radius:999px;white-space:nowrap}
+nav a:hover,nav a.on{background:var(--hema-soft);color:var(--hema)}
+header{padding-block:40px 8px}
+.eyebrow{font-size:13px;letter-spacing:.02em;color:var(--eosin);font-weight:700}
+h1{font-family:var(--display);font-size:clamp(32px,6vw,48px);line-height:1.25;margin:6px 0 10px;text-wrap:balance;color:var(--hema)}
+h2{font-family:var(--display);font-size:clamp(24px,4vw,30px);margin:0 0 8px;color:var(--hema);text-wrap:balance}
+h3{font-size:18px;margin:0 0 6px}
+p{margin:0 0 12px;max-width:65ch}
+.lead{font-size:19px;color:var(--muted)}
+section{padding-block:36px;border-top:1px solid var(--line)}
+.goals{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin-top:18px;padding:0;list-style:none}
+.goals li{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:10px 14px;font-size:15px}
+.term{background:var(--eosin-soft);color:var(--eosin);padding:1px 6px;border-radius:4px;font-weight:700}
+.en{font-size:.82em;color:var(--muted);direction:ltr;unicode-bidi:isolate}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin-block:16px}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:16px;min-width:0}
+.card .tag{font-size:12px;font-weight:700;color:var(--hema);background:var(--hema-soft);padding:2px 8px;border-radius:999px}
+.card p{font-size:15.5px;margin:8px 0 0}
+.check{background:var(--paper);border:1px dashed var(--eosin);border-radius:12px;padding:14px 16px;margin-block:16px}
+.check b{color:var(--eosin)}
+.check details summary{cursor:pointer;color:var(--hema);font-weight:700;margin-top:6px;font-size:15px}
+.check details p{margin:6px 0 0;font-size:15.5px}
+button{font:inherit;cursor:pointer;border-radius:8px;border:1px solid var(--line);background:var(--paper);color:var(--ink);padding:8px 14px}
+button:hover{border-color:var(--hema)}
+button:focus-visible,select:focus-visible,input:focus-visible,a:focus-visible,summary:focus-visible{outline:3px solid var(--eosin);outline-offset:2px}
+button.primary{background:var(--hema);color:var(--paper);border-color:var(--hema);font-weight:700}
+.lab{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:16px;margin-block:16px}
+.lab-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px}
+.stage-name{font-family:var(--display);font-size:22px;color:var(--eosin)}
+.phase-chip{font-size:13px;font-weight:700;padding:3px 10px;border-radius:999px;background:var(--hema-soft);color:var(--hema)}
+.svgbox{overflow-x:auto;border-radius:10px;background:var(--bg)}
+.svgbox svg{display:block;width:100%;min-width:320px;height:auto}
+.stats{display:flex;gap:8px;flex-wrap:wrap;margin-block:10px}
+.stat{flex:1 1 130px;background:var(--bg);border-radius:8px;padding:8px 12px}
+.stat small{display:block;color:var(--muted);font-size:12.5px}
+.stat b{font-size:20px;font-variant-numeric:tabular-nums}
+.ctrl{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.dots{display:flex;gap:5px;flex:1;justify-content:center}
+.dots button{width:12px;height:12px;padding:0;border-radius:50%;background:var(--line);border:none}
+.dots button.on{background:var(--eosin)}
+.dots button.sep{margin-inline-start:8px}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:13.5px;color:var(--muted);margin-top:8px}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:middle;margin-inline-end:5px}
+.sort{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px;margin-block:12px}
+.sort .item{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:8px}
+.sort .item.ok{border-color:var(--good);background:var(--good-soft)}
+.sort .item.no{border-color:var(--bad);background:var(--bad-soft)}
+select,input{font:inherit;padding:7px 10px;border-radius:8px;border:1px solid var(--line);background:var(--paper);color:var(--ink);width:100%}
+.calc{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.calc label{font-size:14px;color:var(--muted);display:block;margin-bottom:4px}
+.presets{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.presets button{font-size:14px;padding:5px 12px;border-radius:999px}
+.flow{display:flex;align-items:stretch;gap:8px;flex-wrap:wrap;margin-top:14px}
+.flow .box{flex:1 1 140px;text-align:center;background:var(--bg);border-radius:10px;padding:10px}
+.flow .box b{display:block;font-size:26px;font-family:var(--display);font-variant-numeric:tabular-nums}
+.flow .box small{color:var(--muted);font-size:13px}
+.flow .arrow{align-self:center;color:var(--muted);font-size:20px}
+.verdict{margin-top:12px;padding:10px 14px;border-radius:10px;font-size:15.5px}
+.verdict.good{background:var(--good-soft);color:var(--good)}
+.verdict.bad{background:var(--bad-soft);color:var(--bad)}
+.q{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:16px;margin-block:12px}
+.q .opts{display:grid;gap:8px;margin-top:8px}
+.q .opts button{text-align:right}
+.q .opts button.right{background:var(--good-soft);border-color:var(--good);color:var(--good);font-weight:700}
+.q .opts button.wrong{background:var(--bad-soft);border-color:var(--bad);color:var(--bad)}
+.q .why{font-size:15px;color:var(--muted);margin-top:8px}
+.score{position:sticky;bottom:12px;margin-top:16px;background:var(--hema);color:var(--paper);border-radius:12px;padding:10px 16px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.score button{background:var(--paper);color:var(--hema);border:none;font-weight:700}
+@media (prefers-reduced-motion:no-preference){svg .chrom{transition:transform .5s}}
+</style>
+
+<nav><div class="in" id="nav">
+  <a href="#intro">البداية</a>
+  <a href="#asexual">التكاثر اللاجنسي</a>
+  <a href="#sexual">التكاثر الجنسي</a>
+  <a href="#ploidy">ثنائي وأحادي</a>
+  <a href="#meiosis">مختبر الانقسام المنصّف</a>
+  <a href="#errors">الانحرافات والبغل</a>
+  <a href="#quiz">اختبر نفسك</a>
+</div></nav>
+
+<div class="wrap">
+<header id="intro">
+  <div class="eyebrow">علوم · صفحات ١٠٤–١٠٩</div>
+  <h1>التكاثر والانقسام المنصّف</h1>
+  <p class="lead">كيف تُنتج المخلوقات الحية أفرادًا جددًا؟ ولماذا يبقى عدد الكروموسومات ثابتًا من جيل إلى جيل؟ تنقّل بين الأقسام، وجرّب المختبر التفاعلي، ثم اختبر فهمك.</p>
+  <ul class="goals">
+    <li>أميّز بين التكاثر الجنسي واللاجنسي.</li>
+    <li>أصف الانشطار والتبرعم والتجدد.</li>
+    <li>أقارن بين الخلايا الثنائية والأحادية المجموعة الكروموسومية.</li>
+    <li>أتتبّع مراحل الانقسام المنصّف وأحسب أعداد الكروموسومات.</li>
+  </ul>
+</header>
+
+<section id="asexual">
+  <h2>التكاثر اللاجنسي</h2>
+  <p><b>التكاثر</b> هو العملية التي يُنتج بها المخلوق الحي أفرادًا من نوعه. في <span class="term">التكاثر اللاجنسي</span> <span class="en">Asexual Reproduction</span> يكفي فرد واحد لإنتاج فرد أو أكثر يحمل المادة الوراثية نفسها التي يحملها الأصل.</p>
+  <div class="grid2">
+    <div class="card"><span class="tag">خلايا حقيقية النوى</span><h3>التكاثر اللاجنسي الخلوي</h3><p>يتم بالانقسام المتساوي والانقسام الخلوي، مثل نمو نبات بطاطس جديد من كل برعم في الدرنة، والسيقان الجارية في الفراولة.</p></div>
+    <div class="card"><span class="tag">خلايا بدائية النوى</span><h3>الانشطار</h3><p>البكتيريا لا تحتوي على نواة؛ تُنسخ مادتها الوراثية ثم تنشطر الخلية إلى خليتين جديدتين تشبهان الأصل.</p></div>
+    <div class="card"><span class="tag">مثال: الهيدرا</span><h3>التبرعم</h3><p>ينمو برعم على جانب جسم المخلوق، وهو نسخة مطابقة له، ثم ينفصل عندما يكبر.</p></div>
+    <div class="card"><span class="tag">مثال: نجم البحر والإسفنج</span><h3>التجدد</h3><p>يعيد المخلوق بناء الأجزاء المدمّرة أو المفقودة من جسمه، وقد ينمو من الجزء فرد كامل.</p></div>
+  </div>
+
+  <div class="check"><b>ماذا قرأت؟</b> كم عدد الأفراد الذين يتطلبهم التكاثر اللاجنسي؟
+    <details><summary>أظهر الإجابة</summary><p>فرد واحد فقط.</p></details>
+  </div>
+  <div class="check"><b>فكّر:</b> مزارعو المحار يجمعون نجم البحر ويقطعونه ثم يعيدونه إلى البحر. ماذا تتوقع أن يحدث؟
+    <details><summary>أظهر الإجابة</summary><p>تزداد المشكلة؛ فكل قطعة قد تتجدد إلى نجم بحر كامل، فيكثر عدد النجوم التي تتغذى على المحار.</p></details>
+  </div>
+
+  <div class="lab">
+    <div class="lab-head"><h3>نشاط: صنّف طريقة التكاثر</h3><button class="primary" id="sortCheck">تحقّق</button></div>
+    <div class="sort" id="sort"></div>
+    <div id="sortMsg" class="verdict" hidden></div>
+  </div>
+</section>
+
+<section id="sexual">
+  <h2>التكاثر الجنسي</h2>
+  <p>يتطلب <span class="term">التكاثر الجنسي</span> <span class="en">Sexual Reproduction</span> وجود فردين. تتحد <span class="term">البويضة</span> <span class="en">Egg</span> الناتجة عن الأعضاء التناسلية الأنثوية مع <span class="term">الحيوان المنوي</span> <span class="en">Sperm</span> الناتج عن الأعضاء التناسلية الذكرية في عملية تُسمى <span class="term">الإخصاب</span> <span class="en">Fertilization</span>.</p>
+  <p>تُسمى الخلية الناتجة <span class="term">البويضة المخصبة</span> أو الزيجوت <span class="en">Zygote</span>، وتمر بعد ذلك بسلسلة من الانقسامات المتساوية والانقسام الخلوي لينتج فرد جديد.</p>
+  <div class="check"><b>الربط مع الكيمياء:</b> تصل مئات الحيوانات المنوية إلى البويضة، فلماذا يدخلها حيوان منوي واحد فقط؟
+    <details><summary>أظهر الإجابة</summary><p>عند دخول نواة أول حيوان منوي يتغير غشاء البويضة البلازمي فيصبح غير نافذ لغيره. هذا يضمن أن تحصل البويضة المخصبة على مجموعة واحدة من الأب ومجموعة واحدة من الأم، فتكون ثنائية المجموعة الكروموسومية وليس أكثر.</p></details>
+  </div>
+</section>
+
+<section id="ploidy">
+  <h2>الخلايا الثنائية والأحادية المجموعة الكروموسومية</h2>
+  <div class="grid2">
+    <div class="card"><span class="tag">Diploid · 2n</span><h3>ثنائية المجموعة الكروموسومية</h3><p>الخلايا الجسمية (الدماغ، الجلد، العظام...). تحتوي على أزواج متماثلة من الكروموسومات. في الإنسان: ٤٦ كروموسومًا (٢٣ زوجًا).</p></div>
+    <div class="card"><span class="tag">Haploid · n</span><h3>أحادية المجموعة الكروموسومية</h3><p>الخلايا الجنسية. تحتوي على نصف العدد، كروموسوم واحد من كل زوج. في الإنسان: ٢٣ كروموسومًا.</p></div>
+  </div>
+  <div class="check"><b>ماذا قرأت؟</b> ما عدد الكروموسومات في الحيوان المنوي في الإنسان؟
+    <details><summary>أظهر الإجابة</summary><p>٢٣ كروموسومًا.</p></details>
+  </div>
+
+  <div class="lab">
+    <h3>حاسبة الكروموسومات</h3>
+    <p style="font-size:15px;color:var(--muted)">اختر مخلوقًا أو أدخل عدد كروموسومات الخلايا الجسمية لكل من الأبوين.</p>
+    <div class="presets" id="presets">
+      <button data-a="46" data-b="46">الإنسان</button>
+      <button data-a="48" data-b="48">الأسد واللبؤة</button>
+      <button data-a="64" data-b="64">الفرس</button>
+      <button data-a="62" data-b="64">حمار × فرس</button>
+    </div>
+    <div class="calc">
+      <div><label for="pa">الأب (خلية جسمية)</label><input id="pa" type="number" min="2" max="200" step="2" value="48"></div>
+      <div><label for="pb">الأم (خلية جسمية)</label><input id="pb" type="number" min="2" max="200" step="2" value="48"></div>
+    </div>
+    <div class="flow" id="flow"></div>
+    <div class="verdict" id="calcMsg"></div>
+  </div>
+</section>
+
+<section id="meiosis">
+  <h2>مختبر الانقسام المنصّف</h2>
+  <p>يُنتج <span class="term">الانقسام المنصّف</span> <span class="en">Meiosis</span> الخلايا الجنسية الأحادية. تمر النواة بمرحلتين، في كل منهما أربعة أطوار. تتبّع خلية فيها أربعة كروموسومات (زوجان متماثلان) كما في الكتاب.</p>
+  <div class="lab">
+    <div class="lab-head"><span class="stage-name" id="stName"></span><span class="phase-chip" id="stPhase"></span></div>
+    <div class="svgbox"><svg id="cellSvg" viewBox="0 0 600 360" role="img" aria-label="رسم مراحل الانقسام المنصّف"></svg></div>
+    <div class="legend">
+      <span><i style="background:var(--hema)"></i>كروموسوم من الأب</span>
+      <span><i style="background:var(--eosin)"></i>كروموسوم من الأم</span>
+      <span>شكل X = كروموسوم متضاعف (كروماتيدان)</span>
+    </div>
+    <div class="stats">
+      <div class="stat"><small>عدد الخلايا</small><b id="sCells"></b></div>
+      <div class="stat"><small>كروموسومات في كل خلية</small><b id="sChrom"></b></div>
+      <div class="stat"><small>حالة الكروموسومات</small><b id="sDup" style="font-size:16px"></b></div>
+    </div>
+    <p id="stDesc" style="font-size:15.5px;min-height:5.6em"></p>
+    <div class="ctrl">
+      <button id="prev">→ السابق</button>
+      <div class="dots" id="dots"></div>
+      <button class="primary" id="next">التالي ←</button>
+    </div>
+  </div>
+  <div class="check"><b>ماذا قرأت؟</b> ماذا يحدث للكروموسومات المتماثلة خلال الطور الانفصالي الأول؟
+    <details><summary>أظهر الإجابة</summary><p>تنكمش الخيوط المغزلية فتبتعد أزواج الكروموسومات المتماثلة بعضها عن بعض، وتتحرك نحو طرفي الخلية المتقابلين.</p></details>
+  </div>
+  <div class="card"><h3>ملخص الانقسام المنصّف</h3><p>خلية واحدة ← (المرحلة الأولى) خليتان ← (المرحلة الثانية) <b>أربع خلايا جنسية</b>، في كل منها نصف العدد الأصلي. في الإنسان: من خلية فيها ٤٦ كروموسومًا تنتج أربع خلايا في كل منها ٢٣.</p></div>
+</section>
+
+<section id="errors">
+  <h2>الانحرافات والخلل في الانقسام المنصّف</h2>
+  <p>قد لا ينفصل أحد أزواج الكروموسومات خلال الطور الانفصالي الأول، فتنتج خلايا جنسية فيها عدد أكبر أو أقل من الطبيعي. هذه الانحرافات شائعة في النباتات وقليلة في الحيوانات. قد تموت البويضة المخصبة الناتجة، وإن نمت يكون عدد كروموسومات المخلوق غير طبيعي وقد لا ينمو بشكل طبيعي.</p>
+  <div class="lab">
+    <h3>تطبيق العلوم: لماذا يكون البغل عقيمًا؟</h3>
+    <p style="font-size:15.5px">الحمار (٦٢ كروموسومًا) يتزاوج مع الفرس (٦٤ كروموسومًا) فينتج البغل. اضغط على «حمار × فرس» في الحاسبة أعلاه، أو أجب هنا:</p>
+    <div class="q" style="margin:0;border:none;padding:0">
+      <div class="opts" id="muleQ"></div>
+      <div class="why" id="muleWhy" hidden>يحصل البغل على ٣١ من الحمار و٣٢ من الفرس فيكون عدده ٦٣ (عدد فردي). الكروموسومات لا تكوّن أزواجًا متماثلة كاملة، فيتعطل الانقسام المنصّف في أعضائه الجنسية ولا تتكون خلايا جنسية سليمة؛ لذلك يكون عقيمًا.</div>
+    </div>
+  </div>
+</section>
+
+<section id="quiz">
+  <h2>اختبر نفسك</h2>
+  <div id="quizBox"></div>
+  <div class="score"><span id="scoreTxt">النتيجة: ٠ من ٨</span><button id="reset">أعد الاختبار</button></div>
+</section>
+</div>
+
+<script>
+const ar = n => Number(n).toLocaleString('ar-SA',{useGrouping:false});
+const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+
+/* ---------- sorting activity ---------- */
+const sortItems = [
+  ['بكتيريا تنقسم إلى خليتين','انشطار'],
+  ['هيدرا ينمو على جانبها برعم','تبرعم'],
+  ['نجم بحر يعوّض ذراعًا مفقودة','تجدد'],
+  ['نبات بطاطس جديد من برعم الدرنة','خلوي'],
+  ['فراولة تنتشر بالسيقان الجارية','خلوي'],
+  ['إسفنج ينمو من قطعة مقطوعة','تجدد'],
+  ['شبل من أسد ولبؤة','جنسي']
+];
+const choices = ['انشطار','تبرعم','تجدد','خلوي','جنسي'];
+const labels = {'انشطار':'لاجنسي: انشطار','تبرعم':'لاجنسي: تبرعم','تجدد':'لاجنسي: تجدد','خلوي':'لاجنسي خلوي (انقسام متساوٍ)','جنسي':'تكاثر جنسي'};
+const sortEl = document.getElementById('sort');
+sortItems.forEach(([t],i)=>{
+  const d=document.createElement('div');d.className='item';
+  d.innerHTML=`<span>${t}</span><select id="s${i}" aria-label="${t}"><option value="">اختر…</option>${choices.map(c=>`<option value="${c}">${labels[c]}</option>`).join('')}</select>`;
+  sortEl.appendChild(d);
+});
+document.getElementById('sortCheck').onclick=()=>{
+  let ok=0;
+  sortItems.forEach(([,a],i)=>{const s=document.getElementById('s'+i);const it=s.parentElement;
+    it.classList.remove('ok','no'); if(!s.value)return; if(s.value===a){it.classList.add('ok');ok++}else it.classList.add('no');});
+  const m=document.getElementById('sortMsg');m.hidden=false;
+  m.className='verdict '+(ok===sortItems.length?'good':'bad');
+  m.textContent= ok===sortItems.length?'ممتاز! صنّفت كل الأمثلة بشكل صحيح.':`أصبت في ${ar(ok)} من ${ar(sortItems.length)}. راجع البطاقات الحمراء وحاول مرة أخرى.`;
+};
+
+/* ---------- calculator ---------- */
+const pa=document.getElementById('pa'),pb=document.getElementById('pb');
+function calc(){
+  const a=parseInt(pa.value)||0,b=parseInt(pb.value)||0;
+  const flow=document.getElementById('flow'),msg=document.getElementById('calcMsg');
+  if(a<2||b<2||a%2||b%2){flow.innerHTML='';msg.className='verdict bad';msg.textContent='أدخل عددًا زوجيًا موجبًا لكل من الأبوين؛ فالخلايا الجسمية تحتوي على أزواج.';return;}
+  const ga=a/2,gb=b/2,z=ga+gb;
+  flow.innerHTML=`
+   <div class="box"><small>حيوان منوي (أحادي)</small><b>${ar(ga)}</b><small>${ar(a)} ÷ ٢</small></div>
+   <div class="arrow">+</div>
+   <div class="box"><small>بويضة (أحادية)</small><b>${ar(gb)}</b><small>${ar(b)} ÷ ٢</small></div>
+   <div class="arrow">=</div>
+   <div class="box" style="background:var(--hema-soft)"><small>بويضة مخصبة (ثنائية)</small><b style="color:var(--hema)">${ar(z)}</b><small>ثم انقسام متساوٍ ونمو</small></div>`;
+  if(a===b){msg.className='verdict good';msg.textContent=`الأبناء لديهم ${ar(z)} كروموسومًا، أي العدد نفسه الذي لدى الآباء. هكذا يحافظ الانقسام المنصّف على ثبات العدد عبر الأجيال.`;}
+  else if(z%2){msg.className='verdict bad';msg.textContent=`العدد الناتج ${ar(z)} فردي: الكروموسومات لا تكتمل أزواجها، فلا يحدث الانقسام المنصّف بشكل سليم ويكون الفرد عقيمًا غالبًا (مثل البغل).`;}
+  else{msg.className='verdict bad';msg.textContent=`العدد الناتج ${ar(z)} يختلف عن عدد كل من الأبوين، والكروموسومات القادمة من نوعين مختلفين لا تتماثل.`;}
+}
+pa.oninput=pb.oninput=calc;
+document.querySelectorAll('#presets button').forEach(b=>b.onclick=()=>{pa.value=b.dataset.a;pb.value=b.dataset.b;calc();});
+calc();
+
+/* ---------- meiosis lab ---------- */
+const L=62,S=38;
+// chromosome: [x,y,len,colour('p'|'m'),dup,rot]
+const stages=[
+ {n:'قبل الانقسام',ph:'الطور البيني',cells:[[300,180,150,135]],nuc:true,
+  ch:[[245,140,L,'p',0,20],[345,205,L,'m',0,-35],[275,225,S,'p',0,60],[355,125,S,'m',0,10]],
+  c:'١',k:'٤',d:'غير متضاعفة',
+  t:'خلية ثنائية المجموعة الكروموسومية فيها زوجان من الكروموسومات المتماثلة: كروموسوم من كل زوج جاء من الأب والآخر من الأم. قبل بدء الانقسام المنصّف تتضاعف الكروموسومات كما في الانقسام المتساوي.'},
+ {n:'الطور التمهيدي الأول',ph:'المرحلة الأولى',cells:[[300,180,150,135]],nuc:'fade',
+  ch:[[262,160,L,'p',1,0],[288,160,L,'m',1,0],[325,205,S,'p',1,0],[351,205,S,'m',1,0]],
+  c:'١',k:'٤',d:'متضاعفة',
+  t:'تظهر الكروموسومات المتضاعفة بوضوح ويمكن رؤيتها بالمجهر المركب. تشبه الأحداث الطور التمهيدي في الانقسام المتساوي، إلا أن الكروموسومات المتماثلة تتجمع في صورة أزواج.'},
+ {n:'الطور الاستوائي الأول',ph:'المرحلة الأولى',cells:[[300,180,150,135]],sp:[[160,180],[440,180]],eq:[300],
+  ch:[[284,125,L,'p',1,0],[316,125,L,'m',1,0],[284,235,S,'m',1,0],[316,235,S,'p',1,0]],
+  c:'١',k:'٤',d:'متضاعفة',
+  t:'تتحرك أزواج الكروموسومات المتماثلة وتصطف في وسط الخلية في مجموعتين متقابلتين، وتظهر الخيوط المغزلية التي ترتبط بالكروموسومات من السنترومير.'},
+ {n:'الطور الانفصالي الأول',ph:'المرحلة الأولى',cells:[[300,180,215,120]],sp:[[100,180],[500,180]],
+  ch:[[190,140,L,'p',1,0],[410,140,L,'m',1,0],[190,225,S,'m',1,0],[410,225,S,'p',1,0]],
+  c:'١',k:'٤',d:'متضاعفة',
+  t:'تنكمش الخيوط المغزلية فتبتعد الكروموسومات المتماثلة بعضها عن بعض وتتحرك نحو طرفي الخلية. لاحظ أن الكروماتيدات لا تنفصل في هذا الطور.'},
+ {n:'الطور النهائي الأول',ph:'المرحلة الأولى',cells:[[170,180,115,115],[430,180,115,115]],
+  ch:[[155,155,L,'p',1,0],[190,200,S,'m',1,0],[415,155,L,'m',1,0],[450,200,S,'p',1,0]],
+  c:'٢',k:'٢',d:'متضاعفة',
+  t:'ينقسم السيتوبلازم وتنتج خليتان، في كل خلية كروموسوم واحد من كل زوج من الكروموسومات المتماثلة. أصبح العدد في كل خلية نصف العدد الأصلي.'},
+ {n:'الطور التمهيدي الثاني',ph:'المرحلة الثانية',cells:[[170,180,115,115],[430,180,115,115]],
+  ch:[[140,170,L,'p',1,-25],[200,185,S,'m',1,30],[400,170,L,'m',1,20],[460,190,S,'p',1,-30]],
+  c:'٢',k:'٢',d:'متضاعفة',
+  t:'تنتقل الخليتان إلى المرحلة الثانية. تظهر الخيوط المغزلية والكروموسومات بوضوح.'},
+ {n:'الطور الاستوائي الثاني',ph:'المرحلة الثانية',cells:[[170,180,115,115],[430,180,115,115]],sp:[[170,72],[170,288],[430,72],[430,288]],
+  ch:[[170,150,L,'p',1,90],[170,212,S,'m',1,90],[430,150,L,'m',1,90],[430,212,S,'p',1,90]],
+  c:'٢',k:'٢',d:'متضاعفة',
+  t:'تتحرك الكروموسومات إلى وسط كل خلية وتصطف، وترتبط الخيوط المغزلية بكل كروموسوم من السنترومير.'},
+ {n:'الطور الانفصالي الثاني',ph:'المرحلة الثانية',cells:[[170,180,105,150],[430,180,105,150]],sp:[[170,36],[170,324],[430,36],[430,324]],
+  ch:[[150,95,L,'p',0,0],[150,265,L,'p',0,0],[195,100,S,'m',0,0],[195,260,S,'m',0,0],[410,95,L,'m',0,0],[410,265,L,'m',0,0],[455,100,S,'p',0,0],[455,260,S,'p',0,0]],
+  c:'٢',k:'٢ ← تنفصل',d:'تنفصل الكروماتيدات',
+  t:'ينقسم السنترومير وتنكمش الخيوط المغزلية، فتنفصل الكروماتيدات الشقيقة وتتحرك نحو أطراف الخلية. بعد انفصالها يُسمى كل كروماتيد كروموسومًا.'},
+ {n:'الطور النهائي الثاني',ph:'المرحلة الثانية',cells:[[90,180,62,62],[230,180,62,62],[370,180,62,62],[510,180,62,62]],nucs:true,
+  ch:[[78,180,L*.75,'p',0,0],[103,180,S*.75,'m',0,0],[218,180,L*.75,'p',0,0],[243,180,S*.75,'m',0,0],[358,180,L*.75,'m',0,0],[383,180,S*.75,'p',0,0],[498,180,L*.75,'m',0,0],[523,180,S*.75,'p',0,0]],
+  c:'٤',k:'٢',d:'غير متضاعفة',
+  t:'تختفي الخيوط المغزلية ويتشكل الغلاف النووي ثم ينقسم السيتوبلازم. النتيجة أربع خلايا جنسية أحادية المجموعة الكروموسومية، في كل منها نصف العدد الأصلي.'}
+];
+let cur=0;
+const svg=document.getElementById('cellSvg');
+const dots=document.getElementById('dots');
+stages.forEach((s,i)=>{const b=document.createElement('button');b.setAttribute('aria-label',s.n);if(i===5)b.className='sep';b.onclick=()=>show(i);dots.appendChild(b);});
+function chrom([x,y,len,c,dup,rot]){
+  const col=c==='p'?css('--hema'):css('--eosin'), w=8, h=len;
+  const rect=(dx)=>`<rect x="${dx-w/2}" y="${-h/2}" width="${w}" height="${h}" rx="4" fill="${col}"/>`;
+  const body=dup?rect(-4.5)+rect(4.5)+`<circle r="4.5" fill="${css('--paper')}" stroke="${col}" stroke-width="2"/>`:rect(0);
+  return `<g class="chrom" transform="translate(${x} ${y}) rotate(${rot})">${body}</g>`;
+}
+function show(i){
+  cur=i;const s=stages[i],line=css('--line'),mut=css('--muted'),pap=css('--paper');
+  let g='';
+  s.cells.forEach(([cx,cy,rx,ry])=>g+=`<ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" fill="${pap}" stroke="${mut}" stroke-width="2"/>`);
+  if(s.nuc) g+=`<circle cx="300" cy="180" r="95" fill="none" stroke="${mut}" stroke-width="1.5" stroke-dasharray="${s.nuc==='fade'?'3 9':'6 4'}"/>`;
+  if(s.nucs) s.cells.forEach(([cx,cy])=>g+=`<circle cx="${cx}" cy="${cy}" r="44" fill="none" stroke="${mut}" stroke-width="1.2" stroke-dasharray="6 4"/>`);
+  if(s.eq) g+=`<line x1="300" y1="60" x2="300" y2="300" stroke="${line}" stroke-width="2" stroke-dasharray="4 4"/>`;
+  if(s.sp){ // spindle fibres from each pole to chromosomes in the same cell
+    s.sp.forEach(([px,py])=>{
+      s.ch.forEach(c=>{ if(Math.abs(c[0]-px)<260 && (s.sp.length<3 || Math.abs(c[0]-px)<80))
+        g+=`<line x1="${px}" y1="${py}" x2="${c[0]}" y2="${c[1]}" stroke="${mut}" stroke-opacity=".35" stroke-width="1"/>`;});
+      g+=`<rect x="${px-6}" y="${py-4}" width="12" height="8" rx="2" fill="${mut}"/>`;
+    });
+  }
+  s.ch.forEach(c=>g+=chrom(c));
+  svg.innerHTML=g;
+  document.getElementById('stName').textContent=s.n;
+  document.getElementById('stPhase').textContent=s.ph;
+  document.getElementById('sCells').textContent=s.c;
+  document.getElementById('sChrom').textContent=s.k;
+  document.getElementById('sDup').textContent=s.d;
+  document.getElementById('stDesc').textContent=s.t;
+  [...dots.children].forEach((b,j)=>b.classList.toggle('on',j===i));
+  document.getElementById('prev').disabled=i===0;
+  document.getElementById('next').disabled=i===stages.length-1;
+}
+document.getElementById('prev').onclick=()=>cur>0&&show(cur-1);
+document.getElementById('next').onclick=()=>cur<stages.length-1&&show(cur+1);
+show(0);
+matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change',()=>show(cur));
+new MutationObserver(()=>show(cur)).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+
+/* ---------- mule question ---------- */
+const muleOpts=[['لأن عدد كروموسوماته ٦٣ (فردي) فلا تكتمل الأزواج ويتعطل الانقسام المنصّف',1],['لأنه يحصل على ٦٢ كروموسومًا من الحمار فقط',0],['لأن عدد كروموسوماته ١٢٦',0]];
+const mq=document.getElementById('muleQ');
+muleOpts.forEach(([t,r])=>{const b=document.createElement('button');b.textContent=t;b.onclick=()=>{
+  [...mq.children].forEach((x,j)=>{x.disabled=true;if(muleOpts[j][1])x.classList.add('right');});
+  if(!r)b.classList.add('wrong');document.getElementById('muleWhy').hidden=false;};mq.appendChild(b);});
+
+/* ---------- quiz ---------- */
+const Q=[
+ ['أي مما يلي مثال على التكاثر بالتبرعم؟',['الهيدرا','البكتيريا','نجم البحر','الإنسان'],0,'ينمو برعم على جانب جسم الهيدرا ثم ينفصل عندما يكبر.'],
+ ['كيف تتكاثر البكتيريا؟',['بالانشطار','بالتجدد','بالانقسام المنصّف','بالإخصاب'],0,'البكتيريا بدائية النوى: تُنسخ مادتها الوراثية ثم تنشطر.'],
+ ['ما اسم الخلية الناتجة عن اتحاد البويضة والحيوان المنوي؟',['الزيجوت (البويضة المخصبة)','الخلية الجسمية','الكروماتيد','البرعم'],0,'تُسمى الخلية الناتجة عن الإخصاب البويضة المخصبة أو الزيجوت.'],
+ ['ما عدد الكروموسومات في بويضة اللبؤة؟',['٢٤','٤٨','٩٦','١٢'],0,'خلايا اللبؤة الجسمية فيها ٤٨، والبويضة أحادية فيها النصف: ٢٤.'],
+ ['في أي طور تصطف أزواج الكروموسومات المتماثلة في وسط الخلية؟',['الطور الاستوائي الأول','الطور الانفصالي الثاني','الطور النهائي الأول','الطور التمهيدي الثاني'],0,'في الطور الاستوائي الأول تصطف الأزواج المتماثلة في مجموعتين متقابلتين.'],
+ ['متى تنفصل الكروماتيدات الشقيقة؟',['الطور الانفصالي الثاني','الطور الانفصالي الأول','الطور التمهيدي الأول','قبل بدء الانقسام'],0,'ينقسم السنترومير في الطور الانفصالي الثاني فتنفصل الكروماتيدات.'],
+ ['كم خلية جنسية تنتج عن انقسام منصّف واحد؟',['أربع','اثنتان','واحدة','ثمانٍ'],0,'تنتج المرحلة الأولى خليتين، وتنقسم كل منهما في المرحلة الثانية فتنتج أربع خلايا.'],
+ ['يحتوي البغل على ٦٣ كروموسومًا. من أين جاءت؟',['٣١ من الحمار و٣٢ من الفرس','٦٢ من الحمار وواحد من الفرس','٣٢ من الحمار و٣١ من الفرس','كلها من الفرس'],0,'الحمار ٦٢ ÷ ٢ = ٣١، والفرس ٦٤ ÷ ٢ = ٣٢، والمجموع ٦٣.']
+];
+const qb=document.getElementById('quizBox');let score=0,answered=0;
+function shuffle(a){return a.map(v=>[Math.random(),v]).sort((x,y)=>x[0]-y[0]).map(v=>v[1]);}
+function buildQuiz(){
+  qb.innerHTML='';score=0;answered=0;upd();
+  Q.forEach(([q,opts,right,why],i)=>{
+    const d=document.createElement('div');d.className='q';
+    d.innerHTML=`<h3>${ar(i+1)}. ${q}</h3><div class="opts"></div><div class="why" hidden>${why}</div>`;
+    const box=d.querySelector('.opts');
+    shuffle(opts.map((t,j)=>[t,j===right])).forEach(([t,r])=>{
+      const b=document.createElement('button');b.textContent=t;b.dataset.r=r?1:0;
+      b.onclick=()=>{[...box.children].forEach(x=>{x.disabled=true;if(x.dataset.r==='1')x.classList.add('right');});
+        if(r)score++;else b.classList.add('wrong');answered++;d.querySelector('.why').hidden=false;upd();};
+      box.appendChild(b);});
+    qb.appendChild(d);});
+}
+function upd(){document.getElementById('scoreTxt').textContent=`النتيجة: ${ar(score)} من ${ar(Q.length)}`+(answered===Q.length?(score===Q.length?' · ممتاز!':' · راجع الإجابات المظللة'):'');
+  // إشعار منصة لبيبة عند إكمال الاختبار أول مرة
+  if(answered===Q.length&&Q.length&&!window.__labeebaDone){window.__labeebaDone=true;try{parent.postMessage({type:'labeeba-lab-complete',score:Math.round(score/Q.length*100),tasks:Q.length},'*');}catch(e){}}
+}
+document.getElementById('reset').onclick=buildQuiz;
+buildQuiz();
+
+/* ---------- nav highlight ---------- */
+const links=[...document.querySelectorAll('#nav a')];
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){links.forEach(a=>a.classList.toggle('on',a.getAttribute('href')==='#'+e.target.id));}}),{rootMargin:'-40% 0px -55% 0px'});
+document.querySelectorAll('header[id],section[id]').forEach(s=>io.observe(s));
+</script>
+
+</body></html>

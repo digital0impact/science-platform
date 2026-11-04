@@ -1350,7 +1350,14 @@ const READY_LABS = [
 ];
 let labMsgHandler = null;
 function stopLab() { if (labMsgHandler) { window.removeEventListener("message", labMsgHandler); labMsgHandler = null; } }
-function setFrame(frame, html) { frame.srcdoc = html || ""; }
+// روابط الأقسام داخل الصفحة (href="#…") تنتقل إلى عنوان لبيبة نفسه داخل الإطار المعزول،
+// فنضيف إلى بداية كل صفحة سطراً يمرّر إلى القسم المطلوب بدل ذلك.
+const FRAME_FIX = '<script>document.addEventListener("click",function(e){var a=e.target&&e.target.closest&&e.target.closest(\'a[href^="#"]\');if(!a||e.defaultPrevented)return;e.preventDefault();var id=decodeURIComponent(a.getAttribute("href").slice(1)),t=id?(document.getElementById(id)||document.getElementsByName(id)[0]):document.body;if(t)t.scrollIntoView({behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth",block:"start"});});<\/script>';
+function setFrame(frame, html) {
+  html = html || "";
+  if (html) html = /<head[^>]*>/i.test(html) ? html.replace(/<head[^>]*>/i, m => m + FRAME_FIX) : FRAME_FIX + html;
+  frame.srcdoc = html;
+}
 // أسئلة المختبر المكتملة فقط هي التي تظهر للطالبة
 const labQuizQs = lab => (lab.questions || []).filter(q => q.text && q.options && q.options.length >= 2 && q.options.every(Boolean) && Number.isInteger(q.correct) && q.correct < q.options.length);
 // المختبر الجاهز يُقرأ من ملفه في الموقع حتى تصل تحسيناته للجميع، والنسخة المحفوظة احتياط
@@ -1374,7 +1381,9 @@ function extractHtml(text) {
 // دروس تفاعلية جاهزة (فارغة الآن؛ تُضاف بنفس طريقة READY_LABS)
 const READY_ILESSONS = [
   { file: "labs/protists.html", title: "مستكشف الأوليات", subject: "أحياء", unit: "الأوليات",
-    about: "مستكشف ثلاثي الأبعاد لشعب الأوليات: تختار الطالبة الشعبة، وتدوّر نموذج الخلية وتتعرف تراكيبها ووظائفها، وتتابع خطوات الاقتران والتغذي ودورة الحياة والعدوى، ثم تختبر نفسها." }
+    about: "مستكشف ثلاثي الأبعاد لشعب الأوليات: تختار الطالبة الشعبة، وتدوّر نموذج الخلية وتتعرف تراكيبها ووظائفها، وتتابع خطوات الاقتران والتغذي ودورة الحياة والعدوى، ثم تختبر نفسها." },
+  { file: "labs/meiosis.html", title: "التكاثر والانقسام المنصّف", subject: "أحياء", unit: "التكاثر والانقسام المنصّف",
+    about: "درس تفاعلي عن التكاثر اللاجنسي (الانشطار والتبرعم والتجدد) والتكاثر الجنسي، والخلايا الثنائية والأحادية المجموعة الكروموسومية مع حاسبة للكروموسومات، ومختبر لأطوار الانقسام المنصّف، والخلل في الانقسام، ثم اختبار من ثمانية أسئلة." }
 ];
 
 /*<LAB-BLOCK>  يُولَّد قسم «الدروس التفاعلية» آلياً من هذا الجزء (انظري build-ilessons.py) */
