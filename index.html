@@ -1582,8 +1582,17 @@ async function viewLabEditor(arg) {
       <section class="panel step s2"><h2><span class="n">٢</span>اطلبي المختبر</h2>
         <div class="stack">
           <label class="f">نص الدرس
-            <textarea id="lb-source" rows="7" placeholder="الصقي نص المقطع أو ملخص الدرس، أو اختاري الدرس المرتبط ليُملأ تلقائياً.">${esc(LB.source || "")}</textarea>
+            <textarea id="lb-source" rows="7" placeholder="الصقي نص المقطع أو ملخص الدرس، أو اختاري الدرس المرتبط ليُملأ تلقائياً، أو أرفقي ملف PDF تحت.">${esc(LB.source || "")}</textarea>
           </label>
+          <div class="f">
+            <span style="font-size:.9rem;font-weight:500">أو أرفقي الدرس ملف PDF</span>
+            <div class="row">
+              <label class="btn ghost sm" for="lb-pdf" style="cursor:pointer">اختيار ملف PDF</label>
+              <input type="file" id="lb-pdf" accept="application/pdf,.pdf" hidden>
+              <span id="lb-pdf-info" class="muted" style="font-size:.88rem"></span>
+            </div>
+            <span class="muted" style="font-size:.82rem">يقرأ Claude صفحات الملف كما هي، بالصور والجداول. الحد ٩ ميغابايت و١٠٠ صفحة. لا يُحفظ الملف في المنصة؛ أرفقيه مرة أخرى إن أردتِ إعادة البناء لاحقاً.</span>
+          </div>
           <label class="f">ماذا تريدين في المختبر؟
             <textarea id="lb-request" rows="5" placeholder="مثال: مختبر تفرز فيه الطالبة عينات صخور بسحبها إلى ثلاث سلال (نارية، رسوبية، متحولة)، مع عدسة مكبّرة تُظهر النسيج والحبيبات، ثم سؤال عن كيفية تحوّل الصخر الرسوبي إلى متحول بالحرارة والضغط.">${esc(LB.request || "")}</textarea>
           </label>
@@ -1655,6 +1664,22 @@ async function viewLabEditor(arg) {
   drawLabPreview();
   $$("[data-l]").forEach(el => el.addEventListener("input", () => { LB[el.dataset.l] = el.value; if (el.dataset.l === "gradeId") fillLessonSel(); }));
   $("#lb-source").addEventListener("input", e => (LB.source = e.target.value));
+  const showPdf = () => {
+    const el = $("#lb-pdf-info"); if (!el) return;
+    if (LB.pdf) el.innerHTML = `<span class="chip lab">PDF</span> ${esc(LB.pdf.name)} (${num(Math.max(1, Math.round(LB.pdf.size / 1024)))} ك.ب) <button class="x" type="button" id="lb-pdf-del" aria-label="إزالة الملف">×</button>`;
+    else el.textContent = LB.pdfName ? `آخر ملف استُخدم: ${LB.pdfName}` : "";
+    $("#lb-pdf-del")?.addEventListener("click", () => { LB.pdf = null; $("#lb-pdf").value = ""; showPdf(); });
+  };
+  showPdf();
+  $("#lb-pdf").addEventListener("change", async e => {
+    const f = e.target.files && e.target.files[0]; if (!f) return;
+    if (!/\.pdf$/i.test(f.name) && f.type !== "application/pdf") { toast("اختاري ملفاً بصيغة PDF."); e.target.value = ""; return; }
+    if (f.size > 9 * 1024 * 1024) { toast("الملف أكبر من ٩ ميغابايت. قسّميه أو اضغطيه ثم أعيدي المحاولة."); e.target.value = ""; return; }
+    const data = await new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(String(r.result).split(",")[1] || ""); r.onerror = rej; r.readAsDataURL(f); });
+    LB.pdf = { name: f.name, size: f.size, data }; LB.pdfName = f.name;
+    if (!LB.title.trim()) { LB.title = f.name.replace(/\.pdf$/i, ""); $("#lb-title").value = LB.title; }
+    showPdf(); toast("أُرفق الملف. اكتبي ما تريدين ثم اضغطي «ابني».");
+  });
   $("#lb-request").addEventListener("input", e => (LB.request = e.target.value));
   $("#lb-pub").addEventListener("change", e => (LB.published = e.target.checked));
   $("#lb-lesson").addEventListener("change", e => {
@@ -1756,12 +1781,12 @@ async function generateLabQuestions() {
   if ((LB.request || "").trim()) parts.push("وصف المختبر: " + LB.request.trim());
   const inLab = labText(LB.html); if (inLab) parts.push("ما يظهر للطالبة داخل المختبر من شرح ومهام: " + inLab);
   const text = parts.join("\n\n");
-  if (text.length < 120) { toast("الصقي نص الدرس أو اكتبي وصف المختبر أولاً، أو ابني المختبر."); return; }
+  if (text.length < 120 && !LB.pdf) { toast("الصقي نص الدرس أو أرفقي ملف PDF أو اكتبي وصف المختبر أولاً، أو ابني المختبر."); return; }
   const grade = GRADES.find(g => g.id === LB.gradeId);
   const btn = $("#lq-gen"); btn.disabled = true; btn.textContent = "جارٍ التوليد…";
   try {
     const { data, error } = await sb.functions.invoke("generate-questions", {
-      body: { text, count: Number($("#lq-count").value) || 5, subject: LB.subject, grade: grade ? grade.name : "", title: LB.title || "" }
+      body: { text: text || "انظري ملف الدرس المرفق.", count: Number($("#lq-count").value) || 5, subject: LB.subject, grade: grade ? grade.name : "", title: LB.title || "", ...(LB.pdf ? { pdf: LB.pdf.data, pdfName: LB.pdf.name } : {}) }
     });
     if (error) { let msg = error.message; try { const j = await error.context.json(); if (j && j.error) msg = j.error; } catch {} throw new Error(msg); }
     const qs = (data && data.questions) || [];
@@ -1796,7 +1821,7 @@ async function runLabAI(isChange) {
   if (DEMO) { toast("بناء المختبر يعمل بعد ربط المنصة بـ Supabase. يمكنك الآن لصق كود مختبر جاهز للتجربة."); return; }
   const change = isChange ? ($("#lb-change").value || "").trim() : "";
   if (isChange && change.length < 3) { toast("اكتبي التعديل المطلوب."); return; }
-  if (!isChange && (LB.request || "").trim().length < 10 && (LB.source || "").trim().length < 60) { toast("اكتبي وصف المختبر الذي تريدينه، أو الصقي نص الدرس."); return; }
+  if (!isChange && !LB.pdf && (LB.request || "").trim().length < 10 && (LB.source || "").trim().length < 60) { toast("اكتبي وصف المختبر الذي تريدينه، أو الصقي نص الدرس، أو أرفقي ملف PDF."); return; }
   const grade = GRADES.find(g => g.id === LB.gradeId);
   const buttons = ["#lb-build", "#lb-apply", "#lb-save"].map(x => $(x)).filter(Boolean);
   buttons.forEach(b => (b.disabled = true));
@@ -1814,6 +1839,7 @@ async function runLabAI(isChange) {
       body: JSON.stringify({
         kind: "lab", title: LB.title, subject: LB.subject, grade: grade ? grade.name : "",
         text: LB.source || "", request: LB.request || "",
+        ...(LB.pdf && !isChange ? { pdf: LB.pdf.data, pdfName: LB.pdf.name } : {}),
         previousHtml: isChange ? LB.html : "", change
       })
     });
@@ -1856,7 +1882,7 @@ async function saveLab(mode) {
   const ready = !!LB.html;
   const lab = {
     title: LB.title || "مختبر بلا عنوان", subject: LB.subject, unit: (LB.unit || "").trim(), gradeId: LB.gradeId, lessonId: LB.lessonId || "",
-    source: (LB.source || "").trim(), request: (LB.request || "").trim(), html: LB.html || "", prevHtml: LB.prevHtml || "", readyFile: LB.readyFile || "",
+    source: (LB.source || "").trim(), request: (LB.request || "").trim(), html: LB.html || "", prevHtml: LB.prevHtml || "", readyFile: LB.readyFile || "", pdfName: LB.pdfName || "",
     published: ready && !!LB.published, order: Number(LB.order) || 0, updatedAt: new Date().toISOString(),
     questions: (LB.questions || []).map(q => ({ text: q.text.trim(), options: q.options.map(o => o.trim()), correct: q.correct ?? null })),
     kind: "lab"
@@ -2087,8 +2113,17 @@ async function viewILessonEditor(arg) {
       <section class="panel step s2"><h2><span class="n">٢</span>اطلبي الدرس التفاعلي</h2>
         <div class="stack">
           <label class="f">نص الدرس
-            <textarea id="lb-source" rows="7" placeholder="الصقي نص المقطع أو ملخص الدرس، أو اختاري الدرس المرتبط ليُملأ تلقائياً.">${esc(IL.source || "")}</textarea>
+            <textarea id="lb-source" rows="7" placeholder="الصقي نص المقطع أو ملخص الدرس، أو اختاري الدرس المرتبط ليُملأ تلقائياً، أو أرفقي ملف PDF تحت.">${esc(IL.source || "")}</textarea>
           </label>
+          <div class="f">
+            <span style="font-size:.9rem;font-weight:500">أو أرفقي الدرس ملف PDF</span>
+            <div class="row">
+              <label class="btn ghost sm" for="lb-pdf" style="cursor:pointer">اختيار ملف PDF</label>
+              <input type="file" id="lb-pdf" accept="application/pdf,.pdf" hidden>
+              <span id="lb-pdf-info" class="muted" style="font-size:.88rem"></span>
+            </div>
+            <span class="muted" style="font-size:.82rem">يقرأ Claude صفحات الملف كما هي، بالصور والجداول. الحد ٩ ميغابايت و١٠٠ صفحة. لا يُحفظ الملف في المنصة؛ أرفقيه مرة أخرى إن أردتِ إعادة البناء لاحقاً.</span>
+          </div>
           <label class="f">ماذا تريدين في الدرس التفاعلي؟
             <textarea id="lb-request" rows="5" placeholder="مثال: درس تفاعلي عن دورة الصخور: يبدأ بسؤال مشوّق، ثم خطوة قصيرة لكل نوع من الصخور مع رسم يتغير عند الضغط، ثم نشاط ترتيب مراحل الدورة بالسحب، وسؤال سريع بعد كل خطوة، وملخص في النهاية.">${esc(IL.request || "")}</textarea>
           </label>
@@ -2160,6 +2195,22 @@ async function viewILessonEditor(arg) {
   drawILPreview();
   $$("[data-l]").forEach(el => el.addEventListener("input", () => { IL[el.dataset.l] = el.value; if (el.dataset.l === "gradeId") fillLessonSel(); }));
   $("#lb-source").addEventListener("input", e => (IL.source = e.target.value));
+  const showPdf = () => {
+    const el = $("#lb-pdf-info"); if (!el) return;
+    if (IL.pdf) el.innerHTML = `<span class="chip ilesson">PDF</span> ${esc(IL.pdf.name)} (${num(Math.max(1, Math.round(IL.pdf.size / 1024)))} ك.ب) <button class="x" type="button" id="lb-pdf-del" aria-label="إزالة الملف">×</button>`;
+    else el.textContent = IL.pdfName ? `آخر ملف استُخدم: ${IL.pdfName}` : "";
+    $("#lb-pdf-del")?.addEventListener("click", () => { IL.pdf = null; $("#lb-pdf").value = ""; showPdf(); });
+  };
+  showPdf();
+  $("#lb-pdf").addEventListener("change", async e => {
+    const f = e.target.files && e.target.files[0]; if (!f) return;
+    if (!/\.pdf$/i.test(f.name) && f.type !== "application/pdf") { toast("اختاري ملفاً بصيغة PDF."); e.target.value = ""; return; }
+    if (f.size > 9 * 1024 * 1024) { toast("الملف أكبر من ٩ ميغابايت. قسّميه أو اضغطيه ثم أعيدي المحاولة."); e.target.value = ""; return; }
+    const data = await new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(String(r.result).split(",")[1] || ""); r.onerror = rej; r.readAsDataURL(f); });
+    IL.pdf = { name: f.name, size: f.size, data }; IL.pdfName = f.name;
+    if (!IL.title.trim()) { IL.title = f.name.replace(/\.pdf$/i, ""); $("#lb-title").value = IL.title; }
+    showPdf(); toast("أُرفق الملف. اكتبي ما تريدين ثم اضغطي «ابني».");
+  });
   $("#lb-request").addEventListener("input", e => (IL.request = e.target.value));
   $("#lb-pub").addEventListener("change", e => (IL.published = e.target.checked));
   $("#lb-lesson").addEventListener("change", e => {
@@ -2261,12 +2312,12 @@ async function generateILQuestions() {
   if ((IL.request || "").trim()) parts.push("وصف الدرس التفاعلي: " + IL.request.trim());
   const inLab = labText(IL.html); if (inLab) parts.push("ما يظهر للطالبة داخل الدرس التفاعلي من شرح ومهام: " + inLab);
   const text = parts.join("\n\n");
-  if (text.length < 120) { toast("الصقي نص الدرس أو اكتبي وصف الدرس التفاعلي أولاً، أو ابني الدرس التفاعلي."); return; }
+  if (text.length < 120 && !IL.pdf) { toast("الصقي نص الدرس أو أرفقي ملف PDF أو اكتبي وصف الدرس التفاعلي أولاً، أو ابني الدرس التفاعلي."); return; }
   const grade = GRADES.find(g => g.id === IL.gradeId);
   const btn = $("#lq-gen"); btn.disabled = true; btn.textContent = "جارٍ التوليد…";
   try {
     const { data, error } = await sb.functions.invoke("generate-questions", {
-      body: { text, count: Number($("#lq-count").value) || 5, subject: IL.subject, grade: grade ? grade.name : "", title: IL.title || "" }
+      body: { text: text || "انظري ملف الدرس المرفق.", count: Number($("#lq-count").value) || 5, subject: IL.subject, grade: grade ? grade.name : "", title: IL.title || "", ...(IL.pdf ? { pdf: IL.pdf.data, pdfName: IL.pdf.name } : {}) }
     });
     if (error) { let msg = error.message; try { const j = await error.context.json(); if (j && j.error) msg = j.error; } catch {} throw new Error(msg); }
     const qs = (data && data.questions) || [];
@@ -2301,7 +2352,7 @@ async function runILAI(isChange) {
   if (DEMO) { toast("بناء الدرس التفاعلي يعمل بعد ربط المنصة بـ Supabase. يمكنك الآن لصق كود درس تفاعلي جاهز للتجربة."); return; }
   const change = isChange ? ($("#lb-change").value || "").trim() : "";
   if (isChange && change.length < 3) { toast("اكتبي التعديل المطلوب."); return; }
-  if (!isChange && (IL.request || "").trim().length < 10 && (IL.source || "").trim().length < 60) { toast("اكتبي وصف الدرس التفاعلي الذي تريدينه، أو الصقي نص الدرس."); return; }
+  if (!isChange && !IL.pdf && (IL.request || "").trim().length < 10 && (IL.source || "").trim().length < 60) { toast("اكتبي وصف الدرس التفاعلي الذي تريدينه، أو الصقي نص الدرس، أو أرفقي ملف PDF."); return; }
   const grade = GRADES.find(g => g.id === IL.gradeId);
   const buttons = ["#lb-build", "#lb-apply", "#lb-save"].map(x => $(x)).filter(Boolean);
   buttons.forEach(b => (b.disabled = true));
@@ -2319,6 +2370,7 @@ async function runILAI(isChange) {
       body: JSON.stringify({
         kind: "interactive", title: IL.title, subject: IL.subject, grade: grade ? grade.name : "",
         text: IL.source || "", request: IL.request || "",
+        ...(IL.pdf && !isChange ? { pdf: IL.pdf.data, pdfName: IL.pdf.name } : {}),
         previousHtml: isChange ? IL.html : "", change
       })
     });
@@ -2361,7 +2413,7 @@ async function saveIL(mode) {
   const ready = !!IL.html;
   const lab = {
     title: IL.title || "درس تفاعلي بلا عنوان", subject: IL.subject, unit: (IL.unit || "").trim(), gradeId: IL.gradeId, lessonId: IL.lessonId || "",
-    source: (IL.source || "").trim(), request: (IL.request || "").trim(), html: IL.html || "", prevHtml: IL.prevHtml || "", readyFile: IL.readyFile || "",
+    source: (IL.source || "").trim(), request: (IL.request || "").trim(), html: IL.html || "", prevHtml: IL.prevHtml || "", readyFile: IL.readyFile || "", pdfName: IL.pdfName || "",
     published: ready && !!IL.published, order: Number(IL.order) || 0, updatedAt: new Date().toISOString(),
     questions: (IL.questions || []).map(q => ({ text: q.text.trim(), options: q.options.map(o => o.trim()), correct: q.correct ?? null })),
     kind: "interactive"
