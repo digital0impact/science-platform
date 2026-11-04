@@ -1,0 +1,954 @@
+<!doctype html><html lang="ar" dir="rtl"><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>مستكشف الطحالب</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600&family=Readex+Pro:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+/* Layout: three columns in RTL — phylum cards (right), 3D stage (centre), glass study panel (left); stacks on phones */
+:root{
+  --bg:#f5efe6;--g1:#fff7ec;--g2:#e5f1ef;--g3:#f4e6d8;
+  --ink:#1f1c1a;--ink2:#5c5550;--line:rgba(70,50,30,.11);
+  --glass:rgba(255,252,248,.64);--glass2:rgba(255,252,248,.86);--edge:rgba(255,255,255,.8);--tile:rgba(255,255,255,.58);--raised:#fff;
+  --shadow:rgba(90,60,30,.32);--good:#2f8a55;--bad:#c2473f;
+  --accent:#b8900f;
+  --display:"Readex Pro","IBM Plex Sans Arabic",system-ui,sans-serif;
+  --sans:"IBM Plex Sans Arabic",system-ui,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#121719;--g1:#1b2427;--g2:#14232a;--g3:#1d1b1a;--ink:#ecebe6;--ink2:#a7aeac;--line:rgba(255,255,255,.1);
+  --glass:rgba(30,37,40,.66);--glass2:rgba(36,44,47,.9);--edge:rgba(255,255,255,.08);--tile:rgba(255,255,255,.05);--raised:#2c3639;
+  --shadow:rgba(0,0,0,.6);--good:#5cc489;--bad:#ef7b72;color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#121719;--g1:#1b2427;--g2:#14232a;--g3:#1d1b1a;--ink:#ecebe6;--ink2:#a7aeac;--line:rgba(255,255,255,.1);
+  --glass:rgba(30,37,40,.66);--glass2:rgba(36,44,47,.9);--edge:rgba(255,255,255,.08);--tile:rgba(255,255,255,.05);--raised:#2c3639;
+  --shadow:rgba(0,0,0,.6);--good:#5cc489;--bad:#ef7b72;color-scheme:dark}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;color:var(--ink);font:400 16px/1.7 var(--sans);-webkit-font-smoothing:antialiased;overflow-x:hidden;
+  background:radial-gradient(900px 620px at 52% 46%,var(--g1) 0,transparent 70%),radial-gradient(700px 500px at 15% 10%,var(--g2),transparent 70%),radial-gradient(800px 600px at 90% 90%,var(--g3),transparent 70%),var(--bg);
+  padding-left:max(0px,env(safe-area-inset-left,0px));padding-right:max(0px,env(safe-area-inset-right,0px))}
+button,input{font:inherit;color:inherit}
+button{background:none;border:0;cursor:pointer;padding:0}
+button:focus-visible,input:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.glass{background:var(--glass);border:1px solid var(--edge);box-shadow:0 18px 50px -28px var(--shadow);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px)}
+h1,h2,.brand,.kv dd,.fn b,.know{font-family:var(--display);text-wrap:balance}
+
+.bub{position:fixed;border-radius:50%;pointer-events:none;z-index:0;background:radial-gradient(circle at 35% 30%,rgba(255,255,255,.9),color-mix(in srgb,var(--accent) 22%,transparent) 60%,transparent);animation:float 14s ease-in-out infinite;opacity:.8}
+@keyframes float{50%{transform:translateY(-14px)}}
+@media (prefers-reduced-motion:reduce){.bub{animation:none}}
+
+header{position:relative;z-index:5;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:20px;padding:20px max(16px,44px)}
+.brand{display:flex;align-items:center;gap:12px;font-weight:600;font-size:21px}
+.brand i{width:30px;height:30px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff,#e9dc8a 40%,#7fa83a 72%,#3d6b2a);box-shadow:0 4px 10px rgba(30,110,130,.3)}
+.brand small{display:block;font:500 12px var(--sans);color:var(--ink2);margin-top:-2px}
+nav{display:flex;gap:32px}
+nav a{position:relative;color:var(--ink2);text-decoration:none;font-size:15px;font-weight:500;padding:6px 0;white-space:nowrap}
+nav a[aria-current=page]{color:var(--ink)}
+nav a[aria-current=page]:after{content:"";position:absolute;left:30%;right:30%;bottom:-4px;height:1px;background:var(--ink)}
+nav a.vid{color:var(--accent);font-weight:600}
+.search{justify-self:end;position:relative;width:250px}
+.search input{width:100%;height:44px;border-radius:99px;border:1px solid var(--line);background:var(--glass2);padding:0 42px 0 16px;font-size:14px;outline:none}
+.search svg{position:absolute;inset-inline-start:16px;top:14px;width:16px;height:16px;color:var(--ink2)}
+.results{position:absolute;inset-inline-end:0;top:48px;width:300px;max-height:320px;overflow:auto;border-radius:16px;padding:6px}
+.results button{display:block;width:100%;text-align:start;padding:9px 12px;border-radius:10px;font-size:15px;font-weight:500}
+.results button:hover,.results button:focus-visible{background:var(--tile)}
+.results small{display:block;color:var(--ink2);font-size:12.5px;font-weight:400}
+
+.app{position:relative;z-index:1;display:grid;grid-template-columns:262px minmax(0,1fr) 392px;gap:28px;padding:6px 44px 28px;min-height:calc(100svh - 84px)}
+
+.side{display:flex;flex-direction:column;gap:12px}
+.card{display:grid;grid-template-columns:72px 1fr 14px;gap:14px;align-items:center;padding:12px;border-radius:22px;text-align:start;transition:transform .25s,box-shadow .25s,border-color .25s}
+.card:hover{transform:translateY(-1px)}
+.card img{width:72px;height:80px;border-radius:14px;object-fit:cover;background:color-mix(in srgb,var(--accent) 12%,var(--tile));display:block}
+.card b{display:block;font:600 17px/1.3 var(--display)}
+.card small{display:block;font-size:13px;color:var(--ink2);margin-top:2px;line-height:1.4}
+.card em{display:block;font-style:normal;font-size:11.5px;letter-spacing:.04em;color:var(--accent);font-family:system-ui,sans-serif;direction:ltr;text-align:end}
+.card svg{width:14px;height:14px;color:var(--ink2)}
+.card[aria-pressed=true]{border-color:color-mix(in srgb,var(--accent) 70%,transparent);box-shadow:0 18px 50px -28px var(--shadow),0 0 0 1px color-mix(in srgb,var(--accent) 55%,transparent)}
+.count{color:var(--ink2);font-size:14px;margin:4px 14px 0}
+.tagline{margin-top:auto;font:600 22px/1.35 var(--display);color:var(--ink)}
+.tagline span{display:block;font:400 14px/1.6 var(--sans);color:var(--ink2);margin-top:8px}
+
+.stage{position:relative;min-height:640px}
+#gl{position:absolute;inset:-20px -10px 76px;touch-action:pan-y}
+#gl canvas{display:block;width:100%!important;height:100%!important;touch-action:pan-y}
+#calls{position:absolute;inset:0;pointer-events:none;direction:ltr}
+.call{position:absolute;z-index:2;left:0;top:0;font:600 14.5px/1.3 var(--sans);white-space:nowrap;pointer-events:auto;transition:opacity .3s;padding:5px 12px;border-radius:99px;background:var(--glass2);border:1px solid var(--edge);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);direction:rtl}
+.call.off{opacity:0;pointer-events:none}
+.lead{position:absolute;z-index:1;left:0;top:0;height:1px;background:color-mix(in srgb,var(--ink) 40%,transparent);transform-origin:0 50%;pointer-events:none;transition:opacity .3s}
+.dot{position:absolute;z-index:1;left:0;top:0;width:8px;height:8px;margin:-4px 0 0 -4px;border-radius:50%;background:var(--raised);box-shadow:0 0 0 1.5px color-mix(in srgb,var(--ink) 60%,transparent);pointer-events:none;transition:opacity .3s}
+.lead.off,.dot.off{opacity:0}
+.hint{position:absolute;top:4px;inset-inline-start:0;font-size:13px;color:var(--ink2);z-index:2;pointer-events:none}
+
+.bar{position:absolute;z-index:3;left:50%;bottom:0;transform:translateX(-50%);display:flex;gap:8px;align-items:center;padding:8px;border-radius:99px;direction:ltr}
+.bar>*{height:46px;border-radius:99px;background:var(--glass2);border:1px solid var(--edge);display:flex;align-items:center}
+.bar .ic{width:46px;justify-content:center}
+.bar .ic svg{width:18px;height:18px}
+.zoom{gap:12px;padding:0 16px}
+.zoom button{width:20px;height:20px;font-size:18px;line-height:1;display:grid;place-items:center}
+.zoom input{width:100px;-webkit-appearance:none;appearance:none;height:1px;background:color-mix(in srgb,var(--ink) 30%,transparent)}
+.zoom input::-webkit-slider-thumb{-webkit-appearance:none;width:12px;height:12px;border-radius:50%;background:var(--ink2);border:0}
+.zoom input::-moz-range-thumb{width:12px;height:12px;border-radius:50%;background:var(--ink2);border:0}
+.mode{padding:4px;gap:2px}
+.mode button{height:36px;padding:0 18px;border-radius:99px;font-weight:600;font-size:14px;color:var(--ink2);font-family:system-ui,sans-serif}
+.mode button[aria-pressed=true]{background:var(--raised);color:var(--ink);box-shadow:0 4px 12px -6px var(--shadow)}
+
+.panel{border-radius:28px;padding:26px 24px 16px;display:flex;flex-direction:column;max-height:calc(100svh - 110px);position:sticky;top:20px;min-width:0}
+.kick{display:flex;justify-content:space-between;font-size:14px;font-weight:500;color:var(--ink2)}
+.kick span:last-child{font-variant-numeric:tabular-nums;direction:ltr}
+.panel h1{font-weight:700;font-size:clamp(38px,3.4vw,50px);line-height:1.15;margin:10px 0 2px}
+.latin{font:500 14px system-ui,sans-serif;color:var(--accent);letter-spacing:.06em;direction:ltr;text-align:end;margin-bottom:10px}
+.lede{font-size:16.5px;line-height:1.75;color:var(--ink2);margin:0 0 16px;padding-bottom:16px;border-bottom:1px solid var(--line)}
+.kv{display:grid;grid-template-columns:1fr 1fr;gap:12px 18px;margin:0 0 16px;padding-bottom:16px;border-bottom:1px solid var(--line)}
+.kv dt{font-size:13px;color:var(--ink2)}
+.kv dd{margin:2px 0 0;font-weight:600;font-size:16.5px;line-height:1.4}
+.kv div.wide{grid-column:1/-1}
+.tabs{display:grid;grid-template-columns:repeat(4,1fr);padding:4px;border-radius:99px;background:var(--tile);border:1px solid var(--edge);margin-bottom:12px}
+.tabs button{height:40px;border-radius:99px;font-size:14px;font-weight:500;color:var(--ink2);white-space:nowrap}
+.tabs button[aria-selected=true]{background:var(--raised);color:var(--ink);font-weight:600;box-shadow:0 4px 12px -6px var(--shadow)}
+.pane{overflow-y:auto;min-height:0;flex:1;margin:0 -8px;padding:0 8px 6px;scrollbar-width:thin}
+.st{border-radius:18px;background:var(--tile);border:1px solid var(--edge);margin-bottom:10px}
+.st>button{display:grid;grid-template-columns:72px 1fr 22px;gap:14px;align-items:center;width:100%;text-align:start;padding:10px 10px 10px 14px}
+.st img,.st .ph{width:72px;height:66px;border-radius:12px;object-fit:cover;display:block;background:color-mix(in srgb,var(--accent) 10%,transparent)}
+.st .ph{background:radial-gradient(circle at 40% 40%,var(--raised),color-mix(in srgb,var(--accent) 30%,transparent))}
+.st b{display:block;font-weight:600;font-size:16px;line-height:1.4}
+.st b i{font:400 12px system-ui,sans-serif;color:var(--ink2);font-style:normal;margin-inline-start:6px}
+.st span{display:block;font-size:13.5px;color:var(--ink2);line-height:1.55;margin-top:2px}
+.st .pm{width:22px;height:22px;border-radius:50%;border:1.5px solid var(--ink2);display:grid;place-items:center;font-size:15px;font-style:normal;line-height:1;color:var(--ink2)}
+.st .more{display:none;padding:0 98px 14px 16px;font-size:14.5px;color:var(--ink2)}
+.st.open .more{display:block}
+.linkbtn{color:var(--ink);font-weight:600;border-bottom:1px solid var(--accent);cursor:pointer;margin-inline-start:4px}
+.fn{padding:12px 4px;border-bottom:1px solid var(--line)}
+.fn b{display:block;font-weight:600;font-size:18px;line-height:1.4}
+.fn span{color:var(--ink2);font-size:14.5px}
+.know{font-weight:600;font-size:19px;line-height:1.55;margin:16px 4px 12px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:0 4px 14px}
+.chips span{font-size:13px;font-weight:600;border-radius:99px;padding:6px 12px;background:color-mix(in srgb,var(--accent) 16%,transparent)}
+.note{font-size:13px;color:var(--ink2);margin:8px 4px 0}
+.box{border-radius:18px;background:var(--tile);border:1px solid var(--edge);padding:14px 16px;margin:14px 0 6px}
+.box h2{font-size:16px;font-weight:600;margin:0 0 6px}
+.box p{margin:0 0 8px;font-size:14.5px;color:var(--ink2)}
+.box input[type=range]{width:100%;accent-color:var(--accent)}
+.labrow{display:flex;justify-content:space-between;font-size:12.5px;color:var(--ink2)}
+.meter{display:flex;align-items:baseline;gap:8px;margin-top:8px}
+.meter strong{font:700 30px/1 var(--display);color:var(--accent);font-variant-numeric:tabular-nums}
+.cmp{width:100%;border-collapse:collapse;font-size:13.5px}
+.cmp th,.cmp td{text-align:start;padding:7px 6px;border-bottom:1px solid var(--line);vertical-align:top}
+.cmp th{color:var(--ink2);font-weight:500}
+.seg{display:flex;gap:4px;padding:4px;border-radius:99px;background:var(--tile);border:1px solid var(--edge);margin:4px 0 12px}
+.seg button{flex:1;height:34px;border-radius:99px;font-size:13.5px;color:var(--ink2)}
+.seg button[aria-pressed=true]{background:var(--raised);color:var(--ink);font-weight:600}
+.steps{display:flex;gap:6px;margin:6px 0 14px;direction:rtl}
+.steps button{flex:1;height:30px;border-radius:9px;font:600 13px system-ui,sans-serif;background:var(--tile);border:1px solid var(--edge);color:var(--ink2)}
+.steps button.done{background:color-mix(in srgb,var(--accent) 22%,transparent);color:var(--ink)}
+.steps button[aria-current=step]{background:var(--accent);color:#fff;border-color:transparent}
+.stepcard{border-radius:18px;background:var(--tile);border:1px solid var(--edge);padding:16px;min-height:150px}
+.stepcard small{color:var(--accent);font-weight:600;font-size:13px}
+.stepcard p{margin:6px 0 0;font-size:16.5px;line-height:1.75}
+.stepnav{display:flex;justify-content:space-between;margin-top:12px}
+.btn{height:38px;padding:0 16px;border-radius:99px;background:var(--raised);border:1px solid var(--line);font-weight:600;font-size:14px}
+.btn:disabled{opacity:.4;cursor:default}
+.btn.pri{background:var(--accent);color:#fff;border-color:transparent}
+.q{padding:14px 2px;border-bottom:1px solid var(--line)}
+.q p{margin:0 0 8px;font-weight:600;font-size:16px}
+.q .opts{display:grid;gap:6px}
+.q .opts button{text-align:start;padding:9px 12px;border-radius:12px;background:var(--tile);border:1px solid var(--edge);font-size:14.5px}
+.q .opts button:hover:not(:disabled){border-color:var(--accent)}
+.q .opts button.ok{border-color:var(--good);background:color-mix(in srgb,var(--good) 15%,transparent)}
+.q .opts button.no{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 12%,transparent)}
+.q .why{font-size:13.5px;color:var(--ink2);margin-top:8px}
+.score{display:flex;justify-content:space-between;align-items:center;margin:12px 4px 4px;font-weight:600}
+
+@media (max-width:1200px){
+  header{padding:18px 24px}
+  nav{gap:20px}
+  .search{width:200px}
+  .app{grid-template-columns:220px minmax(0,1fr);padding:6px 24px 24px}
+  .panel{grid-column:1/-1;position:static;max-height:none}
+  .pane{overflow:visible}
+}
+@media (max-width:820px){
+  header{grid-template-columns:1fr auto;padding:14px max(16px,env(safe-area-inset-right,0px)) 14px max(16px,env(safe-area-inset-left,0px))}
+  nav{display:none}
+  .brand{font-size:18px;gap:10px}
+  .search{width:150px}
+  .results{width:min(300px,calc(100vw - 32px))}
+  .app{grid-template-columns:minmax(0,1fr);padding:0 16px 20px;gap:16px}
+  .side{flex-direction:row;overflow-x:auto;scroll-snap-type:x mandatory;padding:2px 2px 6px;gap:10px}
+  .card{flex:0 0 230px;grid-template-columns:56px 1fr 12px;scroll-snap-align:start;padding:10px}
+  .card img{width:56px;height:60px}
+  .count,.tagline{display:none}
+  .stage{min-height:0;height:min(74svh,540px)}
+  #gl{inset:0 -16px 70px}
+  .hint{display:none}
+  .call{font-size:13px;padding:4px 9px}
+  .bar{gap:5px;padding:5px;max-width:calc(100vw - 24px)}
+  .bar>*{height:40px}
+  .bar .ic{width:40px}
+  .zoom{padding:0 10px;gap:8px}
+  .zoom input{width:56px}
+  .mode button{padding:0 11px;height:32px}
+  .panel{padding:22px 16px 14px;border-radius:22px}
+  .tabs button{font-size:13px}
+  .st>button{grid-template-columns:58px 1fr 22px}
+  .st img,.st .ph{width:58px;height:54px}
+  .st .more{padding-right:16px}
+}
+:root{--night1:#0f3550;--night2:#040b14}
+.night{position:absolute;inset:-20px -10px 76px;border-radius:44px;background:radial-gradient(circle at 50% 45%,var(--night1),var(--night2) 72%);opacity:0;transition:opacity .7s;pointer-events:none;z-index:0}
+#gl{z-index:1}
+#calls{z-index:2}
+.grp{margin:6px 14px -2px;font-size:12.5px;font-weight:600;letter-spacing:.02em;color:var(--ink2)}
+.grp:first-child{margin-top:0}
+.toggle{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+.uses{font-size:14px;color:var(--ink2);margin:0}
+.uses b{color:var(--ink);font-weight:600}
+@media (max-width:820px){.grp{display:none}.night{inset:0 -16px 70px;border-radius:24px}}
+</style>
+<span class="bub" style="width:26px;height:26px;left:37%;top:9%"></span>
+<span class="bub" style="width:18px;height:18px;left:58%;top:16%;animation-delay:-4s"></span>
+<span class="bub" style="width:30px;height:30px;left:28%;top:58%;animation-delay:-7s"></span>
+<span class="bub" style="width:20px;height:20px;left:62%;top:82%;animation-delay:-2s"></span>
+
+<div dir="rtl" lang="ar" id="root">
+<header>
+  <div class="brand"><i aria-hidden="true"></i><span>الطحالب<small>الطلائعيات الشبيهة بالنباتات والفطريات</small></span></div>
+  <nav aria-label="القائمة الرئيسية">
+    <a href="#top" aria-current="page">استكشف</a>
+    <a href="#types">النماذج</a>
+    <a href="#panel" data-tab="functions">الوظائف</a>
+    <a href="#panel" data-tab="quiz">اختبر نفسك</a>
+  </nav>
+  <div class="search">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
+    <input id="q" type="search" placeholder="ابحث عن تركيب أو وظيفة…" aria-label="ابحث في التراكيب والوظائف" autocomplete="off">
+    <div class="results glass" id="results" role="listbox" hidden></div>
+  </div>
+</header>
+
+<main class="app" id="top">
+  <aside class="side" id="types" aria-label="الطلائعيات">
+    <div id="list" style="display:contents"></div>
+    <p class="count">6 نماذج ثلاثية الأبعاد</p>
+    <p class="tagline">ثلاثة معايير لتصنيف الطحالب<span>نوع الكلوروفيل والصبغات الثانوية، وطريقة تخزين الطعام، وتركيب الجدار الخلوي.</span></p>
+  </aside>
+
+  <section class="stage" aria-label="نموذج ثلاثي الأبعاد">
+    <div class="night" id="night"></div>
+    <div id="gl"></div>
+    <div id="calls"></div>
+    <p class="hint">اسحب لتدوير النموذج · العجلة للتكبير</p>
+    <div class="bar glass" role="toolbar" aria-label="أدوات العرض">
+      <button class="ic" id="recenter" aria-label="إعادة التوسيط" title="إعادة التوسيط"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg></button>
+      <button class="ic" id="play" aria-label="إيقاف الحركة" title="إيقاف الحركة"></button>
+      <div class="zoom"><button id="zout" aria-label="تصغير">−</button><input id="zr" type="range" min="0" max="100" value="30" aria-label="التكبير"><button id="zin" aria-label="تكبير">+</button></div>
+      <div class="mode" role="group" aria-label="نمط العرض"><button id="m3" aria-pressed="true">3D</button><button id="m2" aria-pressed="false">2D</button></div>
+      <button class="ic" id="fs" aria-label="ملء الشاشة" title="ملء الشاشة"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
+    </div>
+  </section>
+
+  <aside class="panel glass" id="panel" aria-live="polite">
+    <div class="kick"><span id="kName"></span><span id="kNum"></span></div>
+    <h1 id="title"></h1>
+    <div class="latin" id="latin"></div>
+    <p class="lede" id="lede"></p>
+    <dl class="kv" id="kv"></dl>
+    <div class="tabs" role="tablist">
+      <button role="tab" id="t-structures" aria-selected="true" aria-controls="p-structures">التراكيب</button>
+      <button role="tab" id="t-functions" aria-selected="false" aria-controls="p-functions">الوظائف</button>
+      <button role="tab" id="t-seq" aria-selected="false" aria-controls="p-seq">المراحل</button>
+      <button role="tab" id="t-quiz" aria-selected="false" aria-controls="p-quiz">اختبار</button>
+    </div>
+    <div class="pane" id="p-structures" role="tabpanel"></div>
+    <div class="pane" id="p-functions" role="tabpanel" hidden></div>
+    <div class="pane" id="p-seq" role="tabpanel" hidden></div>
+    <div class="pane" id="p-quiz" role="tabpanel" hidden></div>
+  </aside>
+</main>
+</div>
+
+<!-- three.js: نسخة محفوظة مع موقع لبيبة أولاً (تعمل في الشبكات التي تحجب المواقع الخارجية)، ثم من CDN احتياطاً -->
+<script>
+(function () {
+  var LOCAL = "labs/vendor/three-0.169.0/", CDN = "https://cdn.jsdelivr.net/npm/three@0.169.0/", base = CDN;
+  try {
+    var x = new XMLHttpRequest(); x.open("HEAD", LOCAL + "build/three.module.js", false); x.send();
+    if (x.status >= 200 && x.status < 300) base = new URL(LOCAL, document.baseURI).href;
+  } catch (e) {}
+  var m = document.createElement("script"); m.type = "importmap";
+  m.textContent = JSON.stringify({ imports: { "three": base + "build/three.module.js", "three/addons/": base + "examples/jsm/" } });
+  document.currentScript.after(m);
+})();
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+
+const $ = id => document.getElementById(id);
+const V = (x = 0, y = 0, z = 0) => new THREE.Vector3(x, y, z);
+const M = (color, o = {}) => new THREE.MeshPhysicalMaterial({ color, roughness: .42, clearcoat: .5, clearcoatRoughness: .3, ...o });
+const SHELL = (color, op = .38) => new THREE.MeshPhysicalMaterial({ color, roughness: .18, clearcoat: 1, transparent: true, opacity: op, side: THREE.DoubleSide, depthWrite: false });
+const ell = (r, sx, sy, sz, mat, pos, seg = 32) => { const m = new THREE.Mesh(new THREE.SphereGeometry(r, seg, Math.round(seg * .75)), mat); m.scale.set(sx, sy, sz); m.position.copy(pos); m.castShadow = true; return m; };
+const rnd = (a, b) => a + Math.random() * (b - a);
+const tubeOf = (pts, r, mat, seg = 40, rs = 8) => { const m = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), seg, r, rs), mat); m.castShadow = true; return m; };
+function retube(mesh, pts, r, seg = 80) { mesh.geometry.dispose(); mesh.geometry = new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), seg, r, 6); }
+function dotTex() { const c = document.createElement('canvas'); c.width = c.height = 64; const x = c.getContext('2d'), gr = x.createRadialGradient(32, 32, 0, 32, 32, 32); gr.addColorStop(0, 'rgba(255,255,255,1)'); gr.addColorStop(.4, 'rgba(255,255,255,.6)'); gr.addColorStop(1, 'rgba(255,255,255,0)'); x.fillStyle = gr; x.fillRect(0, 0, 64, 64); return new THREE.CanvasTexture(c); }
+function instanced(geo, mat, positions) { const im = new THREE.InstancedMesh(geo, mat, positions.length), m4 = new THREE.Matrix4(); positions.forEach((p, i) => { m4.makeTranslation(p.x, p.y, p.z); im.setMatrixAt(i, m4); }); im.castShadow = true; return im; }
+
+/* ===================== models (procedural teaching illustrations) ===================== */
+function buildDiatom() {
+  const g = new THREE.Group(), A = {}, st = { open: 0, target: 0 };
+  const R1 = 1.1, R2 = 1.0, wall = SHELL('#e3ecbd', .42), rim = M('#c6d396', { transparent: true, opacity: .8 }), dotMat = M('#8fa858', { transparent: true, opacity: .75 });
+  const topV = new THREE.Group(); g.add(topV);
+  const tc = new THREE.Mesh(new THREE.CylinderGeometry(R1, R1, .46, 80), wall); tc.position.y = .11; tc.renderOrder = 10; topV.add(tc);
+  const bc = new THREE.Mesh(new THREE.CylinderGeometry(R2, R2, .5, 80), wall.clone()); bc.position.y = -.25; bc.renderOrder = 10; g.add(bc);
+  [[R1, -.12, topV], [R1, .34, topV], [R2, -.5, g]].forEach(([r, y, p]) => { const t = new THREE.Mesh(new THREE.TorusGeometry(r, .03, 8, 96), rim); t.rotation.x = Math.PI / 2; t.position.y = y; p.add(t); });
+  const dots = [], bdots = [];
+  for (let r = .14; r < R1 - .05; r += .075) { const n = Math.round(2 * Math.PI * r / .075); for (let i = 0; i < n; i++) { const a = i / n * Math.PI * 2 + r * 3; dots.push(V(Math.cos(a) * r, .345, Math.sin(a) * r)); } }
+  for (let row = 0; row < 4; row++) for (let i = 0; i < 96; i++) { const a = i / 96 * Math.PI * 2 + row * .03; dots.push(V(Math.cos(a) * (R1 + .004), -.06 + row * .1, Math.sin(a) * (R1 + .004))); }
+  for (let r = .14; r < R2 - .05; r += .09) { const n = Math.round(2 * Math.PI * r / .09); for (let i = 0; i < n; i++) { const a = i / n * Math.PI * 2; bdots.push(V(Math.cos(a) * r, -.503, Math.sin(a) * r)); } }
+  for (let row = 0; row < 2; row++) for (let i = 0; i < 88; i++) { const a = i / 88 * Math.PI * 2; bdots.push(V(Math.cos(a) * (R2 + .004), -.42 + row * .1, Math.sin(a) * (R2 + .004))); }
+  const dg = new THREE.SphereGeometry(.012, 6, 4);
+  topV.add(instanced(dg, dotMat, dots)); g.add(instanced(dg, dotMat, bdots));
+  const rib = []; for (let i = 0; i < 48; i++) { const a = i / 48 * Math.PI * 2; rib.push(Math.cos(a) * .1, .346, Math.sin(a) * .1, Math.cos(a) * R1, .346, Math.sin(a) * R1); }
+  const rg = new THREE.BufferGeometry(); rg.setAttribute('position', new THREE.Float32BufferAttribute(rib, 3));
+  topV.add(new THREE.LineSegments(rg, new THREE.LineBasicMaterial({ color: '#94a862' })));
+  topV.add(ell(.12, 1, .25, 1, rim, V(0, .345, 0)));
+  const chl = M('#c8962c'), chls = [];
+  for (let i = 0; i < 7; i++) { const a = i / 7 * Math.PI * 2, m = ell(.32, 1, .22, .55, chl, V(Math.cos(a) * .62, -.12, Math.sin(a) * .62)); m.rotation.y = -a; g.add(m); chls.push(m); }
+  const oil = M('#f3d46b', { transparent: true, opacity: .88, clearcoat: 1, roughness: .1 }), oils = [];
+  [[.2, -.05, .25, .1], [-.3, -.16, -.2, .08], [.05, -.22, -.4, .09], [-.18, -.02, .38, .07]].forEach(([x, y, z, r]) => { const m = ell(r, 1, 1, 1, oil, V(x, y, z)); g.add(m); oils.push(m); });
+  g.add(ell(.2, 1, .8, 1, M('#6f4b8a'), V(0, -.13, 0)));
+  A['الصفيحة العلوية'] = V(); A['الصفيحة السفلية'] = V(.6, -.36, .8); A['الجدار السليكي'] = V(); A['البلاستيدات'] = chls[1].position; A['قطرات الزيت'] = oils[0].position; A['النواة'] = V(0, -.13, 0);
+  function update() {
+    st.open += (st.target - st.open) * .06; topV.position.y = st.open * .5;
+    A['الصفيحة العلوية'].set(.45, .346 + topV.position.y, .55); A['الجدار السليكي'].set(-.82, .16 + topV.position.y, .74);
+  }
+  const pose = v => { st.target = v ?? 0; };
+  return { g, A, update, st, pose };
+}
+
+function buildDino() {
+  const g = new THREE.Group(), A = {}, st = { glow: 0, glowT: 0 };
+  const deform = v => { const ang = Math.atan2(v.x, v.z), groove = .15 * Math.exp(-(((v.y - .02) / .1) ** 2));
+    const sul = v.y < .05 ? .12 * Math.exp(-((ang / .28) ** 2)) * Math.min(1, (.05 - v.y) * 6) : 0, s = 1 - groove - sul;
+    const y = v.y > 0 ? v.y * 1.2 + Math.max(0, v.y - .75) * 1.6 : v.y * .95 - Math.max(0, -v.y - .8) * .9;
+    return V(v.x * s, y, v.z * s); };
+  const geo = new THREE.SphereGeometry(1, 96, 72), p = geo.attributes.position, t0 = V();
+  for (let i = 0; i < p.count; i++) { t0.fromBufferAttribute(p, i).normalize(); const d = deform(t0); p.setXYZ(i, d.x, d.y, d.z); }
+  geo.computeVertexNormals();
+  const shellMat = SHELL('#d8774f', .5); shellMat.emissive = new THREE.Color('#35d9ff'); shellMat.emissiveIntensity = 0;
+  const shell = new THREE.Mesh(geo, shellMat); shell.renderOrder = 10; shell.castShadow = true; g.add(shell);
+  // plate sutures from a subdivided icosahedron, projected onto the body
+  const ed = new THREE.EdgesGeometry(new THREE.IcosahedronGeometry(1, 1)).attributes.position, sp = [], a = V(), b = V();
+  for (let i = 0; i < ed.count; i += 2) { a.fromBufferAttribute(ed, i); b.fromBufferAttribute(ed, i + 1);
+    for (let k = 0; k < 8; k++) { const p1 = a.clone().lerp(b, k / 8).normalize(), p2 = a.clone().lerp(b, (k + 1) / 8).normalize();
+      if (Math.abs(p1.y - .02) < .12 && Math.abs(p2.y - .02) < .12) continue;
+      const q1 = deform(p1).multiplyScalar(1.012), q2 = deform(p2).multiplyScalar(1.012); sp.push(q1.x, q1.y, q1.z, q2.x, q2.y, q2.z); } }
+  const sg = new THREE.BufferGeometry(); sg.setAttribute('position', new THREE.Float32BufferAttribute(sp, 3));
+  g.add(new THREE.LineSegments(sg, new THREE.LineBasicMaterial({ color: '#8a3b22', transparent: true, opacity: .8 })));
+  g.add(ell(.33, 1, 1.15, 1, M('#6b3d8f'), V(0, .32, -.05), 40));
+  const chlMat = M('#b0552c', { emissive: '#35d9ff', emissiveIntensity: 0 }), chls = [];
+  for (let i = 0; i < 16; i++) { const a2 = i / 16 * Math.PI * 2, y = i % 2 ? .45 : -.35; const m = ell(.13, 1, .5, .65, chlMat, V(Math.cos(a2) * .52, y + rnd(-.1, .1), Math.sin(a2) * .52)); m.rotation.y = -a2; g.add(m); chls.push(m); }
+  const flagMat = M('#7a3a1e');
+  const tF = new THREE.Mesh(new THREE.BufferGeometry(), flagMat), lF = new THREE.Mesh(new THREE.BufferGeometry(), flagMat); tF.castShadow = lF.castShadow = true; g.add(tF, lF);
+  const start = deform(V(0, -.15, 1).normalize());
+  const spk = new Float32Array(90 * 3), spkBase = [];
+  for (let i = 0; i < 90; i++) { const d = V(rnd(-1, 1), rnd(-1, 1), rnd(-1, 1)).normalize().multiplyScalar(rnd(1.2, 1.9)); spkBase.push(d); }
+  const spg = new THREE.BufferGeometry(); spg.setAttribute('position', new THREE.BufferAttribute(spk, 3));
+  const spm = new THREE.PointsMaterial({ color: '#8ff4ff', size: .09, map: dotTex(), transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false });
+  g.add(new THREE.Points(spg, spm));
+  A['السوط العرضي'] = V(); A['السوط الطولي'] = V(); A['الصفائح السليلوزية'] = deform(V(.45, .75, .5).normalize()); A['الأخدود'] = deform(V(-.95, .02, .3).normalize());
+  A['البلاستيدات'] = chls[4].position; A['النواة'] = V(0, .32, -.05);
+  function update(t) {
+    g.rotation.y = t * .5;
+    st.glow += (st.glowT - st.glow) * .05;
+    shellMat.emissiveIntensity = st.glow * 2.2; chlMat.emissiveIntensity = st.glow * .8; spm.opacity = st.glow;
+    const tp = []; for (let i = 0; i <= 90; i++) { const a2 = i / 90 * Math.PI * 1.94, w = a2 * 16 - t * 12, r = .87 + .05 * Math.sin(w); tp.push(V(Math.sin(a2) * r, .02 + .045 * Math.cos(w), Math.cos(a2) * r)); }
+    retube(tF, tp, .022, 140);
+    const lp = []; for (let i = 0; i <= 40; i++) { const s = i / 40, w = 9 * s - t * 9; lp.push(V(.24 * s * Math.sin(w), start.y - 1.9 * s, start.z * (1 - .3 * s) + .2 * s * Math.cos(w))); }
+    retube(lF, lp, .022, 80);
+    A['السوط العرضي'].copy(tp[14]); A['السوط الطولي'].copy(lp[30]);
+    for (let i = 0; i < 90; i++) { const b2 = spkBase[i], f = 1 + .08 * Math.sin(t * 2 + i); spk.set([b2.x * f, b2.y * f, b2.z * f], i * 3); }
+    spg.attributes.position.needsUpdate = true;
+  }
+  return { g, A, update, st };
+}
+
+function buildEuglena() {
+  const g = new THREE.Group(), A = {}, st = { light: 1, l: 1 }, L = 2.1;
+  const R = u => .5 * Math.pow(Math.max(0, 1 - u * u), u < 0 ? .9 : .5);
+  const geo = new THREE.SphereGeometry(1, 120, 40); geo.rotateZ(Math.PI / 2);
+  const p = geo.attributes.position, t0 = V();
+  for (let i = 0; i < p.count; i++) { t0.fromBufferAttribute(p, i); const u = THREE.MathUtils.clamp(t0.x, -1, 1), q = 1 - u * u, k = q > 1e-6 ? R(u) / Math.sqrt(q) : 0; p.setXYZ(i, u * L, t0.y * k, t0.z * k); }
+  geo.computeVertexNormals();
+  const shell = new THREE.Mesh(geo, SHELL('#a3d69c', .42)); shell.renderOrder = 10; shell.castShadow = true; g.add(shell);
+  const lineMat = new THREE.LineBasicMaterial({ color: '#4f8c4d', transparent: true, opacity: .55 });
+  for (let h = 0; h < 8; h++) { const pts = []; for (let i = 0; i <= 140; i++) { const u = -.97 + 1.94 * i / 140, a = h / 8 * Math.PI * 2 + u * 9, r = R(u) * 1.012; pts.push(V(u * L, Math.cos(a) * r, Math.sin(a) * r)); }
+    g.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), lineMat)); }
+  g.add(tubeOf([V(L * .99, 0, 0), V(L * .86, .03, 0), V(L * .72, .05, 0)], .05, M('#4c8f57'), 16));
+  g.add(ell(.11, 1, 1, 1, SHELL('#d4eec8', .7), V(L * .69, .05, 0)));
+  g.add(ell(.075, 1, 1, .8, M('#e0402a', { emissive: '#a01800', emissiveIntensity: .35 }), V(L * .74, .2, .12)));
+  const cv = ell(.11, 1, 1, 1, M('#e9879a', { transparent: true, opacity: .92 }), V(L * .55, -.13, -.16)); g.add(cv);
+  g.add(ell(.3, 1.25, .85, .85, M('#6a4c93'), V(-.15, 0, 0), 40));
+  const green = new THREE.Color('#3e9b33'), pale = new THREE.Color('#c9cfae'), chlMat = M('#3e9b33'), chls = [];
+  for (let i = 0; i < 26; i++) { let u = rnd(-.78, .72); if (Math.abs(u * L + .15) < .45) u = u < -.07 ? u - .25 : u + .25; u = THREE.MathUtils.clamp(u, -.82, .74);
+    const rr = R(u) * .62 * Math.sqrt(Math.random()), a = rnd(0, Math.PI * 2), m = ell(.11, 1.6, .55, .7, chlMat, V(u * L, Math.cos(a) * rr, Math.sin(a) * rr));
+    m.rotation.set(rnd(0, 3), rnd(0, 3), rnd(0, 3)); g.add(m); chls.push(m); }
+  const mito = [];
+  for (let i = 0; i < 8; i++) { const u = rnd(-.6, .5), rr = R(u) * .55, a = rnd(0, 6.3), m = new THREE.Mesh(new THREE.CapsuleGeometry(.03, .09, 4, 8), M('#e08a3a')); m.position.set(u * L, Math.cos(a) * rr, Math.sin(a) * rr); m.rotation.set(rnd(0, 3), 0, rnd(0, 3)); g.add(m); mito.push(m); }
+  const flag = new THREE.Mesh(new THREE.BufferGeometry(), M('#2f7a3d')); flag.castShadow = true; g.add(flag);
+  const pa = .6, pu = -.3;
+  A['الأسواط'] = V(); A['البقعة العينية'] = V(L * .74, .2, .12); A['البلعوم'] = V(L * .86, .03, 0); A['الفجوة المنقبضة'] = cv.position; A['البلاستيدات الخضراء'] = chls[3].position;
+  A['النواة'] = V(-.15, 0, 0); A['الميتوكندريا'] = mito[0].position; A['القشيرة'] = V(pu * L, Math.cos(pa) * R(pu), Math.sin(pa) * R(pu));
+  function update(t) {
+    g.rotation.x = t * .7;
+    st.l += (st.light - st.l) * .05; chlMat.color.copy(pale).lerp(green, st.l);
+    cv.scale.setScalar(.5 + .55 * ((t % 2.4) / 2.4 < .85 ? (t % 2.4) / 2.4 / .85 : 1 - ((t % 2.4) / 2.4 - .85) / .15));
+    const pts = [], X0 = L * .7, X1 = L + 2; for (let i = 0; i <= 50; i++) { const x = X0 + (X1 - X0) * i / 50, amp = .3 * Math.max(0, x - L) / 2, w = 3 * x - 9 * t; pts.push(V(x, .05 + amp * Math.sin(w), amp * .5 * Math.cos(w))); }
+    retube(flag, pts, .028, 100); A['الأسواط'].copy(pts[36]);
+  }
+  return { g, A, update, st };
+}
+
+function buildKelp() {
+  const g = new THREE.Group(), A = {};
+  const stipe = M('#7a5a24', { clearcoat: .3, roughness: .55 }), hold = M('#5e4219', { clearcoat: .2, roughness: .7 });
+  const blade = new THREE.MeshPhysicalMaterial({ color: '#a07c2e', roughness: .5, clearcoat: .4, side: THREE.DoubleSide });
+  const bladder = M('#b88d38', { clearcoat: .9, roughness: .2 });
+  for (let i = 0; i < 11; i++) { const a = i / 11 * Math.PI * 2 + rnd(-.2, .2), s = rnd(.8, 1.1);
+    g.add(tubeOf([V(0, -1.72, 0), V(Math.cos(a) * .22 * s, -1.88, Math.sin(a) * .22 * s), V(Math.cos(a) * .5 * s, -2.0, Math.sin(a) * .5 * s), V(Math.cos(a) * .72 * s, -2.04, Math.sin(a) * .72 * s)], .04, hold, 24)); }
+  g.add(tubeOf([V(0, -1.85, 0), V(.06, -1.2, 0), V(-.05, -.6, .03), V(0, -.2, 0)], .075, stipe));
+  const blades = [], bl = [];
+  for (let i = 0; i < 6; i++) {
+    const a = i / 6 * Math.PI * 2 + .3, e = V(Math.cos(a) * .45, .05 + (i % 3) * .14, Math.sin(a) * .45);
+    g.add(tubeOf([V(0, -.22, 0), V(Math.cos(a) * .2, -.1, Math.sin(a) * .2), e], .04, stipe, 16));
+    const bd = ell(.13, 1, 1.35, 1, bladder, e.clone().add(V(0, .1, 0))); g.add(bd); bl.push(bd);
+    const len = rnd(1.8, 2.4), pg = new THREE.PlaneGeometry(.36, len, 6, 36); pg.translate(0, len / 2, 0);
+    const m = new THREE.Mesh(pg, blade); m.castShadow = true; m.position.copy(e).add(V(0, .24, 0)); m.rotation.order = 'YXZ'; m.rotation.y = -a + Math.PI / 2; m.rotation.x = -.18;
+    m.userData = { base: Float32Array.from(pg.attributes.position.array), len, ph: i * 1.3 }; g.add(m); blades.push(m);
+  }
+  A['الثالوس'] = V(.02, -.45, .05); A['الشفرات'] = V(); A['المثانة'] = bl[1].position; A['السويقة'] = V(.06, -1.2, 0); A['المثبت'] = V(.55, -2.0, .2);
+  const mid = V();
+  function update(t) {
+    blades.forEach(m => { const { base, len, ph } = m.userData, pa = m.geometry.attributes.position;
+      for (let i = 0; i < pa.count; i++) { const x = base[i * 3], y = base[i * 3 + 1], s = y / len;
+        pa.setXYZ(i, x * (1 - .3 * s), y, .5 * s * s + .22 * s * Math.sin(s * 3 - t * 1.2 + ph) + .05 * Math.sin(y * 15) * Math.abs(x) / .18); }
+      pa.needsUpdate = true; m.geometry.computeVertexNormals(); });
+    const m = blades[0], { len, ph } = m.userData, s = .6; mid.set(0, len * s, .5 * s * s + .22 * s * Math.sin(s * 3 - t * 1.2 + ph)); m.updateMatrix(); A['الشفرات'].copy(mid).applyMatrix4(m.matrix);
+  }
+  return { g, A, update };
+}
+
+function buildVolvox() {
+  const g = new THREE.Group(), A = {}, st = { light: .6, lt: null }, col = new THREE.Group(); g.add(col);
+  const R = 1.25, gel = ell(R, 1, 1, 1, SHELL('#c8e8a8', .22), V(), 64); gel.renderOrder = 10; col.add(gel);
+  const N = 420, ps = [];
+  for (let i = 0; i < N; i++) { const y = 1 - 2 * (i + .5) / N, r = Math.sqrt(1 - y * y), ph = i * 2.39996; ps.push(V(Math.cos(ph) * r, y, Math.sin(ph) * r)); }
+  col.add(instanced(new THREE.SphereGeometry(.045, 10, 8), M('#3e9a2c'), ps.map(p => p.clone().multiplyScalar(R))));
+  const fl = new Float32Array(N * 4 * 3), fg = new THREE.BufferGeometry(); fg.setAttribute('position', new THREE.BufferAttribute(fl, 3));
+  col.add(new THREE.LineSegments(fg, new THREE.LineBasicMaterial({ color: '#2f6b24', transparent: true, opacity: .7 })));
+  const tang = ps.map(n => { const t = V(0, 1, 0).cross(n); if (t.lengthSq() < 1e-4) t.set(1, 0, 0); return t.normalize(); });
+  const dPos = [V(.42, .32, .2), V(-.48, -.08, .35), V(.1, -.52, -.32), V(-.22, .46, -.42), V(.55, -.34, -.12)], dc = [];
+  dPos.forEach(c => { col.add(ell(.27, 1, 1, 1, SHELL('#a6d982', .45), c)); for (let i = 0; i < 70; i++) { const y = 1 - 2 * (i + .5) / 70, r = Math.sqrt(1 - y * y), ph = i * 2.39996; dc.push(V(Math.cos(ph) * r, y, Math.sin(ph) * r).multiplyScalar(.27).add(c)); } });
+  col.add(instanced(new THREE.SphereGeometry(.028, 8, 6), M('#5cb83c'), dc));
+  const NB = 70, bub = new THREE.InstancedMesh(new THREE.SphereGeometry(.04, 10, 8), M('#ffffff', { transparent: true, opacity: .6, clearcoat: 1, roughness: .05 }), NB), bd = [], m4 = new THREE.Matrix4();
+  const spawn = b => { const th = rnd(0, Math.PI * 2), ph = rnd(0, 1.1); b.p = V(Math.sin(ph) * Math.cos(th) * R, Math.cos(ph) * R, Math.sin(ph) * Math.sin(th) * R); b.v = rnd(.35, .7); };
+  for (let i = 0; i < NB; i++) { const b = {}; spawn(b); b.p.y = R * Math.cos(rnd(0, 1.1)); bd.push(b); }
+  g.add(bub);
+  const base = { 'الخلايا المسوطة': ps[60].clone().multiplyScalar(R), 'الأسواط': ps[140].clone().multiplyScalar(R * 1.08), 'المادة الجيلاتينية': V(-.25, -.72, -.45), 'المستعمرات البنوية': dPos[0] };
+  for (const k in base) A[k] = V(); A['فقاعات الأكسجين'] = V(.1, R + .45, .1);
+  function update(t) {
+    const dt = st.lt == null ? 0 : Math.min(.05, Math.max(0, t - st.lt)); st.lt = t;
+    col.rotation.x = t * .22; col.rotation.z = t * .09; col.updateMatrix();
+    for (let i = 0; i < N; i++) { const n = ps[i], tg = tang[i], b0 = n.clone().multiplyScalar(R * 1.03);
+      for (let f = 0; f < 2; f++) { const s = Math.sin(t * 8 + i + f * 1.6) * .05 * (f ? 1 : -1), tip = b0.clone().addScaledVector(n, .12).addScaledVector(tg, s + (f ? .03 : -.03)), o = (i * 2 + f) * 6;
+        fl[o] = b0.x; fl[o + 1] = b0.y; fl[o + 2] = b0.z; fl[o + 3] = tip.x; fl[o + 4] = tip.y; fl[o + 5] = tip.z; } }
+    fg.attributes.position.needsUpdate = true;
+    const active = Math.round(st.light * st.light * NB);
+    bd.forEach((b, i) => { if (i < active) { b.p.y += b.v * dt; b.p.x += Math.sin(t * 2 + i) * .002; if (b.p.y > R + 1.3) spawn(b); m4.makeTranslation(b.p.x, b.p.y, b.p.z); } else m4.makeScale(0, 0, 0); bub.setMatrixAt(i, m4); });
+    bub.instanceMatrix.needsUpdate = true;
+    for (const k in base) A[k].copy(base[k]).applyMatrix4(col.matrix);
+  }
+  return { g, A, update, st };
+}
+
+function buildSlime() {
+  const g = new THREE.Group(), A = {}, LX = 2.1, LZ = 1.45, LH = .14;
+  const top = (x, z) => -.1 + LH * Math.sqrt(Math.max(0, 1 - (x / LX) ** 2 - (z / LZ) ** 2));
+  g.add(ell(1, LX, LH, LZ, M('#5e4128', { roughness: .85, clearcoat: .1 }), V(0, -.1, 0), 64));
+  for (let i = 0; i < 6; i++) { const a = i / 6 * 3.14 - 1.57; g.add(tubeOf([V(-1.9, top(-1.9, 0) + .005, 0), V(Math.cos(a) * 1.9, top(Math.cos(a) * 1.9, Math.sin(a) * 1.25) + .005, Math.sin(a) * 1.25)], .012, M('#4b331f', { roughness: .9 }), 10, 4)); }
+  const plas = M('#f2c12e', { clearcoat: .9, roughness: .25, emissive: '#ff9d00', emissiveIntensity: .1 }), O = V(-1.25, 0, -.35), keep = [];
+  const inside = q => (q.x / LX) ** 2 + (q.z / LZ) ** 2 < .78;
+  function br(p, ang, len, d) {
+    const pts = []; let q = p.clone(), a = ang;
+    for (let i = 0; i <= 5; i++) { pts.push(V(q.x, top(q.x, q.z) + .025, q.z)); a += rnd(-.18, .18); const nq = V(q.x + Math.cos(a) * len / 5, 0, q.z + Math.sin(a) * len / 5); if (!inside(nq)) break; q = nq; }
+    const last = pts[pts.length - 1]; if (last.x !== q.x || last.z !== q.z) pts.push(V(q.x, top(q.x, q.z) + .025, q.z));
+    if (pts.length > 1) { g.add(tubeOf(pts, .034 * .74 ** d + .01, plas, 24, 8)); keep.push(pts); }
+    for (const n of [p, q]) g.add(ell(.034 * .74 ** d + .012, 1, .7, 1, plas, V(n.x, top(n.x, n.z) + .025, n.z), 12));
+    if (d < 4 && pts.length > 4) { br(q, a + rnd(.35, .65), len * .74, d + 1); br(q, a - rnd(.35, .65), len * .74, d + 1); }
+  }
+  for (let k = 0; k < 5; k++) br(O, -1.0 + k * .5, .75, 0);
+  g.add(ell(.2, 1, .3, 1, plas, V(O.x, top(O.x, O.z) + .02, O.z)));
+  const C = V(1.15, 0, .55), heads = [], stalk = M('#4a3020'), head = M('#d8323a', { clearcoat: .8, roughness: .3 });
+  for (let i = 0; i < 11; i++) { const x = C.x + rnd(-.28, .28), z = C.z + rnd(-.22, .22), y0 = top(x, z), h = rnd(.22, .42);
+    const s = new THREE.Mesh(new THREE.CylinderGeometry(.011, .016, h, 6), stalk); s.position.set(x, y0 + h / 2, z); s.castShadow = true; g.add(s);
+    const hd = ell(.075, 1, 1.15, 1, head, V(x, y0 + h + .05, z)); g.add(hd); heads.push(hd); }
+  const NS = 80, sp = new Float32Array(NS * 3), sd = [];
+  const sspawn = s => { const h = heads[Math.floor(rnd(0, heads.length))].position; s.p = h.clone().add(V(rnd(-.05, .05), 0, rnd(-.05, .05))); s.v = V(rnd(-.06, .06), rnd(.08, .18), rnd(-.06, .06)); s.life = 0; };
+  for (let i = 0; i < NS; i++) { const s = {}; sspawn(s); s.life = rnd(0, 4); s.p.addScaledVector(s.v, s.life); sd.push(s); }
+  const sg = new THREE.BufferGeometry(); sg.setAttribute('position', new THREE.BufferAttribute(sp, 3));
+  g.add(new THREE.Points(sg, new THREE.PointsMaterial({ color: '#7a3326', size: .035, map: dotTex(), transparent: true, depthWrite: false })));
+  keep.sort((x, y) => y.length - x.length);
+  A['البلازموديوم'] = keep[0][Math.floor(keep[0].length / 2)]; A['الأجسام الثمرية'] = heads[0].position; A['الأبواغ'] = V(C.x, .95, C.z); A['الجدار الخلوي'] = keep[1][Math.floor(keep[1].length / 2)]; A['المادة العضوية المتحللة'] = V(.3, top(.3, 1.25) - .02, 1.25);
+  let lt = null;
+  function update(t) {
+    const dt = lt == null ? 0 : Math.min(.05, Math.max(0, t - lt)); lt = t;
+    plas.emissiveIntensity = .08 + .14 * (.5 + .5 * Math.sin(t * 1.6));
+    sd.forEach((s, i) => { s.p.addScaledVector(s.v, dt); s.life += dt; if (s.life > 4) sspawn(s); sp.set([s.p.x, s.p.y, s.p.z], i * 3); });
+    sg.attributes.position.needsUpdate = true;
+  }
+  return { g, A, update };
+}
+
+/* ===================== content (textbook pages 101–110) ===================== */
+const TOP = V(0, 1, .0001), FRONT = V(0, 0, 1);
+const CELLS = [
+  { key: 'diatom', build: buildDiatom, flat: TOP, group: 'شبيهة بالنباتات', name: 'الدياتومات', latin: 'Bacillariophyta · Diatoms', ex: 'طحالب وحيدة الخلية', tag: 'جدار من السليكا', accent: '#b8900f',
+    lede: 'طحالب وحيدة الخلية يتكون جدارها من نصفين غير متساويين من السليكا، ينطبق أحدهما على الآخر ليكوّنا ما يشبه صندوقًا صغيرًا له غطاء.',
+    kv: [['الصبغات', 'كلوروفيل وكاروتين (أصفر ذهبي)'], ['تخزين الغذاء', 'زيوت وليس كربوهيدرات'], ['الجدار الخلوي', 'سليكا'], ['تعيش في', 'البيئات المائية العذبة والمالحة']],
+    structs: [
+      ['الصفيحة العلوية', 'Epitheca', 'النصف الأكبر من الجدار، يعمل كغطاء.', 'ينطبق على النصف الأصغر كما ينطبق غطاء الصندوق عليه. ابدأ تبويب «التكاثر» لترى النصفين ينفصلان.', 1],
+      ['الصفيحة السفلية', 'Hypotheca', 'النصف الأصغر من الجدار.', 'عند الانقسام تأخذ كل خلية جديدة نصفًا وتبني نصفًا جديدًا داخله، فتصغر بعض الخلايا جيلًا بعد جيل.', 0],
+      ['الجدار السليكي', 'Silica wall', 'جدار خلوي من السليكا، مزخرف بثقوب دقيقة.', 'يبقى الجدار طويلًا بعد موت الدياتومات، فتتراكم الجدران في قاع المحيط مكونة رسوبيات دياتومية تُستخدم في تلميع الفلزات وتبييض الأسنان، ومادة حاكّة، وعاملًا في الترشيح والتصفية.', 1],
+      ['البلاستيدات', 'Chloroplasts', 'تحوي الكلوروفيل والكاروتين.', 'تستخدم الدياتومات الكلوروفيل والصبغات الثانوية كالكاروتين في البناء الضوئي، والكاروتين يعطيها اللون الأصفر الذهبي.', 1],
+      ['قطرات الزيت', 'Oil droplets', 'غذاء مخزّن على شكل زيوت.', 'تخزن الدياتومات طعامها زيوتًا وليس كربوهيدرات، وهذا يمكّنها من الطفو على سطح الماء لتمتص الطاقة اللازمة للبناء الضوئي من أشعة الشمس.', 1],
+      ['النواة', 'Nucleus', 'تتحكم في أنشطة الخلية.', 'تنقسم انقسامًا متساويًا في التكاثر اللاجنسي، وانقسامًا منصفًا عند التكاثر الجنسي.', 0],
+    ],
+    fns: [['البناء الضوئي', 'تنتج غذاءها باستخدام الكلوروفيل والكاروتين.'], ['الطفو', 'الزيوت المخزنة تبقيها قرب سطح الماء والضوء.'], ['التكاثر اللاجنسي', 'انقسام متساوٍ لعدة أجيال.'], ['التكاثر الجنسي', 'أمشاج تتحد فتكوّن زيجوتًا (لاقحة).']],
+    know: 'تتراكم جدران الدياتومات السليكية في قاع المحيط مكونة رسوبيات دياتومية.',
+    chips: ['الماء العذب', 'الماء المالح', 'العوالق النباتية'], uses: 'الدياتومات', extra: 'golden', seqTab: 'التكاثر',
+    seq: [{ title: 'تكاثر الدياتومات', steps: [
+      ['تنقسم الخلية انقسامًا متساويًا (تكاثر لاجنسي)، وتأخذ كل خلية جديدة أحد نصفي الجدار.', 'الصفيحة العلوية', .6],
+      ['تبني كل خلية نصفًا جديدًا داخل النصف القديم، فتصبح إحدى الخليتين أصغر من الأصلية.', 'الصفيحة السفلية', .6],
+      ['تتكرر الانقسامات لعدة أجيال، وتصغر الخلايا تدريجيًّا.', null, .3],
+      ['عندما تصل الخلية الصغرى إلى أصغر حجم، تنقسم انقسامًا منصفًا (تكاثر جنسي) فتنتج أمشاجًا.', 'النواة', 0],
+      ['تتحد الأمشاج فيتكون زيجوت (لاقحة).', null, 0],
+      ['ينمو الزيجوت ويتكون جدار حول الخلية، فتعود الدياتومة إلى حجمها الكامل.', 'الجدار السليكي', 0]] }],
+    quiz: [
+      ['مم يتكون الجدار الخلوي للدياتومات؟', ['السيليلوز', 'السليكا', 'كربونات الكالسيوم', 'الكايتين'], 1, 'يتكون من نصفين من السليكا ينطبق أحدهما على الآخر.'],
+      ['لماذا تستطيع الدياتومات الطفو قرب سطح الماء؟', ['لأن لها أسواطًا', 'لأنها تخزن طعامها زيوتًا', 'لأن جدارها بلا ثقوب', 'لأنها تمتص الهواء'], 1, 'الزيوت تبقيها قريبة من ضوء الشمس.'],
+      ['ما الصبغة التي تعطي الدياتومات لونها الأصفر الذهبي؟', ['الفيكوبلين', 'الكاروتين', 'الكلوروفيل وحده', 'الهيموجلوبين'], 1, 'الكاروتين صبغة ثانوية تساعد في البناء الضوئي.']] },
+
+  { key: 'dino', build: buildDino, flat: FRONT, group: 'شبيهة بالنباتات', name: 'السوطيات الدوّارة', latin: 'Pyrrophyta · Dinoflagellates', ex: 'وحيدة الخلية', tag: 'سوطان متعامدان', accent: '#c4502f',
+    lede: 'طلائعيات شبيهة بالنباتات، أغلبها وحيدة الخلية، ولها سوطان أحدهما عمودي على الآخر يساعدانها على الحركة اللولبية في الماء. ولبعضها جدار يشبه لباس الجندي.',
+    kv: [['الصبغات', 'كلوروفيل، ولبعضها صبغة حمراء'], ['التغذي', 'بعضها ذاتي التغذي وبعضها غير ذاتي'], ['الجدار الخلوي', 'صفائح سميكة من السيليلوز لبعضها'], ['تعيش في', 'الماء المالح غالبًا، وبعضها في العذب']],
+    structs: [
+      ['السوط العرضي', 'Transverse flagellum', 'يلتف حول الخلية في الأخدود.', 'أحد السوطين، ويقع عموديًّا على الآخر. ضرباته تجعل الخلية تدور، ومنها جاء اسم «الدوّارة».', 1],
+      ['السوط الطولي', 'Longitudinal flagellum', 'يمتد خلف الخلية.', 'يدفع الخلية في الماء، ومع السوط العرضي يمنحها حركتها اللولبية.', 1],
+      ['الصفائح السليلوزية', 'Cellulose plates', 'جدار خلوي سميك يشبه لباس الجندي.', 'لبعض أفراد هذه المجموعة جدار خلوي سميك من السيليلوز يتكون من صفائح متلاصقة.', 1],
+      ['الأخدود', 'Groove', 'ممر يحيط بالخلية يستقر فيه السوط العرضي.', 'من منطقة الأخدود ينطلق السوطان: الأول يلتف حول الخلية، والثاني يتجه إلى الخلف.', 0],
+      ['البلاستيدات', 'Chloroplasts', 'تقوم بالبناء الضوئي في الأنواع ذاتية التغذي.', 'لبعض السوطيات الدوّارة صبغة حمراء للبناء الضوئي، وعندما تزهر تلوّن مياه المحيط باللون الأحمر.', 1],
+      ['النواة', 'Nucleus', 'تتحكم في أنشطة الخلية.', 'تحمل المادة الوراثية للخلية، وتنقسم عندما تتكاثر السوطيات بأعداد كبيرة.', 0],
+    ],
+    fns: [['الحركة اللولبية', 'بسوطين أحدهما عمودي على الآخر.'], ['التغذي', 'بعضها ذاتي التغذي وبعضها غير ذاتي.'], ['علاقات تكافلية', 'مع المرجان والرخويات وقنديل البحر.'], ['الإضاءة الحيوية', 'بعضها مضيء حيويًّا، أي يشع ضوءًا من جسمه.']],
+    know: 'بعض السوطيات الدوّارة مضيئة حيويًّا Bioluminescent، أي تشع ضوءًا من جسمها.',
+    chips: ['المرجان', 'الرخويات', 'قنديل البحر'], extra: 'glow', seqTab: 'المد الأحمر',
+    seq: [{ title: 'من إزهار الطحالب إلى المد الأحمر', steps: [
+      ['تكون الظروف البيئية ملائمة، فتتكاثر السوطيات الدوّارة بأعداد كبيرة. تُسمى هذه الزيادة السريعة إزهار الطحالب Algal Blooms.', null],
+      ['يقل الغذاء في الماء، فتموت السوطيات بأعداد كبيرة.', null],
+      ['تتحلل السوطيات الميتة وتكوّن طبقة فوق سطح الماء تمنع الأكسجين عن المخلوقات البحرية، فتموت اختناقًا.', null],
+      ['لبعض الأنواع صبغة حمراء، فإذا أزهرت تلوّنت مياه المحيط بالأحمر. يُسمى هذا المد الأحمر Red tides.', 'البلاستيدات'],
+      ['تنتج بعض الأنواع سمومًا قاتلة تؤثر في الخلايا العصبية، وتتراكم في أنسجة الصدفيات التي تتغذى بترشيح الماء.', null],
+      ['تنتقل السموم إلى الإنسان إذا أكل الصدفيات، لذلك يتابع العلماء المد الأحمر بالأقمار الاصطناعية، ويوقفون استهلاك الصدفيات إذا زادت السموم على المعدل الطبيعي.', null]] }],
+    quiz: [
+      ['كم سوطًا للسوطيات الدوّارة؟', ['سوط واحد', 'سوطان أحدهما عمودي على الآخر', 'أربعة أسواط', 'لا أسواط لها'], 1, 'يساعدها السوطان على الحركة اللولبية.'],
+      ['لماذا يُعد المد الأحمر خطيرًا على الإنسان؟', ['يرفع حرارة الماء', 'تنتج بعض الأنواع سمومًا تتراكم في الصدفيات', 'يحجب الشمس عن الشواطئ', 'يزيد ملوحة الماء'], 1, 'تنتقل السموم إلى الإنسان عندما يأكل الصدفيات.'],
+      ['ماذا تعني «مضيئة حيويًّا»؟', ['تمتص ضوء الشمس', 'تشع ضوءًا من جسمها', 'تعيش في الأعماق المظلمة', 'تعكس ضوء القمر'], 1, 'جرّب زر «أطفئ الأنوار» في تبويب الوظائف.']] },
+
+  { key: 'euglena', build: buildEuglena, flat: TOP, group: 'شبيهة بالنباتات', name: 'اليوجلينات', latin: 'Euglenophyta · Euglena', ex: 'اليوجلينا', tag: 'صفات نباتية وحيوانية', accent: '#3b8f47',
+    lede: 'مخلوقات وحيدة الخلية لها صفات النباتات والحيوانات معًا، لذلك يُعد تصنيفها تحديًّا. يعيش معظمها في المياه العذبة الضحلة، والقليل منها في الماء المالح.',
+    kv: [['الصبغات', 'بلاستيدات خضراء'], ['التغذي', 'ذاتية، وغير ذاتية إذا غاب الضوء'], ['الجدار الخلوي', 'لا جدار، بل قشيرة'], ['تعيش في', 'المياه العذبة الضحلة']],
+    structs: [
+      ['الأسواط', 'Flagella', 'توجّه اليوجلينا نحو الطعام.', 'تخرج من مقدمة الخلية قرب البلعوم، وتضرب الماء فتتحرك الخلية.', 1],
+      ['البقعة العينية', 'Eyespot', 'تحس بالضوء.', 'تتحسس الضوء فتتجه اليوجلينا نحوه للقيام بعملية البناء الضوئي.', 1],
+      ['البلعوم', 'Gullet', 'تجويف في مقدمة الخلية تخرج منه الأسواط.', 'عندما لا يتوافر الضوء يلتهم بعض اليوجلينات مخلوقات صغيرة.', 0],
+      ['الفجوة المنقبضة', 'Contractile vacuole', 'تطرد الماء خارج الخلية.', 'تحافظ على الاتزان الداخلي للخلية في الماء العذب.', 1],
+      ['البلاستيدات الخضراء', 'Chloroplasts', 'تقوم بالبناء الضوئي مثل النباتات.', 'تحتوي معظم اليوجلينات على بلاستيدات خضراء كالنباتات لتقوم بالبناء الضوئي.', 1],
+      ['النواة', 'Nucleus', 'تتحكم في أنشطة الخلية.', 'تقع قرب منتصف الخلية وتحمل مادتها الوراثية.', 1],
+      ['الميتوكندريا', 'Mitochondria', 'تنتج الطاقة للخلية.', 'تطلق الطاقة من الغذاء الذي تصنعه الخلية أو تمتصه.', 0],
+      ['القشيرة', 'Pellicle', 'تحيط بالخلية بدلًا من الجدار الخلوي.', 'ليس لليوجلينات جدار خلوي مثل النباتات، بل قشيرة تشبه قشيرة البراميسيوم.', 1],
+    ],
+    fns: [['البناء الضوئي', 'بالبلاستيدات الخضراء في وجود الضوء.'], ['التغذي غير الذاتي', 'في الظلام: تمتص الغذاء أو تلتهم مخلوقات صغيرة.'], ['التطفل', 'أنواع قليلة منها تتطفل على الحيوانات.'], ['الاتزان الداخلي', 'تطرد الفجوة المنقبضة الماء خارج الخلية.']],
+    know: 'تصبح اليوجلينا غير ذاتية التغذي عندما لا يتوافر الضوء: يمتص بعضها الغذاء من البيئة، ويلتهم بعضها الآخر مخلوقات صغيرة.',
+    chips: ['المياه العذبة الضحلة', 'صفات نباتية', 'صفات حيوانية'], extra: 'light', seqTab: 'التغذي',
+    seq: [{ title: 'كيف تحصل اليوجلينا على غذائها', steps: [
+      ['تحس البقعة العينية بالضوء.', 'البقعة العينية'],
+      ['تضرب الأسواط الماء فتتجه الخلية نحو الضوء.', 'الأسواط'],
+      ['تقوم البلاستيدات الخضراء بالبناء الضوئي فتصنع الغذاء.', 'البلاستيدات الخضراء'],
+      ['إذا لم يتوافر الضوء، يمتص بعضها الغذاء من البيئة.', 'القشيرة'],
+      ['ويلتهم بعضها الآخر مخلوقات صغيرة.', 'البلعوم'],
+      ['تطرد الفجوة المنقبضة الماء الزائد لتحافظ على الاتزان الداخلي.', 'الفجوة المنقبضة']] }],
+    quiz: [
+      ['لماذا يُعد تصنيف اليوجلينات تحديًّا؟', ['لأنها عديدة الخلايا', 'لأن لها صفات النباتات والحيوانات معًا', 'لأنها تعيش في الأعماق', 'لأنها بلا نواة'], 1, 'لها بلاستيدات خضراء كالنباتات، وتتحرك وتلتهم الطعام كالحيوانات.'],
+      ['ما الذي يحيط بخلية اليوجلينا بدلًا من الجدار الخلوي؟', ['السليكا', 'القشيرة', 'الكايتين', 'كربونات الكالسيوم'], 1, 'وهي في ذلك تشبه البراميسيوم.'],
+      ['ما وظيفة البقعة العينية؟', ['هضم الطعام', 'الإحساس بالضوء', 'طرد الماء', 'تخزين الزيوت'], 1, 'فتتجه الخلية نحو الضوء للقيام بالبناء الضوئي.']] },
+
+  { key: 'kelp', build: buildKelp, flat: FRONT, group: 'شبيهة بالنباتات', name: 'الطحالب البنية', latin: 'Phaeophyta · Kelp', ex: 'عشب البحر', tag: 'عديدة الخلايا', accent: '#8a6420',
+    lede: 'أكثر الطحالب الشبيهة بالنباتات تعقيدًا، وهي عديدة الخلايا. يعيش أكثر من 1500 نوع منها على الشواطئ الصخرية الباردة، ويمثّل عشب البحر هذا النوع.',
+    kv: [['الصبغات', 'كلوروفيل وفيوكوزانثين Fucoxanthin'], ['البنية', 'عديدة الخلايا'], ['عدد الأنواع', 'أكثر من 1500 نوع'], ['تعيش في', 'الشواطئ الصخرية الباردة']],
+    structs: [
+      ['الثالوس', 'Thallus', 'جسم عشب البحر كله.', 'ليس لعشب البحر جذور ولا سيقان ولا أوراق حقيقية، بل أجزاء تشبه أعضاء النبات.', 0],
+      ['الشفرات', 'Blades', 'الأجزاء المسطحة.', 'أجزاء مسطحة تشبه الأوراق، تمتص الضوء للقيام بالبناء الضوئي.', 1],
+      ['المثانة', 'Bladder', 'تمتلئ بالهواء.', 'عندما تمتلئ المثانة بالهواء تساعد على بقاء عشب البحر طافيًا بالقرب من سطح الماء، ليحصل على الضوء اللازم للبناء الضوئي.', 1],
+      ['السويقة', 'Stipe', 'الجزء الذي يشبه الساق.', 'تحمل الشفرات والمثانات وترفعها نحو سطح الماء.', 1],
+      ['المثبت', 'Holdfast', 'يشبه تركيب الجذر.', 'الجزء الذي يثبّت عشب البحر في مكانه على الصخور.', 1],
+    ],
+    fns: [['البناء الضوئي', 'بالكلوروفيل وصبغة الفيوكوزانثين.'], ['الطفو', 'المثانة الممتلئة بالهواء تبقيه قرب السطح.'], ['موطن للمخلوقات', 'غابات عشب البحر موطن لكثير من المخلوقات البحرية.'], ['الألجين Algin', 'مادة نستخرجها منه وتضاف إلى كثير من المنتجات.']],
+    know: 'توفر غابات عشب البحر تحت الماء موطنًا للكثير من المخلوقات البحرية، كما تزودنا بالألجين الذي يضاف إلى الكثير من المنتجات.',
+    chips: ['عشب البحر', 'اللامينيريا', 'الشواطئ الباردة'], uses: 'الطحالب البنية', extra: 'pigments', seqTab: 'الضوء والعمق',
+    seq: [{ title: 'الضوء والصبغات في الماء', steps: [
+      ['مع ازدياد عمق الماء تُمتص أغلب الطاقة الضوئية.', null],
+      ['تمكّن الصبغات الثانوية الطحالب من امتصاص طاقة الضوء ذات الأطوال الموجية التي لم يمتصها الماء.', null],
+      ['تكتسب الطحالب البنية لونها من صبغة ثانوية تسمى الفيوكوزانثين.', 'الشفرات'],
+      ['تمتلئ المثانة بالهواء فترتفع الشفرات نحو السطح والضوء.', 'المثانة'],
+      ['تحوي الطحالب الحمراء صبغة الفيكوبلين التي تمتص الضوء الأزرق والأخضر والبنفسجي، فتعيش في المياه العميقة حتى 100 m أو أكثر.', null],
+      ['لأن الصبغات الثانوية تعكس أطوالًا موجية مختلفة من الضوء، نرى الطحالب بألوان مختلفة.', null]] }],
+    quiz: [
+      ['ما وظيفة المثانة في عشب البحر؟', ['تثبيته في الصخور', 'تمتلئ بالهواء فتبقيه طافيًا قرب السطح', 'امتصاص الماء', 'إنتاج الأبواغ'], 1, 'قرب السطح يحصل على الضوء اللازم للبناء الضوئي.'],
+      ['ما الصبغة التي تكسب الطحالب البنية لونها؟', ['الفيكوبلين', 'الفيوكوزانثين', 'الكاروتين', 'الكلوروفيل'], 1, 'وهي نوع من صبغات الكاروتين.'],
+      ['لماذا تستطيع الطحالب الحمراء العيش في المياه العميقة؟', ['لأنها تخزن الزيوت', 'لأن صبغة الفيكوبلين تمتص الضوء الأزرق والأخضر والبنفسجي', 'لأن لها مثانات هوائية', 'لأنها غير ذاتية التغذي'], 1, 'هذه الأطوال الموجية تخترق الماء إلى عمق 100 m أو أكثر.']] },
+
+  { key: 'volvox', build: buildVolvox, flat: TOP, group: 'شبيهة بالنباتات', name: 'الطحالب الخضراء', latin: 'Chlorophyta · Volvox', ex: 'الفولفكس', tag: 'أكثر من 7000 نوع', accent: '#4a9a2a',
+    lede: 'مجموعات متنوعة من الطحالب تضم أكثر من 7000 نوع. تشبه النباتات في صبغة الكلوروفيل، وفي الجدار الخلوي، وفي تخزين الغذاء كربوهيدرات، لذلك كان العلماء يصنفونها قبل ذلك ضمن المملكة النباتية.',
+    kv: [['الصبغات', 'كلوروفيل (اللون الأخضر)'], ['تخزين الغذاء', 'كربوهيدرات كالنباتات'], ['الجدار الخلوي', 'موجود كالنباتات'], ['تعيش في', 'الماء العذب غالبًا، و10% في المالح']],
+    structs: [
+      ['الخلايا المسوطة', 'Flagellated cells', 'خلايا متماثلة تكوّن سطح المستعمرة.', 'تلتصق الخلايا في المستعمرة بعضها ببعض بمادة جيلاتينية تفرزها.', 1],
+      ['الأسواط', 'Flagella', 'لكل خلية أسواط تعمل مع أسواط الخلايا الأخرى.', 'لكل خلية أسواط تعمل معًا لتتحرك المستعمرة كاملة.', 1],
+      ['المادة الجيلاتينية', 'Gelatinous matrix', 'تملأ المستعمرة وتربط خلاياها.', 'مادة تفرزها الخلايا فتلتصق بعضها ببعض.', 0],
+      ['المستعمرات البنوية', 'Daughter colonies', 'مستعمرات صغيرة داخل الكرة.', 'للفولفكس مستعمرات صغيرة داخله، تكبر لتصبح مستعمرات جديدة.', 1],
+      ['فقاعات الأكسجين', 'Oxygen', 'ناتج البناء الضوئي.', 'حرّك مؤشر الضوء في تبويب الوظائف لترى كيف يتغير عدد الفقاعات.', 0],
+    ],
+    fns: [['البناء الضوئي', 'بصبغة الكلوروفيل التي تكسبها اللون الأخضر.'], ['أنماط النمو', 'وحيد الخلية: الدسميد · خيطي: السبيروجيرا · مستعمرة: الفولفكس.'], ['التكاثر اللاجنسي', 'بالتجزؤ: تتجزأ الطحالب العديدة الخلايا وتنمو كل قطعة طحلبًا جديدًا.'], ['تعاقب الأجيال', 'جيل بوغي (2n) وجيل مشيجي (n).']],
+    know: '10% فقط من الطحالب الخضراء تعيش في الماء المالح. وتوجد أيضًا في الأرض الرطبة، وعلى جذوع الشجر، وفي الثلج، وفي شعر الحيوانات.',
+    chips: ['الدسميد', 'السبيروجيرا', 'الفولفكس', 'خس البحر'], uses: 'الطحالب الخضراء', extra: 'lab', seqTab: 'تعاقب الأجيال',
+    seq: [{ title: 'تعاقب الأجيال (خس البحر)', steps: [
+      ['الجيل البوغي (2n) ثنائي العدد الكروموسومي، ينقسم فيه طور بوغي انقسامًا منصفًا.', null],
+      ['تنتج أبواغ (n) أحادية العدد الكروموسومي.', null],
+      ['تنمو الأبواغ إلى نباتات مشيجية ذكرية وأنثوية (n).', null],
+      ['ينتج الطور المشيجي (n) أمشاجًا ذكرية وأنثوية.', null],
+      ['يتحد مشيجان مختلفان (تلقيح) فتتكون اللاقحة (الزيجوت) 2n.', null],
+      ['ينمو الزيجوت إلى جيل بوغي جديد (2n)، وتتكرر الدورة.', null]] }],
+    quiz: [
+      ['لماذا كان العلماء يصنفون الطحالب الخضراء ضمن المملكة النباتية؟', ['لأنها تتحرك بالأسواط', 'لتشابهها مع النباتات في الكلوروفيل والجدار وتخزين الكربوهيدرات', 'لأنها تعيش على اليابسة فقط', 'لأنها عديدة الخلايا دائمًا'], 1, 'هذه الخصائص المشتركة جعلت العلماء يضعونها مع النباتات.'],
+      ['أي مما يلي يمثل النمط المستعمر في الطحالب الخضراء؟', ['الدسميد', 'السبيروجيرا', 'الفولفكس', 'عشب البحر'], 2, 'الدسميد وحيد الخلية، والسبيروجيرا خيطية.'],
+      ['في تعاقب الأجيال، ما الطور الذي ينتج الأمشاج؟', ['الطور البوغي (2n)', 'الطور المشيجي (n)', 'الزيجوت', 'الأبواغ'], 1, 'الطور المشيجي أحادي العدد الكروموسومي.']] },
+
+  { key: 'slime', build: buildSlime, noCull: true, flat: TOP, group: 'شبيهة بالفطريات', name: 'الفطريات الغروية', latin: 'Slime Molds', ex: 'فطر التوت البري الغروي', tag: 'تتكاثر بالأبواغ', accent: '#c98712',
+    lede: 'طلائعيات لها بعض خصائص الفطريات: تتكاثر بالأبواغ، وتتغذى على المواد العضوية المتحللة، وتمتص الغذاء من خلال الجدار الخلوي. وتوجد بألوان عدة منها الأصفر والأحمر والأزرق والبرتقالي.',
+    kv: [['التغذي', 'المواد العضوية المتحللة'], ['التكاثر', 'بالأبواغ'], ['الجدار الخلوي', 'من السيليلوز، لا الكايتين'], ['تعيش في', 'الأماكن الرطبة المظللة']],
+    structs: [
+      ['البلازموديوم', 'Plasmodium', 'كتلة حية تنتشر على شكل شبكة.', 'شبكة متفرعة تزحف فوق المواد العضوية المتحللة وتمتص منها الغذاء. هذا شكل الفطريات الغروية اللاخلوية.', 1],
+      ['الأجسام الثمرية', 'Fruiting bodies', 'تراكيب تنتج الأبواغ.', 'تتكاثر الفطريات الغروية بالأبواغ كما تتكاثر الفطريات.', 1],
+      ['الأبواغ', 'Spores', 'خلايا تكاثرية صغيرة.', 'تنطلق من الأجسام الثمرية وتنمو إلى فطر غروي جديد.', 0],
+      ['الجدار الخلوي', 'Cell wall', 'يتكون من السيليلوز.', 'يختلف عن جدار الفطريات الذي يتكون من الكايتين، وهو نوع من الكربوهيدرات المعقدة يوجد أيضًا في الهيكل الخارجي للحشرات والسرطانات.', 0],
+      ['المادة العضوية المتحللة', 'Decaying matter', 'غذاء الفطر الغروي.', 'تعيش الفطريات الغروية في الأماكن الرطبة المظللة حيث تتوافر المواد العضوية المتحللة، كأكوام أوراق الشجر وجذوعه.', 1],
+    ],
+    fns: [['التكاثر', 'بالأبواغ كالفطريات.'], ['التغذي', 'على المواد العضوية المتحللة بالامتصاص عبر الجدار.'], ['مجموعتان', 'الفطريات الغروية الخلوية، والفطريات الغروية اللاخلوية.'], ['أقرباء من شعبة Oomycota', 'الفطريات المائية والبياض الزغبي: أكثر من 500 نوع.']],
+    know: 'أصاب البياض الزغبي محصول البطاطس في أيرلندا في القرن التاسع عشر، فأسفر ذلك عن موت مليون شخص جوعًا.',
+    chips: ['فطر التوت البري الغروي', 'فطر الأميبا المخاطية الغروي', 'الفطر المائي', 'البياض الزغبي'], extra: 'compare', seqTab: 'البياض الزغبي',
+    seq: [{ title: 'البياض الزغبي ومحصول البطاطس', steps: [
+      ['تنتمي الفطريات المائية والبياض الزغبي إلى شعبة Oomycota، وتضم أكثر من 500 نوع.', null],
+      ['يعيش معظمها في الماء والأماكن الرطبة، ويحصل بعضها على غذائه من مخلوقات أخرى، أو يمتصه من الماء والتربة.', null],
+      ['تحيط بالغذاء بكتلة من الخيوط، ثم تحلّله وتمتصه عبر الجدار الخلوي.', null],
+      ['يصيب البياض الزغبي البطاطس ويدمّر محصولها في غضون أسابيع.', null],
+      ['أصاب البياض الزغبي محصول البطاطس في أيرلندا في القرن التاسع عشر، فمات مليون شخص جوعًا، لأن البطاطس مصدر غذائي رئيس لكثير من البشر.', null]] }],
+    quiz: [
+      ['مم يتكون الجدار الخلوي في الطلائعيات الشبيهة بالفطريات؟', ['الكايتين', 'السيليلوز', 'السليكا', 'كربونات الكالسيوم'], 1, 'أما جدار الفطريات فيتكون من الكايتين.'],
+      ['أين تعيش الفطريات الغروية؟', ['في الأماكن الرطبة المظللة حيث المواد العضوية المتحللة', 'في الصحاري الجافة', 'في أعماق المحيط', 'داخل دم الإنسان'], 0, 'مثل أكوام أوراق الشجر وجذوعه.'],
+      ['بماذا تختلف الفطريات المائية عن الفطريات؟', ['تكوّن خلايا تكاثرية سوطية', 'لا تتكاثر أبدًا', 'تتكاثر بالبذور', 'جدارها من الكايتين'], 0, 'وتختلف أيضًا في تركيب الجدار الخلوي.']] },
+];
+CELLS.forEach(c => c.structs.forEach(s => { if (s.length < 6) s.push(s[0]); }));
+
+const USES = { 'الطحالب الحمراء': 'نوري نوع من الطحالب الحمراء يُجفف ويُضغط على شكل صفائح ليستخدم في الحساء والتوابل. ويُحضّر الأجار المستخدم في المختبرات من بعض أنواعها، كما يستخدم في حشو الفطير وحفظ اللحوم والسمك في المعلبات. ويستخرج منها الكاراجينين Carrageenan الذي يستخدم في تخثين قوام الكريما وبعض المشروبات والشامبو.',
+  'الطحالب البنية': 'تستخدم في المحافظة على قوام الأشربة المركزة والآيس كريم والدهانات، ويؤكل صنف اللامينيريا مع اللحوم والسمك وفي الحساء.',
+  'الطحالب الخضراء': 'من أنواعها خس البحر، ويستخدم في السلطة والحساء والمقبلات ومع اللحوم والسمك.',
+  'الدياتومات': 'تستخدم في عمليات الترشيح والتصفية، وصناعة الكيماويات، والزيوت الصناعية، وزيوت الطبخ، والسكر، وفصل الفضلات، وتستخدم أيضًا مواد حافظة.' };
+
+/* ===================== three setup ===================== */
+const gl = $('gl'), stageEl = document.querySelector('.stage');
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.05;
+renderer.shadowMap.enabled = true;
+gl.appendChild(renderer.domElement);
+const scene = new THREE.Scene();
+scene.environment = new THREE.PMREMGenerator(renderer).fromScene(new RoomEnvironment(), .04).texture; scene.environmentIntensity = .85;
+const camera = new THREE.PerspectiveCamera(38, 1, .05, 200);
+const VIEW_DIR = V(.32, .6, 1).normalize();
+scene.add(new THREE.HemisphereLight('#ffffff', '#e9dccb', .7));
+const key = new THREE.DirectionalLight('#fff3e2', 1.8); key.position.set(4, 8, 5);
+key.castShadow = true; key.shadow.mapSize.set(2048, 2048); key.shadow.normalBias = .02;
+Object.assign(key.shadow.camera, { left: -6, right: 6, top: 6, bottom: -6, near: 1, far: 30 }); scene.add(key);
+const fill = new THREE.DirectionalLight('#e2f2f5', .55); fill.position.set(-6, 3, -5); scene.add(fill);
+const ground = new THREE.Mesh(new THREE.CircleGeometry(6, 48), new THREE.ShadowMaterial({ opacity: .1 }));
+ground.rotation.x = -Math.PI / 2; ground.receiveShadow = true; scene.add(ground);
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true; controls.dampingFactor = .08; controls.enableZoom = false;
+controls.minPolarAngle = Math.PI * .04; controls.maxPolarAngle = Math.PI * .8;
+renderer.domElement.style.touchAction = 'pan-y';
+
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+let anim = !reduce, spin = !reduce, flat = false, clock = 1.2;
+
+function make(c) {
+  const m = c.build(); m.update(clock);
+  const holder = new THREE.Group(), inner = new THREE.Group(); inner.add(m.g); holder.add(inner);
+  const box = new THREE.Box3().setFromObject(m.g), ctr = box.getCenter(V()), s = 2.6 / Math.max(...box.getSize(V()).toArray());
+  inner.scale.setScalar(s); inner.position.copy(ctr).multiplyScalar(-s);
+  holder.updateMatrixWorld(true);
+  const hb = new THREE.Box3().setFromObject(holder);
+  holder.userData = { radius: hb.getBoundingSphere(new THREE.Sphere()).radius, minY: hb.min.y, model: m };
+  return holder;
+}
+const models = {};
+const anchorWorld = (h, a) => a.clone().applyMatrix4(h.userData.model.g.matrixWorld);
+
+/* snapshots for cards and structure close-ups */
+const tr = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true });
+tr.toneMapping = THREE.ACESFilmicToneMapping; tr.toneMappingExposure = 1.05;
+const ts = new THREE.Scene(), tc = new THREE.PerspectiveCamera(30, 1, .01, 100);
+ts.environment = new THREE.PMREMGenerator(tr).fromScene(new RoomEnvironment(), .04).texture; ts.environmentIntensity = .95;
+ts.add(new THREE.HemisphereLight('#ffffff', '#e9dccb', .8)); const tk = key.clone(); tk.castShadow = false; ts.add(tk);
+const shots = {};
+function shoot(w, h, pos, look) { tr.setSize(w, h); tc.aspect = w / h; tc.updateProjectionMatrix(); tc.position.copy(pos); tc.lookAt(look); tr.render(ts, tc); return tr.domElement.toDataURL('image/webp', .9); }
+function snaps(c, h) {
+  const parent = h.parent, rot = h.rotation.y; h.rotation.y = 0; ts.add(h); h.updateMatrixWorld(true);
+  const r = h.userData.radius, s = shots[c.key] = {}, A = h.userData.model.A;
+  s.card = shoot(144, 160, VIEW_DIR.clone().multiplyScalar(r * 2.4), V());
+  for (const st of c.structs) { const a = st[5] && A[st[5]]; if (!a) continue;
+    const p = anchorWorld(h, a), out = p.clone().normalize().add(VIEW_DIR).normalize();
+    s[st[0]] = shoot(144, 132, p.clone().addScaledVector(out, r * .6), p); }
+  ts.remove(h); h.rotation.y = rot; if (parent) parent.add(h);
+}
+
+/* ===================== UI ===================== */
+const chev = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="m15 6-6 6 6 6"/></svg>';
+let lastGroup = '';
+$('list').innerHTML = CELLS.map(c => { const head = c.group !== lastGroup ? `<p class="grp">${(lastGroup = c.group) === 'شبيهة بالنباتات' ? 'الطحالب · شبيهة بالنباتات' : 'شبيهة بالفطريات'}</p>` : '';
+  return head + `<button class="card glass" data-k="${c.key}" aria-pressed="false" style="--accent:${c.accent}"><img alt="" width="72" height="80"><span><b>${c.name}</b><small>${c.ex} · ${c.tag}</small><em>${c.latin.split(' · ')[0]}</em></span>${chev}</button>`; }).join('');
+let current = null, want = null;
+const TABS = ['structures', 'functions', 'seq', 'quiz'];
+function tab(name) { TABS.forEach(t => { $('t-' + t).setAttribute('aria-selected', t === name); $('p-' + t).hidden = t !== name; }); }
+TABS.forEach(t => $('t-' + t).onclick = () => tab(t));
+document.querySelectorAll('nav a[data-tab]').forEach(a => a.onclick = () => tab(a.dataset.tab));
+const model = () => current?.userData.model;
+const setNight = v => { $('night').style.opacity = v; };
+
+function renderStructs(c) {
+  const A = models[c.key]?.userData.model.A || {};
+  $('p-structures').innerHTML = c.structs.map(([n, lat, s, l, , ak], i) => `<div class="st" data-i="${i}"><button aria-expanded="false">${shots[c.key]?.[n] ? `<img src="${shots[c.key][n]}" alt="">` : '<span class="ph"></span>'}<span><b>${n}<i>${lat}</i></b><span>${s}</span></span><i class="pm" aria-hidden="true">+</i></button><div class="more">${l}${ak && A[ak] ? ' <a role="button" tabindex="0" class="linkbtn" data-show>أظهره على النموذج</a>' : ''}</div></div>`).join('');
+  $('p-structures').querySelectorAll('.st').forEach(el => {
+    const b = el.querySelector('button');
+    b.onclick = () => { const open = !el.classList.contains('open'); el.classList.toggle('open', open); b.setAttribute('aria-expanded', open); el.querySelector('.pm').textContent = open ? '−' : '+'; };
+    const show = el.querySelector('[data-show]'); if (show) show.onclick = show.onkeydown = e => { if (e.type === 'keydown' && e.key !== 'Enter') return; focusOn(c.structs[el.dataset.i][5]); };
+  });
+}
+
+function usesBox(name) { return `<div class="box"><h2>الاستعمالات · الجدول 4-2</h2><p class="uses"><b>${name}:</b> ${USES[name]}</p></div>`; }
+function extraHTML(c) {
+  let h = c.uses ? usesBox(c.uses) : '';
+  if (c.extra === 'golden') h += `<div class="box"><h2>الطحالب الذهبية Chrysophytes</h2><p>تضم طحالب خضراء مصفرة وطحالب بنية مذهبة، وتتشابه مع الدياتومات في وجود صبغة الكاروتين. معظمها وحيدة الخلية، ويكوّن بعضها مستعمرات. جميعها قادرة على البناء الضوئي، إلا أن بعضها يمتص المركبات العضوية عبر الجدار الخلوي أو يلتهم المخلوقات البدائية النوى. تتكاثر لاجنسيًّا، ونادرًا جنسيًّا، وتُعد جزءًا من العوالق البحرية وعوالق الماء العذب.</p></div>`;
+  if (c.extra === 'glow') h += `<div class="box"><h2>الإضاءة الحيوية</h2><p>أطفئ الأنوار لترى كيف يشع بعض السوطيات الدوّارة ضوءًا من أجسامها.</p><div class="toggle"><button class="btn pri" id="glowBtn" aria-pressed="false">أطفئ الأنوار</button></div></div>`;
+  if (c.extra === 'light') h += `<div class="box"><h2>جرّب: ضوء أم ظلام؟</h2><div class="seg" role="group" aria-label="الإضاءة"><button data-l="1" aria-pressed="true">في الضوء</button><button data-l="0" aria-pressed="false">في الظلام</button></div><p id="lightWhy"></p></div>
+    <div class="box"><h2>صفات نباتية وصفات حيوانية</h2><table class="cmp"><tr><th>كالنباتات</th><th>كالحيوانات</th></tr><tr><td>بلاستيدات خضراء للبناء الضوئي</td><td>لا جدار خلوي، بل قشيرة</td></tr><tr><td>تتجه نحو الضوء</td><td>تتحرك بالأسواط وتلتهم مخلوقات صغيرة</td></tr><tr><td></td><td>أنواع قليلة تتطفل على الحيوانات</td></tr></table></div>`;
+  if (c.extra === 'pigments') h += `<div class="box"><h2>الصبغات الثانوية وألوان الطحالب</h2><table class="cmp"><tr><th>المجموعة</th><th>الصبغة</th><th>اللون</th></tr>
+    <tr><td>الدياتومات</td><td>كاروتين</td><td>أصفر ذهبي</td></tr><tr><td>الطحالب الذهبية</td><td>كاروتين</td><td>أصفر أو بني ذهبي</td></tr><tr><td>السوطيات الدوّارة</td><td>صبغة حمراء لبعضها</td><td>أحمر عند الإزهار</td></tr>
+    <tr><td>الطحالب البنية</td><td>فيوكوزانثين</td><td>بني</td></tr><tr><td>الطحالب الخضراء</td><td>كلوروفيل</td><td>أخضر</td></tr><tr><td>الطحالب الحمراء</td><td>فيكوبلين Phycobilin</td><td>أحمر</td></tr></table></div>
+    <div class="box"><h2>الطحالب الحمراء Rhodophyta</h2><p>معظمها عديدة الخلايا. تمتص صبغة الفيكوبلين الضوء الأزرق والأخضر والبنفسجي الذي يخترق الماء إلى عمق 100 m أو أكثر، فتعيش وتقوم بالبناء الضوئي في المياه العميقة. وتسهم في تكوين الشعاب المرجانية لأن جدارها الخلوي يحوي كربونات الكالسيوم.</p></div>${usesBox('الطحالب الحمراء')}`;
+  if (c.extra === 'lab') h += `<div class="box"><h2>التجربة 4-1 · تقصّ عملية البناء الضوئي</h2><p>ما مقدار ضوء الشمس الذي تحتاج إليه الطحالب الخضراء للقيام بعملية البناء الضوئي؟ حرّك المؤشر وراقب فقاعات الأكسجين التي تتصاعد من المستعمرة.</p>
+    <input type="range" id="lightR" min="0" max="100" value="60" aria-label="شدة الضوء"><div class="labrow"><span>ظلام تام</span><span>ضوء شمس ساطع</span></div>
+    <div class="meter"><strong id="rate"></strong><span>إنتاج الأكسجين (نسبي)</span></div><p id="labWhy" style="margin-top:6px"></p><p class="note" style="margin:0">محاكاة مبسطة للتوضيح، وليست قياسًا حقيقيًّا.</p></div>`;
+  if (c.extra === 'compare') h += `<div class="box"><h2>قارن</h2><table class="cmp"><tr><th></th><th>الفطريات</th><th>الفطريات الغروية</th><th>الفطريات المائية</th></tr>
+    <tr><th>الجدار الخلوي</th><td>الكايتين</td><td>السيليلوز</td><td>يختلف عن جدار الفطريات</td></tr>
+    <tr><th>التغذي</th><td>تحيط بالغذاء بخيوط ثم تحلله وتمتصه</td><td>تمتص المواد العضوية المتحللة عبر الجدار</td><td>تحيط بالغذاء بكتلة من الخيوط ثم تحلله وتمتصه</td></tr>
+    <tr><th>التكاثر</th><td>بالأبواغ</td><td>بالأبواغ</td><td>خلايا تكاثرية سوطية</td></tr></table></div>`;
+  return h;
+}
+function bindExtra(c) {
+  const m = models[c.key].userData.model;
+  const gb = $('glowBtn'); if (gb) { const sync = () => { const on = m.st.glowT > 0; gb.textContent = on ? 'أشعل الأنوار' : 'أطفئ الأنوار'; gb.setAttribute('aria-pressed', on); setNight(on ? 1 : 0); if (!anim) { m.st.glow = m.st.glowT; m.update(clock); } };
+    gb.onclick = () => { m.st.glowT = m.st.glowT > 0 ? 0 : 1; sync(); }; sync(); }
+  const segs = $('p-functions').querySelectorAll('[data-l]'); if (segs.length) { const sync = () => { segs.forEach(b => b.setAttribute('aria-pressed', +b.dataset.l === m.st.light)); setNight(m.st.light ? 0 : .75);
+      $('lightWhy').textContent = m.st.light ? 'في الضوء: تحس البقعة العينية بالضوء، فتتجه الخلية نحوه، وتقوم البلاستيدات الخضراء بالبناء الضوئي. هنا اليوجلينا ذاتية التغذي.' : 'في الظلام: يتوقف البناء الضوئي، فتصبح اليوجلينا غير ذاتية التغذي. يمتص بعضها الغذاء من البيئة، ويلتهم بعضها الآخر مخلوقات صغيرة.';
+      if (!anim) { m.st.l = m.st.light; m.update(clock); } };
+    segs.forEach(b => b.onclick = () => { m.st.light = +b.dataset.l; sync(); }); sync(); }
+  const lr = $('lightR'); if (lr) { const upd = () => { const v = +lr.value; m.st.light = v / 100; $('rate').textContent = Math.round(v * v / 100) + '%';
+      $('labWhy').textContent = v < 15 ? 'الضوء قليل جدًّا، فيكاد البناء الضوئي يتوقف ولا تتصاعد فقاعات أكسجين تقريبًا.' : v < 60 ? 'يزداد البناء الضوئي بزيادة الضوء، فتتصاعد فقاعات أكثر.' : 'الضوء وفير، فيكون البناء الضوئي في أعلى معدلاته وتتصاعد فقاعات كثيرة.'; };
+    lr.oninput = upd; upd(); }
+}
+
+function renderSeq(c) {
+  let set = 0, step = 0;
+  const draw = () => {
+    const S = c.seq[set], n = S.steps.length, [txt, ak, pose] = S.steps[step];
+    model()?.pose?.(pose);
+    $('p-seq').innerHTML = `<p class="know" style="margin-top:4px">${S.title}</p>` +
+      `<div class="steps" role="list">${S.steps.map((_, i) => `<button role="listitem" data-step="${i}" class="${i < step ? 'done' : ''}" ${i === step ? 'aria-current="step"' : ''} aria-label="الخطوة ${i + 1}">${i + 1}</button>`).join('')}</div>
+      <div class="stepcard"><small>الخطوة ${step + 1} من ${n}</small><p>${txt}</p>${ak ? `<p style="font-size:14px;margin-top:10px"><a role="button" tabindex="0" class="linkbtn" data-show>أظهر «${ak}» على النموذج</a></p>` : ''}</div>
+      <div class="stepnav"><button class="btn" id="sPrev" ${step === 0 ? 'disabled' : ''}>→ السابقة</button><button class="btn pri" id="sNext" ${step === n - 1 ? 'disabled' : ''}>التالية ←</button></div>`;
+    $('p-seq').querySelectorAll('[data-step]').forEach(b => b.onclick = () => { step = +b.dataset.step; draw(); });
+    $('sPrev').onclick = () => { step--; draw(); }; $('sNext').onclick = () => { step++; draw(); };
+    const sh = $('p-seq').querySelector('[data-show]'); if (sh) sh.onclick = sh.onkeydown = e => { if (e.type === 'keydown' && e.key !== 'Enter') return; focusOn(ak); };
+  };
+  $('t-seq').textContent = c.seqTab;
+  $('t-seq').onclick = () => { tab('seq'); draw(); };
+  draw(); model()?.pose?.(0);
+}
+function renderQuiz(c) {
+  const ans = [];
+  $('p-quiz').innerHTML = c.quiz.map(([q, opts], i) => `<div class="q" data-q="${i}"><p>${i + 1}. ${q}</p><div class="opts">${opts.map((o, j) => `<button data-o="${j}">${o}</button>`).join('')}</div><div class="why" hidden></div></div>`).join('') + `<div class="score"><span id="score">أجب عن الأسئلة الثلاثة</span><button class="btn" id="qReset">أعد المحاولة</button></div>`;
+  $('p-quiz').querySelectorAll('.q').forEach(el => { const i = +el.dataset.q, [, , right, why] = c.quiz[i];
+    el.querySelectorAll('[data-o]').forEach(b => b.onclick = () => { const j = +b.dataset.o; ans[i] = j === right;
+      el.querySelectorAll('[data-o]').forEach(x => { x.disabled = true; if (+x.dataset.o === right) x.classList.add('ok'); else if (x === b) x.classList.add('no'); });
+      const w = el.querySelector('.why'); w.hidden = false; w.textContent = (j === right ? 'إجابة صحيحة. ' : 'ليست هذه. ') + why;
+      const done = ans.filter(x => x !== undefined).length, ok = ans.filter(Boolean).length;
+      $('score').textContent = done === c.quiz.length ? `نتيجتك: ${ok} من ${c.quiz.length}` : `أجبت عن ${done} من ${c.quiz.length}`;
+      // إشعار منصة لبيبة عند إكمال أول اختبار (مرة واحدة)
+      if (done === c.quiz.length && !window.__labeebaDone) { window.__labeebaDone = true; try { parent.postMessage({ type: 'labeeba-lab-complete', score: Math.round(ok / c.quiz.length * 100), tasks: c.quiz.length }, '*'); } catch (e) {} } }); });
+  $('qReset').onclick = () => renderQuiz(c);
+}
+
+function select(k) {
+  const c = CELLS.find(x => x.key === k), i = CELLS.indexOf(c); want = c;
+  document.documentElement.style.setProperty('--accent', c.accent);
+  document.querySelectorAll('.card').forEach(b => b.setAttribute('aria-pressed', b.dataset.k === k));
+  $('kName').textContent = c.group === 'شبيهة بالفطريات' ? 'طلائعيات شبيهة بالفطريات' : 'طحالب · طلائعيات شبيهة بالنباتات'; $('kNum').textContent = `0${i + 1} / 0${CELLS.length}`;
+  $('title').textContent = c.name; $('latin').textContent = c.latin; $('lede').textContent = c.lede;
+  $('kv').innerHTML = c.kv.map(([a, b]) => `<div class="${b.length > 24 ? 'wide' : ''}"><dt>${a}</dt><dd>${b}</dd></div>`).join('');
+  if (!models[k]) { models[k] = make(c); snaps(c, models[k]); }
+  const h = models[k], m = h.userData.model;
+  if (m.st && 'glowT' in m.st) m.st.glowT = m.st.glow = 0;
+  if (m.st && 'l' in m.st) m.st.light = m.st.l = 1;
+  setNight(0);
+  if (current) scene.remove(current);
+  current = h; h.rotation.y = 0; scene.add(h); ground.position.y = h.userData.minY - .03;
+  renderStructs(c);
+  $('p-functions').innerHTML = c.fns.map(([a, b]) => `<div class="fn"><b>${a}</b><span>${b}</span></div>`).join('') + `<p class="know">${c.know}</p><div class="chips">${c.chips.map(x => `<span>${x}</span>`).join('')}</div>` + extraHTML(c) + `<p class="note">النماذج رسوم تعليمية مبسطة، وليست بمقياس رسم حقيقي.</p>`;
+  bindExtra(c); renderSeq(c); renderQuiz(c);
+  buildCallouts(c); resetView();
+}
+document.querySelectorAll('.card').forEach(b => b.onclick = () => select(b.dataset.k));
+
+/* callouts */
+let calls = [];
+function openStruct(n) { tab('structures'); const el = [...document.querySelectorAll('.st')].find(e => e.querySelector('b').firstChild.textContent === n); if (el && !el.classList.contains('open')) el.querySelector('button').click(); el?.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); }
+function buildCallouts(c) {
+  $('calls').innerHTML = ''; calls = [];
+  const A = model().A;
+  c.structs.filter(s => s[4] && s[5] && A[s[5]]).forEach(([n, , , , , ak]) => {
+    const lead = Object.assign(document.createElement('span'), { className: 'lead off' });
+    const dot = Object.assign(document.createElement('span'), { className: 'dot off' });
+    const lab = Object.assign(document.createElement('button'), { className: 'call off', textContent: n });
+    lab.onclick = () => openStruct(n);
+    $('calls').append(lead, dot, lab); calls.push({ a: A[ak], lead, dot, lab });
+  });
+}
+const tmp = V(), ctr = V(), camDir = V();
+function placeCallouts() {
+  if (!current) return;
+  const w = gl.clientWidth, h = gl.clientHeight, ox = gl.offsetLeft, oy = gl.offsetTop, sw = stageEl.clientWidth, mw = model().g.matrixWorld;
+  ctr.copy(controls.target).project(camera); const cx = (ctr.x + 1) / 2 * w + ox, cy = (1 - ctr.y) / 2 * h + oy;
+  camDir.copy(camera.position).sub(controls.target).normalize();
+  const placed = [];
+  calls.forEach(k => {
+    tmp.copy(k.a).applyMatrix4(mw);
+    const rel = tmp.clone().sub(controls.target), facing = want?.noCull || rel.length() < current.userData.radius * .45 || rel.normalize().dot(camDir) > -.25;
+    tmp.project(camera);
+    const x = (tmp.x + 1) / 2 * w + ox, y = (1 - tmp.y) / 2 * h + oy;
+    let dx = x - cx, dy = y - cy; const len = Math.hypot(dx, dy) || 1; dx /= len; dy /= len;
+    const rPx = current.userData.radius / (camera.position.distanceTo(controls.target) * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2))) * h * .5;
+    const reach = Math.max(36, rPx * .9 - len + (w < 600 ? 16 : 36));
+    const lw = k.lab.offsetWidth;
+    let lx = x + dx * reach, ly = Math.min(Math.max(y + dy * reach * .8, 24), stageEl.clientHeight - 100);
+    lx = Math.min(Math.max(lx, dx < 0 ? lw + 8 : 8), sw - (dx < 0 ? 8 : lw + 8));
+    const left = dx < 0 ? lx - lw : lx, lh = k.lab.offsetHeight + 6;
+    for (const p of placed) if (left < p.r && left + lw > p.l && Math.abs(ly - p.y) < lh) ly = p.y + (ly >= p.y ? lh : -lh);
+    placed.push({ l: left, r: left + lw, y: ly });
+    k.lab.style.transform = `translate(${left}px,${ly - 13}px)`;
+    const ex = dx < 0 ? lx + 4 : lx - 4, ey = ly, L = Math.hypot(x - ex, y - ey), ang = Math.atan2(y - ey, x - ex);
+    k.lead.style.width = L + 'px'; k.lead.style.transform = `translate(${ex}px,${ey}px) rotate(${ang}rad)`;
+    k.dot.style.transform = `translate(${x}px,${y}px)`;
+    [k.lab, k.lead, k.dot].forEach(e => e.classList.toggle('off', !facing));
+  });
+}
+
+/* view controls */
+function homeDist() { const r = current?.userData.radius || 2; return r / Math.sin(THREE.MathUtils.degToRad(camera.fov / 2)) * .8 * Math.max(1, .95 / camera.aspect); }
+let dMin = 2, dMax = 20;
+function resetView() { const d = homeDist(); dMin = d * .3; dMax = d * 1.8; controls.target.set(0, 0, 0); camera.position.copy(flat ? (want?.flat || TOP) : VIEW_DIR).multiplyScalar(d); controls.update(); syncSlider(); }
+function setDist(d) { d = THREE.MathUtils.clamp(d, dMin, dMax); const v = camera.position.clone().sub(controls.target).setLength(d); camera.position.copy(controls.target).add(v); syncSlider(); }
+const sliderToDist = v => dMax * Math.pow(dMin / dMax, v / 100);
+function syncSlider() { const d = camera.position.distanceTo(controls.target); $('zr').value = Math.round(Math.log(d / dMax) / Math.log(dMin / dMax) * 100); }
+$('zr').oninput = e => setDist(sliderToDist(+e.target.value));
+$('zin').onclick = () => setDist(camera.position.distanceTo(controls.target) * .85);
+$('zout').onclick = () => setDist(camera.position.distanceTo(controls.target) * 1.18);
+$('recenter').onclick = () => { if (current) current.rotation.y = 0; resetView(); };
+function setMode(f) { flat = f; $('m3').setAttribute('aria-pressed', !f); $('m2').setAttribute('aria-pressed', f); camera.fov = f ? 12 : 38; camera.updateProjectionMatrix(); controls.enableRotate = !f; if (current) current.rotation.y = 0; resetView(); }
+$('m3').onclick = () => setMode(false); $('m2').onclick = () => setMode(true);
+$('fs').onclick = () => { try { const p = document.fullscreenElement ? document.exitFullscreen() : stageEl.requestFullscreen?.(); p?.catch?.(() => {}); } catch {} };
+const playIco = { pause: '<svg viewBox="0 0 24 24" fill="currentColor"><rect x="7" y="6" width="3.2" height="12" rx="1"/><rect x="13.8" y="6" width="3.2" height="12" rx="1"/></svg>', play: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13l10.5-6.5z"/></svg>' };
+function syncPlay() { $('play').innerHTML = anim ? playIco.pause : playIco.play; $('play').setAttribute('aria-label', anim ? 'إيقاف الحركة' : 'تشغيل الحركة'); $('play').title = $('play').getAttribute('aria-label'); }
+$('play').onclick = () => { anim = !anim; spin = anim; syncPlay(); }; syncPlay();
+function focusOn(ak) {
+  const a = model()?.A[ak]; if (!a) return;
+  if (flat) setMode(false); spin = false;
+  current.updateMatrixWorld(true);
+  const p = anchorWorld(current, a), out = p.clone().normalize().add(VIEW_DIR).normalize();
+  controls.target.copy(p).multiplyScalar(.6); camera.position.copy(p).addScaledVector(out, homeDist() * .5); controls.update(); syncSlider();
+  if (innerWidth < 1200) stageEl.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'center' });
+}
+renderer.domElement.addEventListener('pointerdown', () => { spin = false; });
+renderer.domElement.addEventListener('wheel', e => {
+  if (!current || e.ctrlKey) return;
+  const d = camera.position.distanceTo(controls.target), next = THREE.MathUtils.clamp(d * Math.exp(e.deltaY * .0012), dMin, dMax);
+  if (Math.abs(next - d) < 1e-3) return; e.preventDefault(); setDist(next);
+}, { passive: false });
+
+/* search */
+const INDEX = CELLS.flatMap(c => [...c.structs.map(s => ({ c, kind: 'structures', n: s[0], d: s[1] + ' ' + s[2] })), ...c.fns.map(f => ({ c, kind: 'functions', n: f[0], d: f[1] }))]);
+const norm = s => s.toLowerCase().replace(/[ًٌٍَُِّْ]/g, '').replace(/[أإآ]/g, 'ا').replace(/ة/g, 'ه').replace(/ى/g, 'ي');
+$('q').oninput = e => {
+  const q = norm(e.target.value.trim()), box = $('results');
+  const hits = q ? INDEX.filter(x => norm(x.n + ' ' + x.d + ' ' + x.c.name + ' ' + x.c.ex).includes(q)).slice(0, 8) : [];
+  box.innerHTML = hits.length ? hits.map((x, i) => `<button role="option" data-i="${i}">${x.n}<small>${x.c.name} · ${x.kind === 'structures' ? 'تركيب' : 'وظيفة'}</small></button>`).join('') : q ? '<button disabled>لا توجد نتائج</button>' : '';
+  box.hidden = !q;
+  box.querySelectorAll('[data-i]').forEach(b => b.onclick = () => {
+    const x = hits[b.dataset.i]; box.hidden = true; e.target.value = '';
+    select(x.c.key); tab(x.kind); if (x.kind === 'structures') openStruct(x.n);
+  });
+};
+$('q').onkeydown = e => { if (e.key === 'Escape') { e.target.value = ''; $('results').hidden = true; } };
+document.addEventListener('pointerdown', e => { if (!e.target.closest('.search')) $('results').hidden = true; });
+
+/* loop */
+function size() { const w = gl.clientWidth, h = gl.clientHeight; if (!w || !h) return; renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix(); if (current) resetView(); }
+new ResizeObserver(size).observe(gl); size();
+let visible = true, last = performance.now();
+new IntersectionObserver(([e]) => { visible = e.isIntersecting; }).observe(gl);
+renderer.setAnimationLoop(now => {
+  const dt = Math.min(.05, (now - last) / 1000); last = now;
+  if (!visible || !current) return;
+  if (anim) { clock += dt; model().update(clock); }
+  else if (model().pose) model().update(clock);
+  if (spin && !flat) current.rotation.y += dt * .14;
+  controls.update(); renderer.render(scene, camera); placeCallouts();
+});
+
+CELLS.forEach(c => { if (!models[c.key]) { models[c.key] = make(c); snaps(c, models[c.key]); } const img = document.querySelector(`.card[data-k="${c.key}"] img`); if (img) img.src = shots[c.key].card; });
+select('diatom');
+</script>
+
+</body></html>
