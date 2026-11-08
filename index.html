@@ -1403,6 +1403,7 @@ async function viewLab(id) {
       <h1>${esc(lab.title)}</h1>
     </div>
     <div class="row noprint">
+      ${state.isTeacher ? `<a class="btn sm" href="#labedit=${encodeURIComponent(lab.id)}">العودة إلى التعديل</a>` : ""}
       <button class="btn ghost sm" type="button" id="lab-full">ملء الشاشة</button>
       <button class="btn ghost sm" type="button" id="lab-reset">إعادة المختبر من البداية</button>
     </div>
@@ -1715,6 +1716,7 @@ async function viewLabEditor(arg) {
         <div class="row">
           <label class="row" style="gap:6px"><input type="checkbox" id="lb-pub" ${LB.published ? "checked" : ""} style="accent-color:var(--accent);width:18px;height:18px"> منشور للطالبات</label>
           <span style="flex:1"></span>
+          <button class="btn ghost" type="button" id="lb-try">حفظ وتجربة كطالبة</button>
           <button class="btn" type="button" id="lb-save">حفظ المختبر</button>
         </div>
       </section>
@@ -1797,6 +1799,10 @@ async function viewLabEditor(arg) {
     e.target.value = "";
   });
   $("#lb-save").addEventListener("click", () => saveLab("save"));
+  $("#lb-try").addEventListener("click", () => {
+    if (!LB.html) { toast("ابني المختبر أولاً، أو أضيفي مختبراً جاهزاً، ثم جرّبيه."); return; }
+    saveLab("try");
+  });
   // أسئلة المختبر
   drawLabQs();
   const lq = $("#lq-list");
@@ -1958,6 +1964,11 @@ async function saveLab(mode) {
     const id = await Store.saveLab(lab);
     if (!LB.id) { LB.id = id; history.replaceState(null, "", "#labedit=" + encodeURIComponent(id)); }
     $("#lb-h1") && ($("#lb-h1").textContent = lab.title);
+    if (mode === "try") {
+      toast("حُفظ المختبر. هذه معاينتك كطالبة، ولن تُرسل نتيجتك.");
+      location.hash = "#lab=" + encodeURIComponent(LB.id);
+      return true;
+    }
     if (mode === "save") {
       toast((!ready ? "حُفظ المختبر كمسودة (لم يُبنَ بعد)" : lab.published ? "حُفظ المختبر ونُشر للطالبات" : "حُفظ المختبر (غير منشور)") + (badQs === 1 ? " · سؤال واحد غير مكتمل لن يظهر للطالبات" : badQs > 1 ? ` · ${nQs(badQs)} غير مكتملة لن تظهر للطالبات` : ""));
       location.hash = "labs";
@@ -1987,6 +1998,7 @@ async function viewILesson(id) {
       <h1>${esc(lab.title)}</h1>
     </div>
     <div class="row noprint">
+      ${state.isTeacher ? `<a class="btn sm" href="#iledit=${encodeURIComponent(lab.id)}">العودة إلى التعديل</a>` : ""}
       <button class="btn ghost sm" type="button" id="lab-full">ملء الشاشة</button>
       <button class="btn ghost sm" type="button" id="lab-reset">إعادة الدرس التفاعلي من البداية</button>
     </div>
@@ -2299,6 +2311,7 @@ async function viewILessonEditor(arg) {
         <div class="row">
           <label class="row" style="gap:6px"><input type="checkbox" id="lb-pub" ${IL.published ? "checked" : ""} style="accent-color:var(--accent);width:18px;height:18px"> منشور للطالبات</label>
           <span style="flex:1"></span>
+          <button class="btn ghost" type="button" id="lb-try">حفظ وتجربة كطالبة</button>
           <button class="btn" type="button" id="lb-save">حفظ الدرس التفاعلي</button>
         </div>
       </section>
@@ -2381,6 +2394,10 @@ async function viewILessonEditor(arg) {
     e.target.value = "";
   });
   $("#lb-save").addEventListener("click", () => saveIL("save"));
+  $("#lb-try").addEventListener("click", () => {
+    if (!IL.html) { toast("ابني الدرس التفاعلي أولاً، أو أضيفي درساً تفاعلياً جاهزاً، ثم جرّبيه."); return; }
+    saveIL("try");
+  });
   // أسئلة الدرس التفاعلي
   drawILQs();
   const lq = $("#lq-list");
@@ -2542,6 +2559,11 @@ async function saveIL(mode) {
     const id = await Store.saveLab(lab);
     if (!IL.id) { IL.id = id; history.replaceState(null, "", "#iledit=" + encodeURIComponent(id)); }
     $("#lb-h1") && ($("#lb-h1").textContent = lab.title);
+    if (mode === "try") {
+      toast("حُفظ الدرس التفاعلي. هذه معاينتك كطالبة، ولن تُرسل نتيجتك.");
+      location.hash = "#ilesson=" + encodeURIComponent(IL.id);
+      return true;
+    }
     if (mode === "save") {
       toast((!ready ? "حُفظ الدرس التفاعلي كمسودة (لم يُبنَ بعد)" : lab.published ? "حُفظ الدرس التفاعلي ونُشر للطالبات" : "حُفظ الدرس التفاعلي (غير منشور)") + (badQs === 1 ? " · سؤال واحد غير مكتمل لن يظهر للطالبات" : badQs > 1 ? ` · ${nQs(badQs)} غير مكتملة لن تظهر للطالبات` : ""));
       location.hash = "ilessons";
