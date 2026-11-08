@@ -1,0 +1,615 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>الأزهار</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600&family=Readex+Pro:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+/* التخطيط: ترويسة الدرس، ثم شريط أقسام ثابت، ثم أربعة أقسام متتالية: الأهداف، المفردات، جدول التعلّم، أجزاء الزهرة (مسرح ثلاثي الأبعاد + لوحة). */
+:root{
+  --violet:#7864A8; --violet-2:#62508F; --navy:#263A55; --mint:#A8D8D0; --ivory:#F5F0E9;
+  --surface:#FFFDF9; --soft:#ECE6F2; --mint-soft:#DDF0EC; --line:#E2DACF; --muted:#5D6A80;
+  --good:#2C6E63; --bad:#B4432A; --bad-soft:#F8E4DD; --gold:#C9941A;
+  --male:#C98A12; --female:#2C6E63; --helper:#62508F;
+  --f-display:"Readex Pro","IBM Plex Sans Arabic",Tahoma,sans-serif;
+  --f-body:"IBM Plex Sans Arabic",Tahoma,"Segoe UI",sans-serif;
+  --ease-out:cubic-bezier(.23,1,.32,1);
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:64px}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{margin:0;background:var(--ivory);color:var(--navy);font:16px/1.75 var(--f-body);-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:var(--f-display);line-height:1.3;margin:0;text-wrap:balance}
+p{margin:0}
+button,input,textarea,select{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--violet);outline-offset:2px}
+[hidden]{display:none!important}
+.wrap{max-width:1120px;margin:0 auto;padding-inline:16px}
+
+/* ترويسة الدرس */
+.hero{background:linear-gradient(160deg,#fff 0%,var(--ivory) 70%);border-bottom:1px solid var(--line)}
+.hero .wrap{padding-block:28px 24px;display:grid;gap:10px}
+.lesson-no{font-family:var(--f-display);font-weight:700;color:var(--violet);font-size:.95rem;letter-spacing:.02em}
+.hero h1{font-size:clamp(1.9rem,5vw,2.8rem)}
+.hero h1 bdi{font-family:var(--f-display);font-weight:500;color:var(--muted);font-size:.55em;margin-inline-start:8px}
+.idea{display:flex;gap:10px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px;max-width:760px}
+.idea b{font-family:var(--f-display);color:var(--violet);white-space:nowrap}
+.hook{color:var(--muted);max-width:760px}
+
+/* شريط الأقسام */
+.tabs{position:sticky;top:0;z-index:20;background:rgba(245,240,233,.94);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.tabs .wrap{display:flex;gap:6px;overflow-x:auto;padding-block:8px;scrollbar-width:none}
+.tabs a{flex:none;text-decoration:none;color:var(--muted);font-weight:600;padding:6px 14px;border-radius:999px;transition:background-color 150ms ease,color 150ms ease}
+.tabs a.on{background:var(--violet);color:#fff}
+@media (hover:hover) and (pointer:fine){.tabs a:not(.on):hover{background:var(--soft);color:var(--navy)}}
+
+section.sec{padding-block:34px 10px}
+.sec-head{display:flex;align-items:baseline;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+.sec-head h2{font-size:1.5rem}
+.sec-head .n{width:32px;height:32px;border-radius:50%;background:var(--violet);color:#fff;display:grid;place-items:center;font-family:var(--f-display);font-size:.95rem;flex:none;align-self:center}
+.sec-head p{color:var(--muted);font-size:.95rem;flex-basis:100%}
+
+/* الأهداف */
+.goals{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px}
+.goal{display:flex;gap:12px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px;cursor:pointer;transition:border-color 150ms ease,background-color 150ms ease}
+.goal input{accent-color:var(--violet);width:20px;height:20px;margin-top:4px;flex:none}
+.goal b{color:var(--violet);font-family:var(--f-display)}
+.goal:has(input:checked){border-color:var(--mint);background:var(--mint-soft)}
+.goal .here{display:inline-block;margin-top:6px;font-size:.8rem;font-weight:600;color:var(--good);text-decoration:none}
+
+/* المفردات */
+.review{display:flex;gap:10px;align-items:center;flex-wrap:wrap;background:var(--surface);border:1px dashed var(--violet);border-radius:12px;padding:10px 14px;margin-bottom:14px;font-size:.95rem}
+.review .tag{font-size:.78rem;font-weight:700;color:#fff;background:var(--violet);padding:1px 10px;border-radius:999px}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px}
+.card{display:block;width:100%;perspective:900px;min-height:170px;border:0;background:none;padding:0;cursor:pointer;text-align:start;color:inherit}
+.card .in{display:block;position:relative;width:100%;height:170px;transition:transform 450ms var(--ease-out);transform-style:preserve-3d}
+.card.flip .in{transform:rotateY(180deg)}
+.face{position:absolute;inset:0;border-radius:12px;padding:14px 16px;backface-visibility:hidden;display:flex;flex-direction:column;gap:6px;border:1px solid var(--line)}
+.front{background:var(--surface);justify-content:center;align-items:center;text-align:center}
+.front .t{font-family:var(--f-display);font-weight:700;font-size:1.25rem;line-height:1.35}
+.front .en{direction:ltr;color:var(--muted);font-size:.85rem}
+.front .hint{font-size:.75rem;color:var(--muted);position:absolute;bottom:10px;inset-inline:0;text-align:center}
+.back{background:var(--navy);color:#fff;transform:rotateY(180deg);font-size:.88rem;line-height:1.6;overflow:auto}
+.back b{color:var(--mint);font-family:var(--f-display)}
+@media (prefers-reduced-motion:reduce){.card .in{transition:none}}
+.usage{margin-top:14px;display:grid;gap:4px;background:var(--surface);border:1px dotted var(--muted);border-radius:12px;padding:12px 16px;font-size:.93rem;max-width:620px}
+.usage h3{font-size:1rem;color:var(--good)}
+
+/* جدول التعلّم */
+.kwl-wrap{overflow-x:auto;border-radius:12px;border:1px solid var(--line);background:var(--surface)}
+table.kwl{width:100%;border-collapse:collapse;min-width:640px}
+.kwl th{padding:12px 14px;font-family:var(--f-display);text-align:start;font-size:1rem;color:#fff}
+.kwl th small{display:block;font-family:var(--f-body);font-weight:400;font-size:.8rem;opacity:.9}
+.kwl th:nth-child(1){background:var(--violet)}
+.kwl th:nth-child(2){background:var(--navy)}
+.kwl th:nth-child(3){background:var(--good)}
+.kwl td{vertical-align:top;padding:10px;border-inline-start:1px solid var(--line)}
+.kwl td:first-child{border-inline-start:0}
+.kwl textarea{width:100%;min-height:170px;resize:vertical;border:1px solid var(--line);border-radius:10px;background:var(--ivory);padding:10px 12px;line-height:1.7}
+.kwl textarea:focus{outline:none;border-color:var(--violet);background:#fff}
+.starters{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.starters button{border:1px solid var(--line);background:#fff;border-radius:999px;padding:2px 10px;font-size:.8rem;cursor:pointer;color:var(--muted)}
+.starters button:active{transform:scale(.97)}
+.note{font-size:.85rem;color:var(--muted);margin-top:8px}
+
+/* أجزاء الزهرة */
+.flower-grid{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:16px;align-items:start}
+@media (max-width:860px){.flower-grid{grid-template-columns:1fr}}
+.stage{position:relative;height:min(68vh,600px);min-height:380px;border-radius:16px;overflow:hidden;border:1px solid var(--line);
+  background:radial-gradient(120% 90% at 50% 35%,#ffffff 0%,#EFEAF6 55%,#E3EEEB 100%)}
+.stage canvas{display:block;width:100%;height:100%;touch-action:pan-y;cursor:grab}
+.stage canvas:active{cursor:grabbing}
+.labels{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.lbl{position:absolute;left:0;top:0;pointer-events:auto;cursor:pointer;border:0;padding:3px 10px;border-radius:999px;font-size:.78rem;font-weight:600;white-space:nowrap;
+  background:rgba(255,253,249,.92);color:var(--navy);box-shadow:0 2px 8px rgba(38,58,85,.15);transform:translate(-50%,-140%);transition:opacity 200ms ease,background-color 150ms ease}
+.lbl::after{content:"";position:absolute;left:50%;bottom:-7px;width:2px;height:7px;background:currentColor;opacity:.5;transform:translateX(-50%)}
+.lbl.male{color:var(--male)} .lbl.female{color:var(--female)} .lbl.helper{color:var(--helper)}
+.lbl.sel{background:var(--navy);color:#fff}
+.tools{position:absolute;inset-inline-start:10px;bottom:10px;display:flex;gap:6px;flex-wrap:wrap}
+.tool{border:1px solid var(--line);background:rgba(255,253,249,.94);border-radius:999px;padding:5px 12px;font-size:.82rem;font-weight:600;cursor:pointer;transition:background-color 150ms ease,transform 160ms var(--ease-out)}
+.tool[aria-pressed="true"]{background:var(--violet);border-color:var(--violet);color:#fff}
+.tool:active{transform:scale(.97)}
+.stage-note{position:absolute;inset-inline-end:10px;top:10px;font-size:.75rem;color:var(--muted);background:rgba(255,253,249,.85);border-radius:8px;padding:3px 8px;max-width:60%}
+.err{position:absolute;inset:0;display:grid;place-items:center;text-align:center;padding:20px;color:var(--muted)}
+
+.panel{display:grid;gap:12px}
+.box{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+.groups{display:grid;gap:10px}
+.group h3{font-size:.85rem;color:var(--muted);font-weight:600;margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.group h3 i{width:10px;height:10px;border-radius:50%;display:inline-block}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1px solid var(--line);background:#fff;border-radius:999px;padding:4px 12px;font-size:.88rem;font-weight:600;cursor:pointer;transition:background-color 150ms ease,border-color 150ms ease,transform 160ms var(--ease-out)}
+.chip:active{transform:scale(.97)}
+.chip.sel{background:var(--navy);border-color:var(--navy);color:#fff}
+.detail h3{font-size:1.3rem}
+.detail .en{direction:ltr;text-align:right;color:var(--muted);font-size:.85rem}
+.detail .role{display:inline-block;font-size:.75rem;font-weight:700;padding:1px 10px;border-radius:999px;margin:6px 0;color:#fff}
+.detail p{font-size:.95rem}
+.detail .from{font-size:.8rem;color:var(--muted);margin-top:8px}
+
+.quiz .q{font-family:var(--f-display);font-size:1.15rem;margin:6px 0 4px}
+.quiz .fb{min-height:1.6em;font-weight:600}
+.quiz .fb.ok{color:var(--good)} .quiz .fb.no{color:var(--bad)}
+.dots{display:flex;gap:5px;margin-top:6px}
+.dots span{width:10px;height:10px;border-radius:50%;background:var(--line)}
+.dots span.ok{background:var(--good)} .dots span.no{background:var(--bad)} .dots span.now{background:var(--violet)}
+.btn{border:0;border-radius:10px;padding:8px 16px;font-weight:600;cursor:pointer;background:var(--violet);color:#fff;transition:background-color 150ms ease,transform 160ms var(--ease-out)}
+.btn:hover{background:var(--violet-2)} .btn:active{transform:scale(.97)}
+.btn.ghost{background:#fff;color:var(--navy);border:1px solid var(--line)}
+.done{background:var(--mint-soft);color:var(--good);border-radius:12px;padding:12px 14px;font-weight:600;margin-top:8px}
+@keyframes nudge{0%,100%{transform:none}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+.shake{animation:nudge 240ms cubic-bezier(.77,0,.175,1)}
+@media (prefers-reduced-motion:reduce){.shake{animation:none}}
+footer{padding-block:30px;color:var(--muted);font-size:.85rem;text-align:center}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <span class="lesson-no">الدرس 7-1 · صفحات الكتاب 174–178</span>
+    <h1>الأزهار <bdi lang="en" dir="ltr">Flowers</bdi></h1>
+    <div class="idea"><b>الفكرة الرئيسة</b><span>الأزهار هي التراكيب التكاثرية في النباتات الزهرية.</span></div>
+    <p class="hook"><b>الربط مع الحياة:</b> هل سبق أن ارتديتِ طوقًا مزيّنًا بالأزهار، أو أُعطيتِ زهرة تقديرًا لك؟ للأزهار مكانة في حياتنا، لكن دورها الأهم في النباتات الزهرية من وجهة النظر العلمية هو التكاثر الجنسي.</p>
+  </div>
+</header>
+
+<nav class="tabs" aria-label="أقسام الدرس">
+  <div class="wrap">
+    <a href="#goals" class="on">الأهداف</a>
+    <a href="#vocab">المفردات</a>
+    <a href="#kwl">جدول التعلّم</a>
+    <a href="#parts">أجزاء الزهرة</a>
+  </div>
+</nav>
+
+<main>
+  <!-- ١ الأهداف -->
+  <section class="sec wrap" id="goals">
+    <div class="sec-head"><span class="n">١</span><h2>الأهداف</h2><p>اقرئي أهداف الدرس، وعلّمي كل هدف تشعرين أنك حقّقتِه.</p></div>
+    <div class="goals">
+      <label class="goal"><input type="checkbox"><span><b>تحدّد</b> أجزاء الزهرة ووظائفها.<br><a class="here" href="#parts">تعلّميه في قسم «أجزاء الزهرة» ←</a></span></label>
+      <label class="goal"><input type="checkbox"><span><b>تصف</b> الأزهار الكاملة، والناقصة، والأحادية الجنس، والثنائية الجنس.</span></label>
+      <label class="goal"><input type="checkbox"><span><b>تميّز</b> بين أزهار ذوات الفلقة الواحدة وأزهار ذوات الفلقتين.</span></label>
+      <label class="goal"><input type="checkbox"><span><b>تربط</b> بين آلية تلقيح الزهرة وتركيبها.</span></label>
+      <label class="goal"><input type="checkbox"><span><b>توضّح</b> الفترة الضوئية.</span></label>
+    </div>
+  </section>
+
+  <!-- ٢ المفردات -->
+  <section class="sec wrap" id="vocab">
+    <div class="sec-head"><span class="n">٢</span><h2>المفردات</h2><p>اضغطي على البطاقة لقلبها ومعرفة معنى المصطلح.</p></div>
+    <div class="review"><span class="tag">مراجعة المفردات</span><span><b>ليلي</b> <bdi dir="ltr">Nocturnal</bdi>: نَشِطٌ في الليل فقط.</span></div>
+    <div class="cards" id="cards"></div>
+    <div class="usage">
+      <h3>الاستعمال العلمي مقابل الاستعمال الشائع: الميسم <bdi dir="ltr">Stigma</bdi></h3>
+      <p><b>الاستعمال العلمي:</b> هو قمة الكربلة في الزهرة حيث يحدث الإخصاب.</p>
+      <p><b>الاستعمال الشائع:</b> يشير إلى الحسن والجمال.</p>
+    </div>
+  </section>
+
+  <!-- ٣ جدول التعلّم -->
+  <section class="sec wrap" id="kwl">
+    <div class="sec-head"><span class="n">٣</span><h2>جدول التعلّم</h2><p>املئي العمودين الأول والثاني قبل أن تستكشفي الزهرة، ثم عودي بعد الاستكشاف واملئي «ماذا تعلّمت؟».</p></div>
+    <div class="kwl-wrap">
+      <table class="kwl">
+        <thead><tr>
+          <th scope="col">ماذا أعرف؟<small>ما أعرفه عن الأزهار وأجزائها</small></th>
+          <th scope="col">ماذا أريد أن أعرف؟<small>أسئلة أبحث عن إجاباتها</small></th>
+          <th scope="col">ماذا تعلّمت؟<small>بعد استكشاف أجزاء الزهرة</small></th>
+        </tr></thead>
+        <tbody><tr>
+          <td><textarea id="k1" aria-label="ماذا أعرف"></textarea><div class="starters" data-for="k1"><button type="button">للزهرة بتلات ملوّنة…</button><button type="button">النحل ينقل…</button></div></td>
+          <td><textarea id="k2" aria-label="ماذا أريد أن أعرف"></textarea><div class="starters" data-for="k2"><button type="button">ما وظيفة…؟</button><button type="button">أين تتكوّن حبوب اللقاح؟</button><button type="button">لماذا…؟</button></div></td>
+          <td><textarea id="k3" aria-label="ماذا تعلّمت"></textarea><div class="starters" data-for="k3"><button type="button">تعلّمت أن السداة…</button><button type="button">الكربلة تتكوّن من…</button></div></td>
+        </tr></tbody>
+      </table>
+    </div>
+    <p class="note">ما تكتبينه يبقى ما دامت الصفحة مفتوحة. إن طلبت المعلمة الجدول، التقطي صورة له قبل الخروج.</p>
+  </section>
+
+  <!-- ٤ أجزاء الزهرة -->
+  <section class="sec wrap" id="parts">
+    <div class="sec-head"><span class="n">٤</span><h2>أجزاء الزهرة</h2><p>للزهرة النموذجية أربعة أعضاء: السبلات والبتلات والأسدية وكربلة واحدة أو أكثر (الشكل 1–7). دوّري الزهرة بالسحب، واضغطي على أي جزء لتعرفي اسمه ووظيفته.</p></div>
+    <div class="flower-grid">
+      <div class="stage" id="stage">
+        <canvas id="gl" aria-label="نموذج ثلاثي الأبعاد لزهرة نموذجية بأجزائها"></canvas>
+        <div class="labels" id="labels"></div>
+        <span class="stage-note">نموذج تعليمي مبسّط، ليس بمقياس حقيقي</span>
+        <div class="tools">
+          <button class="tool" type="button" id="t-labels" aria-pressed="true">التسميات</button>
+          <button class="tool" type="button" id="t-open" aria-pressed="false">إخفاء البتلات والسبلات</button>
+          <button class="tool" type="button" id="t-cut" aria-pressed="false">مقطع في المبيض</button>
+          <button class="tool" type="button" id="t-spin" aria-pressed="true">دوران</button>
+          <button class="tool" type="button" id="t-reset">توسيط</button>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="box groups" id="groups"></div>
+        <div class="box detail" id="detail" aria-live="polite"></div>
+        <div class="box quiz" id="quiz">
+          <h3 style="font-size:1.05rem">اختبري نفسك</h3>
+          <p class="muted" style="color:var(--muted);font-size:.9rem">اضغطي على الجزء المطلوب في نموذج الزهرة.</p>
+          <div id="q-area"><button class="btn" type="button" id="q-start" style="margin-top:8px">ابدئي الاختبار</button></div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+<footer>لبيبة · فكّري بذكاء، تعلّمي بعمق. · المحتوى من كتاب الأحياء، الدرس 7-1 الأزهار.</footer>
+
+<!-- three.js: نسخة محفوظة مع موقع لبيبة أولاً، ثم من CDN احتياطاً -->
+<script>
+(function () {
+  var LOCALS = ["labs/vendor/three-0.169.0/", "vendor/three-0.169.0/"], CDN = "https://cdn.jsdelivr.net/npm/three@0.169.0/", base = CDN;
+  for (var i = 0; i < LOCALS.length && base === CDN; i++) {
+    try {
+      var x = new XMLHttpRequest(); x.open("HEAD", LOCALS[i] + "build/three.module.js", false); x.send();
+      if (x.status >= 200 && x.status < 300) base = new URL(LOCALS[i], document.baseURI).href;
+    } catch (e) {}
+  }
+  var m = document.createElement("script"); m.type = "importmap";
+  m.textContent = JSON.stringify({ imports: { "three": base + "build/three.module.js", "three/addons/": base + "examples/jsm/" } });
+  document.currentScript.after(m);
+})();
+</script>
+
+<script>
+/* ===== الأقسام والمفردات وجدول التعلّم (لا تحتاج إلى three.js) ===== */
+const $ = id => document.getElementById(id);
+const VOCAB = [
+  ["السبلة", "Sepal", "تحمي براعم الأزهار، وقد تبدو في صورة أوراق خضراء، أو تشبه أوراق البتلات."],
+  ["البتلة", "Petal", "جزء ملوّن عادة من الزهرة، يمكن أن يجذب الملقّحات، ويوفّر لها موضعًا للوقوف على الزهرة."],
+  ["السداة", "Stamen", "عضو التكاثر الذكري في الزهرة، يتكوّن من الخيط والمتك. يحمل الخيطُ المتكَ، وداخل المتك تتكوّن حبوب اللقاح."],
+  ["الكربلة (المتاع)", "Pistil", "عضو التكاثر الأنثوي في مركز الزهرة، يتكوّن من الميسم والقلم والمبيض."],
+  ["الفترة الضوئية", "Photoperiodism", "استجابة النبات في إزهاره لعدد ساعات الظلام المتواصلة التي يتعرّض لها، لا لعدد ساعات الضوء."],
+  ["نباتات النهار القصير", "Short-day plants", "تزهر عندما تتعرّض يوميًّا لعدد من ساعات الظلام أكبر من الفترة الحرجة لها، مثل البنفسج والبونسيتة والتيوليب وفم السمكة."],
+  ["نباتات النهار الطويل", "Long-day plants", "تزهر عندما تكون ساعات الظلام أقل من الفترة الحرجة، فتزهر في الصيف عادة، مثل الخس والسبانخ والبيتونيا والبطاطس."],
+  ["نباتات النهار المتوسط", "Intermediate-day plants", "تزهر عندما يكون عدد ساعات الظلام ضمن مدى معيّن، فلا تزهر إذا زادت عنه أو قلّت."],
+  ["نباتات النهار المحايد", "Day-neutral plants", "لا يعتمد إزهارها على عدد ساعات الظلام."]
+];
+$("cards").innerHTML = VOCAB.map(([t, en, d], i) => `
+  <button class="card" type="button" aria-label="${t}: اقلبي البطاقة">
+    <span class="in">
+      <span class="face front"><span class="t">${t}</span><span class="en">${en}</span><span class="hint">اضغطي لقلب البطاقة</span></span>
+      <span class="face back"><b>${t}</b>${d}</span>
+    </span>
+  </button>`).join("");
+$("cards").addEventListener("click", e => { const c = e.target.closest(".card"); if (c) c.classList.toggle("flip"); });
+
+document.querySelectorAll(".starters").forEach(box => box.addEventListener("click", e => {
+  const b = e.target.closest("button"); if (!b) return;
+  const ta = $(box.dataset.for); const txt = b.textContent.replace(/…/g, "");
+  ta.value = (ta.value.trim() ? ta.value.replace(/\s*$/, "\n") : "") + "• " + txt; ta.focus();
+}));
+
+// إبراز القسم الحالي في الشريط
+const navLinks = [...document.querySelectorAll(".tabs a")];
+const io = new IntersectionObserver(es => es.forEach(en => {
+  if (en.isIntersecting) navLinks.forEach(a => a.classList.toggle("on", a.getAttribute("href") === "#" + en.target.id));
+}), { rootMargin: "-45% 0px -50% 0px" });
+document.querySelectorAll("section.sec").forEach(s => io.observe(s));
+</script>
+
+<script type="module">
+import * as THREE from "three";
+import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+
+const $ = id => document.getElementById(id);
+const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+/* ===== محتوى الأجزاء (من الكتاب، صفحتا 174 و175) ===== */
+const ROLE = { male: ["عضو التكاثر الذكري", "#C98A12"], female: ["عضو التكاثر الأنثوي", "#2C6E63"], helper: ["جزء غير تكاثري", "#62508F"] };
+const PARTS = {
+  sepal:    { name: "السبلة", en: "Sepal", role: "helper", text: "تحمي براعم الأزهار، وقد تبدو في صورة أوراق خضراء، أو تشبه أوراق البتلات. وتتصل السبلات والبتلات عادة بعنق الزهرة." },
+  petal:    { name: "البتلة", en: "Petal", role: "helper", text: "ملوّنة عادة، ويمكن أن تجذب الملقّحات، وتوفّر لها موضعًا للوقوف على الزهرة." },
+  filament: { name: "الخيط", en: "Filament", role: "male", group: "السداة", text: "أحد جزأي السداة (عضو التكاثر الذكري). يحمل المتك ويدعمه." },
+  anther:   { name: "المتك", en: "Anther", role: "male", group: "السداة", text: "أحد جزأي السداة. توجد داخله خلايا تنقسم انقسامًا منصّفًا ثم انقسامات متساوية لتكوّن حبوب اللقاح، ويتكوّن في النهاية مشيجان مذكّران داخل كل حبة لقاح." },
+  stigma:   { name: "الميسم", en: "Stigma", role: "female", group: "الكربلة", text: "قمة الكربلة، وهو المكان الذي يحدث فيه التلقيح؛ إذ تستقر عليه حبوب اللقاح." },
+  style:    { name: "القلم", en: "Style", role: "female", group: "الكربلة", text: "الجزء الذي يربط الميسم بالمبيض." },
+  ovary:    { name: "المبيض", en: "Ovary", role: "female", group: "الكربلة", text: "قاعدة الكربلة. يتكوّن داخله نبات مشيجي مؤنث تتكوّن فيه بويضة ناضجة، وتتشكّل الثمار بعد الإخصاب. استخدمي زر «مقطع في المبيض» لرؤية ما بداخله." },
+  ovule:    { name: "البويضات", en: "Ovules", role: "female", group: "داخل المبيض", text: "تراكيب صغيرة داخل المبيض، يتكوّن في كل منها نبات مشيجي مؤنث يحوي بويضة ناضجة." },
+  stalk:    { name: "عنق الزهرة", en: "Flower stalk", role: "helper", text: "يحمل الزهرة، وتتصل به السبلات والبتلات عادة." }
+};
+const GROUPS = [
+  ["helper", "أجزاء غير تكاثرية", ["sepal", "petal", "stalk"]],
+  ["male", "السداة: عضو التكاثر الذكري", ["filament", "anther"]],
+  ["female", "الكربلة: عضو التكاثر الأنثوي", ["stigma", "style", "ovary", "ovule"]]
+];
+
+/* ===== المشهد ===== */
+const stage = $("stage"), canvas = $("gl");
+let renderer;
+try { renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true }); }
+catch (e) { stage.insertAdjacentHTML("beforeend", `<div class="err">تعذّر تشغيل العرض ثلاثي الأبعاد في هذا المتصفح. جرّبي متصفحًا يدعم WebGL.</div>`); throw e; }
+renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 2));
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.05;
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(35, 1, 0.1, 100);
+const HOME = new THREE.Vector3(4.2, 3.4, 5.6), TARGET0 = new THREE.Vector3(0, 0.55, 0);
+camera.position.copy(HOME);
+scene.add(new THREE.HemisphereLight(0xffffff, 0xcfd9d4, 1.2));
+const key = new THREE.DirectionalLight(0xfff3e0, 2.0); key.position.set(4, 7, 5); scene.add(key);
+const rim = new THREE.DirectionalLight(0xc9e6ff, 0.9); rim.position.set(-5, 2, -4); scene.add(rim);
+
+const controls = new OrbitControls(camera, canvas);
+controls.target.copy(TARGET0); controls.enableDamping = true; controls.dampingFactor = 0.08;
+controls.enableZoom = false; controls.enablePan = false;
+controls.minPolarAngle = 0.25; controls.maxPolarAngle = 2.2;
+controls.autoRotate = !reduced; controls.autoRotateSpeed = 0.8;
+
+const flower = new THREE.Group(); scene.add(flower);
+const pickables = [];
+const mat = (color, extra = {}) => new THREE.MeshStandardMaterial({ color, roughness: 0.55, metalness: 0, ...extra });
+function tag(mesh, part) { mesh.userData.part = part; pickables.push(mesh); return mesh; }
+
+// ورقة منحنية (للبتلات والسبلات): u على الطول، v على العرض
+function bladeGeometry({ length, width, lift, curl, cup, droop = 0, segU = 24, segV = 10 }) {
+  const pos = [], idx = [];
+  for (let i = 0; i <= segU; i++) {
+    const u = i / segU;
+    const w = width * Math.sin(Math.PI * Math.pow(u, 0.75)) * (1 - 0.25 * u) + 0.02;
+    for (let j = 0; j <= segV; j++) {
+      const v = (j / segV) * 2 - 1;
+      const r = u * length;
+      const y = lift * u + curl * u * u - droop * u * u * u + cup * v * v * Math.sin(Math.PI * u);
+      pos.push(r, y, v * w);
+    }
+  }
+  for (let i = 0; i < segU; i++) for (let j = 0; j < segV; j++) {
+    const a = i * (segV + 1) + j, b = a + segV + 1;
+    idx.push(a, b, a + 1, b, b + 1, a + 1);
+  }
+  const g = new THREE.BufferGeometry();
+  g.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3)); g.setIndex(idx); g.computeVertexNormals();
+  return g;
+}
+
+// عنق الزهرة والتخت
+const stalk = tag(new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.09, 2.6, 16), mat(0x5f9a4a)), "stalk");
+stalk.position.y = -1.25; flower.add(stalk);
+const receptacle = tag(new THREE.Mesh(new THREE.SphereGeometry(0.2, 24, 16), mat(0x6aa653)), "stalk");
+receptacle.scale.set(1, 0.6, 1); receptacle.position.y = 0.05; flower.add(receptacle);
+
+// السبلات (٥)
+const sepalGeo = bladeGeometry({ length: 1.05, width: 0.2, lift: 0.15, curl: -0.25, cup: 0.04, droop: 0.15 });
+const sepals = [];
+for (let i = 0; i < 5; i++) {
+  const m = tag(new THREE.Mesh(sepalGeo, mat(0x4f9a3e, { side: THREE.DoubleSide })), "sepal");
+  m.rotation.y = (i / 5) * Math.PI * 2 + Math.PI / 5; m.position.y = 0.06; flower.add(m); sepals.push(m);
+}
+// البتلات (٥)
+const petalGeo = bladeGeometry({ length: 1.75, width: 0.5, lift: 0.95, curl: -0.25, cup: 0.12, droop: 0.15 });
+const petals = [];
+for (let i = 0; i < 5; i++) {
+  const m = tag(new THREE.Mesh(petalGeo, mat(0x8f7bd0, { side: THREE.DoubleSide, roughness: 0.65 })), "petal");
+  m.rotation.y = (i / 5) * Math.PI * 2; m.position.y = 0.14; flower.add(m); petals.push(m);
+}
+
+// الكربلة: المبيض والقلم والميسم
+const ovaryProfile = [];
+for (let i = 0; i <= 20; i++) { const t = i / 20; ovaryProfile.push(new THREE.Vector2(Math.max(0.02, 0.27 * Math.sin(Math.PI * t) * (1 - 0.35 * t) + 0.04 * (t > 0.8 ? 1 : 0)), 0.12 + t * 0.62)); }
+const ovaryMat = mat(0x9fcf86, { transparent: true, opacity: 1, side: THREE.DoubleSide });
+const ovary = tag(new THREE.Mesh(new THREE.LatheGeometry(ovaryProfile, 40), ovaryMat), "ovary"); flower.add(ovary);
+const ovules = [];
+for (let i = 0; i < 6; i++) {
+  const a = (i / 6) * Math.PI * 2, y = 0.38 + (i % 2) * 0.13;
+  const o = tag(new THREE.Mesh(new THREE.SphereGeometry(0.055, 16, 12), mat(0xf5f0e9, { emissive: 0x3a3020, emissiveIntensity: 0.15 })), "ovule");
+  o.position.set(Math.cos(a) * 0.1, y, Math.sin(a) * 0.1); o.visible = false; flower.add(o); ovules.push(o);
+}
+const style = tag(new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.05, 0.95, 16), mat(0x9fcf86)), "style");
+style.position.y = 0.74 + 0.475; flower.add(style);
+const stigmaGrp = new THREE.Group(); stigmaGrp.position.y = 1.72; flower.add(stigmaGrp);
+for (let i = 0; i < 3; i++) {
+  const lobe = tag(new THREE.Mesh(new THREE.SphereGeometry(0.075, 16, 12), mat(0xd8e86a, { roughness: 0.35 })), "stigma");
+  const a = (i / 3) * Math.PI * 2; lobe.position.set(Math.cos(a) * 0.07, 0.02, Math.sin(a) * 0.07); lobe.scale.set(1, 0.7, 1); stigmaGrp.add(lobe);
+}
+
+// الأسدية (٥): خيط منحني ومتك وحبوب لقاح
+const anthers = [];
+const pollenPts = [];
+for (let i = 0; i < 5; i++) {
+  const a = (i / 5) * Math.PI * 2 + Math.PI / 5;
+  const dir = new THREE.Vector3(Math.cos(a), 0, Math.sin(a));
+  const p0 = dir.clone().multiplyScalar(0.16).setY(0.16);
+  const p1 = dir.clone().multiplyScalar(0.26).setY(0.7);
+  const p2 = dir.clone().multiplyScalar(0.42).setY(1.25);
+  const curve = new THREE.QuadraticBezierCurve3(p0, p1, p2);
+  const fil = tag(new THREE.Mesh(new THREE.TubeGeometry(curve, 24, 0.018, 8, false), mat(0xf3eedc)), "filament"); flower.add(fil);
+  const anther = tag(new THREE.Mesh(new THREE.CapsuleGeometry(0.06, 0.16, 6, 12), mat(0xe6a823, { roughness: 0.45 })), "anther");
+  anther.position.copy(p2).add(new THREE.Vector3(0, 0.05, 0));
+  anther.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), curve.getTangent(1).normalize());
+  flower.add(anther); anthers.push(anther);
+  for (let k = 0; k < 14; k++) { const r = 0.08 + Math.random() * 0.06, t = Math.random() * Math.PI * 2, s = Math.random() * Math.PI; pollenPts.push(anther.position.x + r * Math.sin(s) * Math.cos(t), anther.position.y + r * Math.cos(s), anther.position.z + r * Math.sin(s) * Math.sin(t)); }
+}
+const pollenGeo = new THREE.BufferGeometry(); pollenGeo.setAttribute("position", new THREE.Float32BufferAttribute(pollenPts, 3));
+flower.add(new THREE.Points(pollenGeo, new THREE.PointsMaterial({ color: 0xf2c230, size: 0.035 })));
+
+/* ===== التسميات ===== */
+const LABEL_AT = {
+  petal: () => petals[0].localToWorld(new THREE.Vector3(1.25, 0.82, 0)),
+  sepal: () => sepals[2].localToWorld(new THREE.Vector3(0.8, -0.08, 0)),
+  anther: () => anthers[1].getWorldPosition(new THREE.Vector3()),
+  filament: () => anthers[3].getWorldPosition(new THREE.Vector3()).lerp(new THREE.Vector3(0, 0.3, 0), 0.45),
+  stigma: () => stigmaGrp.getWorldPosition(new THREE.Vector3()).add(new THREE.Vector3(0, 0.08, 0)),
+  style: () => style.getWorldPosition(new THREE.Vector3()),
+  ovary: () => ovary.localToWorld(new THREE.Vector3(0.2, 0.42, 0)),
+  ovule: () => ovules[0].getWorldPosition(new THREE.Vector3()),
+  stalk: () => stalk.localToWorld(new THREE.Vector3(0, -0.6, 0))
+};
+const labelsEl = $("labels");
+const labels = Object.keys(LABEL_AT).map(k => {
+  const b = document.createElement("button"); b.type = "button"; b.className = "lbl " + PARTS[k].role; b.textContent = PARTS[k].name; b.dataset.part = k;
+  b.addEventListener("click", () => onPick(k)); labelsEl.appendChild(b); return { k, el: b };
+});
+
+/* ===== اللوحة ===== */
+$("groups").innerHTML = GROUPS.map(([role, title, keys]) => `
+  <div class="group"><h3><i style="background:${ROLE[role][1]}"></i>${title}</h3>
+    <div class="chips">${keys.map(k => `<button class="chip" type="button" data-part="${k}">${PARTS[k].name}</button>`).join("")}</div></div>`).join("");
+$("groups").addEventListener("click", e => { const c = e.target.closest(".chip"); if (c) onPick(c.dataset.part, true); });
+
+let selected = null;
+const baseEmissive = new Map();
+function highlight(k) {
+  pickables.forEach(m => {
+    if (!baseEmissive.has(m)) baseEmissive.set(m, [m.material.emissive.getHex(), m.material.emissiveIntensity]);
+    const [hex, int] = baseEmissive.get(m);
+    const on = m.userData.part === k;
+    m.material.emissive.setHex(on ? 0x7864a8 : hex); m.material.emissiveIntensity = on ? 0.55 : int;
+  });
+}
+function showDetail(k) {
+  const p = PARTS[k], [rl, rc] = ROLE[p.role];
+  $("detail").innerHTML = `<h3>${p.name}</h3><div class="en">${p.en}</div>
+    <span class="role" style="background:${rc}">${rl}${p.group ? " · " + p.group : ""}</span>
+    <p>${p.text}</p><p class="from">المصدر: الدرس 7-1، الشكل 1–7.</p>`;
+  document.querySelectorAll(".chip").forEach(c => c.classList.toggle("sel", c.dataset.part === k));
+  labels.forEach(l => l.el.classList.toggle("sel", l.k === k));
+}
+function onPick(k, focus) {
+  if (quiz.active) { quizAnswer(k); return; }
+  selected = k; highlight(k); showDetail(k);
+  if ((k === "ovule") && !cut) setCut(true);
+  if ((k === "ovule" || k === "ovary" || k === "style" || k === "filament") && !open) setOpen(true);
+  if (focus) focusOn(LABEL_AT[k]());
+}
+$("detail").innerHTML = `<h3>اختاري جزءًا</h3><p style="color:var(--muted)">اضغطي على أي جزء في النموذج أو على اسمه هنا لتعرفي وظيفته.</p>`;
+
+/* ===== أدوات ===== */
+let showLabels = true, open = false, cut = false;
+function press(id, v) { $(id).setAttribute("aria-pressed", String(v)); }
+function setOpen(v) { open = v; petals.forEach(p => (p.visible = !v)); sepals.forEach(s => (s.visible = !v)); press("t-open", v); }
+function setCut(v) { cut = v; ovaryMat.opacity = v ? 0.28 : 1; ovaryMat.depthWrite = !v; ovules.forEach(o => (o.visible = v)); press("t-cut", v); }
+$("t-labels").addEventListener("click", () => { showLabels = !showLabels; press("t-labels", showLabels); });
+$("t-open").addEventListener("click", () => setOpen(!open));
+$("t-cut").addEventListener("click", () => setCut(!cut));
+$("t-spin").addEventListener("click", () => { controls.autoRotate = !controls.autoRotate; press("t-spin", controls.autoRotate); });
+press("t-spin", controls.autoRotate);
+$("t-reset").addEventListener("click", () => focusOn(TARGET0, fitted || HOME.length()));
+
+let tween = null;
+function focusOn(point, dist) {
+  const from = controls.target.clone(), to = point.clone();
+  const camFrom = camera.position.clone();
+  const d = dist || Math.max(3.2, camera.position.distanceTo(controls.target) * 0.75);
+  const dir = camera.position.clone().sub(controls.target).normalize();
+  const camTo = to.clone().add(dir.multiplyScalar(d));
+  if (reduced) { controls.target.copy(to); camera.position.copy(camTo); return; }
+  tween = { t: 0, from, to, camFrom, camTo };
+}
+
+// العجلة تقرّب النموذج، وعند حدّ التقريب تعود لتمرير الصفحة
+canvas.addEventListener("wheel", e => {
+  const d = camera.position.distanceTo(controls.target);
+  const next = d * Math.exp(e.deltaY * 0.0012);
+  if ((e.deltaY < 0 && d <= 2.6) || (e.deltaY > 0 && d >= 11)) return;
+  e.preventDefault();
+  const dir = camera.position.clone().sub(controls.target).normalize();
+  camera.position.copy(controls.target).add(dir.multiplyScalar(Math.min(11, Math.max(2.6, next))));
+}, { passive: false });
+
+// الاختيار بالضغط (دون السحب)
+const ray = new THREE.Raycaster(), ndc = new THREE.Vector2();
+let down = null;
+canvas.addEventListener("pointerdown", e => { down = { x: e.clientX, y: e.clientY }; });
+canvas.addEventListener("pointerup", e => {
+  if (!down || Math.hypot(e.clientX - down.x, e.clientY - down.y) > 6) { down = null; return; }
+  down = null;
+  const r = canvas.getBoundingClientRect();
+  ndc.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
+  ray.setFromCamera(ndc, camera);
+  // في المقطع تُفحص البويضات أولاً لأن جدار المبيض الشفاف يغطيها
+  const hit = (cut && ray.intersectObjects(ovules, false)[0]) || ray.intersectObjects(pickables.filter(m => m.visible), false)[0];
+  if (hit) onPick(hit.object.userData.part);
+});
+
+/* ===== اختبري نفسك ===== */
+const QUIZ = ["stigma", "anther", "ovary", "sepal", "petal", "style", "filament"];
+const quiz = { active: false, i: 0, first: [], tries: 0 };
+function quizRender(msg = "", cls = "") {
+  const k = QUIZ[quiz.i];
+  $("q-area").innerHTML = `<div class="q">أين ${PARTS[k].name}؟</div><div class="fb ${cls}" id="q-fb">${msg}</div>
+    <div class="dots">${QUIZ.map((_, i) => `<span class="${i < quiz.i ? (quiz.first[i] ? "ok" : "no") : i === quiz.i ? "now" : ""}"></span>`).join("")}</div>
+    <button class="btn ghost" type="button" id="q-stop" style="margin-top:10px">إيقاف الاختبار</button>`;
+  $("q-stop").addEventListener("click", quizStop);
+}
+function quizStart() {
+  Object.assign(quiz, { active: true, i: 0, first: [], tries: 0 });
+  selected = null; highlight(null); setOpen(false); setCut(false);
+  showLabels = false; press("t-labels", false);
+  quizRender("السؤال الأول، والتسميات مخفية حتى ينتهي الاختبار.");
+}
+function quizStop() { quiz.active = false; showLabels = true; press("t-labels", true); $("q-area").innerHTML = `<button class="btn" type="button" id="q-start" style="margin-top:8px">ابدئي الاختبار</button>`; $("q-start").addEventListener("click", quizStart); }
+function quizAnswer(k) {
+  const want = QUIZ[quiz.i];
+  if (k === want) {
+    quiz.first[quiz.i] = quiz.tries === 0; quiz.tries = 0; quiz.i++;
+    highlight(k);
+    if (quiz.i >= QUIZ.length) return quizFinish();
+    if (QUIZ[quiz.i] === "ovary" || QUIZ[quiz.i] === "style" || QUIZ[quiz.i] === "filament") setOpen(true); else setOpen(false);
+    quizRender(`أحسنتِ! إجابة صحيحة: ${PARTS[k].name}.`, "ok");
+  } else {
+    quiz.tries++;
+    quizRender(`اخترتِ «${PARTS[k].name}». حاولي مرة أخرى.`, "no");
+    $("q-fb").classList.add("shake");
+  }
+}
+function quizFinish() {
+  quiz.active = false;
+  const ok = quiz.first.filter(Boolean).length, total = QUIZ.length, score = Math.round((ok / total) * 100);
+  showLabels = true; press("t-labels", true);
+  $("q-area").innerHTML = `<div class="done">أنهيتِ الاختبار: ${ok} من ${total} من المحاولة الأولى (${score}٪).</div>
+    <p style="font-size:.9rem;color:var(--muted);margin-top:8px">عودي إلى «جدول التعلّم» واكتبي ما تعلّمتِه في العمود الثالث.</p>
+    <button class="btn ghost" type="button" id="q-again" style="margin-top:8px">أعيدي الاختبار</button>`;
+  $("q-again").addEventListener("click", quizStart);
+  // إشعار منصة لبيبة (مرة واحدة) لترسل الطالبة نتيجتها إلى المعلمة
+  if (!window.__labeebaDone) { window.__labeebaDone = true; try { parent.postMessage({ type: "labeeba-lab-complete", score, tasks: total }, "*"); } catch (e) {} }
+}
+$("q-start").addEventListener("click", quizStart);
+
+/* ===== الحلقة ===== */
+let fitted = 0;
+function resize() {
+  const w = stage.clientWidth, h = stage.clientHeight; renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix();
+  // على الشاشات الضيقة تبتعد الكاميرا حتى تظهر البتلات كاملة
+  const want = HOME.length() * (camera.aspect < 0.8 ? 1.35 : camera.aspect < 1.1 ? 1.15 : 1);
+  if (want !== fitted) { fitted = want; const dir = camera.position.clone().sub(controls.target).normalize(); camera.position.copy(controls.target).add(dir.multiplyScalar(want)); }
+}
+new ResizeObserver(resize).observe(stage); resize();
+let visible = true;
+new IntersectionObserver(es => { visible = es[0].isIntersecting; }).observe(stage);
+const tmp = new THREE.Vector3();
+function frame() {
+  requestAnimationFrame(frame);
+  if (!visible || document.hidden) return;
+  if (tween) {
+    tween.t = Math.min(1, tween.t + 1 / 30); const e = 1 - Math.pow(1 - tween.t, 3);
+    controls.target.lerpVectors(tween.from, tween.to, e); camera.position.lerpVectors(tween.camFrom, tween.camTo, e);
+    if (tween.t >= 1) tween = null;
+  }
+  controls.update();
+  renderer.render(scene, camera);
+  const w = stage.clientWidth, h = stage.clientHeight;
+  labels.forEach(l => {
+    const partVisible = pickables.some(m => m.userData.part === l.k && m.visible);
+    // على الشاشات الضيقة تُخفى تسميتا الخيط والقلم المتزاحمتان إلا عند اختيارهما
+    const crowded = w < 520 && (l.k === "filament" || l.k === "style") && l.k !== selected && !open;
+    const show = (showLabels || l.k === selected) && partVisible && !quiz.active && !crowded;
+    if (!show) { l.el.style.opacity = 0; l.el.style.pointerEvents = "none"; return; }
+    tmp.copy(LABEL_AT[l.k]()).project(camera);
+    if (tmp.z > 1) { l.el.style.opacity = 0; return; }
+    l.el.style.opacity = 1; l.el.style.pointerEvents = "auto";
+    l.el.style.transform = `translate(${((tmp.x + 1) / 2 * w).toFixed(1)}px, ${((1 - tmp.y) / 2 * h).toFixed(1)}px) translate(-50%, -140%)`;
+  });
+}
+frame();
+</script>
+</body>
+</html>
