@@ -144,6 +144,79 @@ table.kwl{width:100%;border-collapse:collapse;min-width:640px}
 @keyframes nudge{0%,100%{transform:none}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
 .shake{animation:nudge 240ms cubic-bezier(.77,0,.175,1)}
 @media (prefers-reduced-motion:reduce){.shake{animation:none}}
+
+/* ===== تكيّفات الزهرة ===== */
+.types{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px}
+.type{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px;display:grid;gap:6px;align-content:start}
+.type h3{font-size:1.1rem;display:flex;gap:8px;align-items:baseline;flex-wrap:wrap}
+.type h3 small{font-family:var(--f-body);font-weight:500;color:var(--muted);font-size:.8rem;direction:ltr}
+.type .ex{font-size:.88rem;color:var(--muted)}
+.type .ex b{color:var(--navy)}
+.pair-label{font-size:.78rem;font-weight:700;color:var(--violet);letter-spacing:.02em}
+.activity{margin-top:16px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px}
+.activity h3{font-size:1.1rem;margin-bottom:4px}
+.activity > p{color:var(--muted);font-size:.92rem;margin-bottom:10px}
+.rows{display:grid;gap:8px}
+.arow{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--ivory);transition:border-color 150ms ease,background-color 150ms ease}
+.arow.ok{border-color:var(--good);background:var(--mint-soft)} .arow.no{border-color:var(--bad);background:var(--bad-soft)}
+.arow .why{grid-column:1/-1;font-size:.85rem;color:var(--muted)}
+.opts{display:flex;gap:6px;flex-wrap:wrap}
+.opt{border:1px solid var(--line);background:#fff;border-radius:999px;padding:4px 12px;font-size:.85rem;font-weight:600;cursor:pointer;transition:background-color 150ms ease,border-color 150ms ease,transform 160ms var(--ease-out)}
+.opt:active{transform:scale(.97)}
+.opt.pick{background:var(--navy);border-color:var(--navy);color:#fff}
+select.pick{border:1px solid var(--line);border-radius:10px;padding:6px 10px;background:#fff;font-weight:600;max-width:100%}
+.result{margin-top:10px;font-weight:600;min-height:1.5em}
+.result.ok{color:var(--good)} .result.no{color:var(--bad)}
+.counter{display:grid;grid-template-columns:auto minmax(0,1fr);gap:18px;align-items:center}
+@media (max-width:620px){.counter{grid-template-columns:1fr;justify-items:center;text-align:center}}
+.counter svg{width:170px;height:170px}
+.counter .opts{margin:8px 0}
+.verdict-big{font-family:var(--f-display);font-size:1.25rem}
+.verdict-big.mono{color:var(--violet)} .verdict-big.di{color:var(--good)}
+
+/* ===== التلقيح ===== */
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px}
+.mech{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+.mech h3{font-size:1.1rem;margin-bottom:6px}
+.mech ul{margin:0;padding-inline-start:20px;display:grid;gap:4px;font-size:.93rem}
+.pollinators{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:12px}
+@media (max-width:860px){.pollinators{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:520px){.pollinators{grid-template-columns:1fr}}
+.pol{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px 14px;font-size:.9rem;display:grid;gap:4px;align-content:start}
+.pol b{font-family:var(--f-display);font-size:1rem}
+.pol .ic{font-size:1.5rem;line-height:1}
+.sc{display:grid;grid-template-columns:auto minmax(0,1fr);gap:16px;align-items:center}
+@media (max-width:620px){.sc{grid-template-columns:1fr}}
+.sc svg{width:260px;max-width:100%;height:auto}
+.seg2{display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:3px;background:#fff;gap:3px}
+.seg2 button{border:0;background:none;border-radius:999px;padding:5px 14px;font-weight:600;cursor:pointer;color:var(--muted)}
+.seg2 button[aria-pressed="true"]{background:var(--violet);color:#fff}
+.reveal{margin-top:10px}
+.reveal summary{cursor:pointer;font-weight:600;color:var(--violet)}
+.reveal p{margin-top:6px}
+@keyframes travel{from{stroke-dashoffset:120}to{stroke-dashoffset:0}}
+.flow{stroke-dasharray:6 6;animation:travel 1.6s linear infinite}
+@media (prefers-reduced-motion:reduce){.flow{animation:none}}
+
+/* ===== الفترة الضوئية ===== */
+.daybar{position:relative;height:42px;border-radius:12px;overflow:hidden;border:1px solid var(--line);background:#FFF6D8;margin:10px 0 4px}
+.daybar .night{position:absolute;inset-block:0;inset-inline-end:0;background:var(--navy);transition:width 200ms var(--ease-out)}
+.daybar .crit{position:absolute;inset-block:-4px;width:2px;background:var(--bad)}
+.daybar .lab{position:absolute;inset-block:0;display:flex;align-items:center;font-size:.82rem;font-weight:700;padding-inline:10px}
+.daybar .lab.day{inset-inline-start:0;color:#8a6a00} .daybar .lab.dark{inset-inline-end:0;color:#fff}
+.scale{display:flex;justify-content:space-between;font-size:.75rem;color:var(--muted);direction:ltr;font-variant-numeric:tabular-nums}
+input[type=range]{width:100%;accent-color:var(--violet)}
+.plants{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:12px}
+.plant{background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px;text-align:center;display:grid;gap:4px;justify-items:center;transition:border-color 200ms ease,background-color 200ms ease}
+.plant.bloom{border-color:var(--good);background:var(--mint-soft)}
+.plant svg{width:70px;height:80px}
+.plant .bud{transition:transform 300ms var(--ease-out),opacity 300ms ease;transform-origin:35px 22px}
+.plant:not(.bloom) .bud{transform:scale(.4);opacity:.5}
+.plant b{font-family:var(--f-display);font-size:.95rem}
+.plant .st{font-size:.82rem;font-weight:700}
+.plant.bloom .st{color:var(--good)} .plant:not(.bloom) .st{color:var(--muted)}
+.plant .eg{font-size:.75rem;color:var(--muted)}
+.callout{background:var(--soft);border-radius:12px;padding:12px 14px;font-size:.93rem;margin-top:12px}
 footer{padding-block:30px;color:var(--muted);font-size:.85rem;text-align:center}
 </style>
 </head>
@@ -164,6 +237,9 @@ footer{padding-block:30px;color:var(--muted);font-size:.85rem;text-align:center}
     <a href="#vocab">المفردات</a>
     <a href="#kwl">جدول التعلّم</a>
     <a href="#parts">أجزاء الزهرة</a>
+    <a href="#adapt">تكيّفات الزهرة</a>
+    <a href="#pollination">التلقيح</a>
+    <a href="#photo">الفترة الضوئية</a>
   </div>
 </nav>
 
@@ -173,10 +249,10 @@ footer{padding-block:30px;color:var(--muted);font-size:.85rem;text-align:center}
     <div class="sec-head"><span class="n">١</span><h2>الأهداف</h2><p>اقرئي أهداف الدرس، وعلّمي كل هدف تشعرين أنك حقّقتِه.</p></div>
     <div class="goals">
       <label class="goal"><input type="checkbox"><span><b>تحدّد</b> أجزاء الزهرة ووظائفها.<br><a class="here" href="#parts">تعلّميه في قسم «أجزاء الزهرة» ←</a></span></label>
-      <label class="goal"><input type="checkbox"><span><b>تصف</b> الأزهار الكاملة، والناقصة، والأحادية الجنس، والثنائية الجنس.</span></label>
-      <label class="goal"><input type="checkbox"><span><b>تميّز</b> بين أزهار ذوات الفلقة الواحدة وأزهار ذوات الفلقتين.</span></label>
-      <label class="goal"><input type="checkbox"><span><b>تربط</b> بين آلية تلقيح الزهرة وتركيبها.</span></label>
-      <label class="goal"><input type="checkbox"><span><b>توضّح</b> الفترة الضوئية.</span></label>
+      <label class="goal"><input type="checkbox"><span><b>تصف</b> الأزهار الكاملة، والناقصة، والأحادية الجنس، والثنائية الجنس.<br><a class="here" href="#adapt">في قسم «تكيّفات الزهرة» ←</a></span></label>
+      <label class="goal"><input type="checkbox"><span><b>تميّز</b> بين أزهار ذوات الفلقة الواحدة وأزهار ذوات الفلقتين.<br><a class="here" href="#monodi">في قسم «تكيّفات الزهرة» ←</a></span></label>
+      <label class="goal"><input type="checkbox"><span><b>تربط</b> بين آلية تلقيح الزهرة وتركيبها.<br><a class="here" href="#pollination">في قسم «آليات التلقيح» ←</a></span></label>
+      <label class="goal"><input type="checkbox"><span><b>توضّح</b> الفترة الضوئية.<br><a class="here" href="#photo">في قسم «الفترة الضوئية» ←</a></span></label>
     </div>
   </section>
 
@@ -240,6 +316,118 @@ footer{padding-block:30px;color:var(--muted);font-size:.85rem;text-align:center}
       </div>
     </div>
   </section>
+
+  <!-- ٥ تكيّفات الزهرة -->
+  <section class="sec wrap" id="adapt">
+    <div class="sec-head"><span class="n">٥</span><h2>تكيّفات الزهرة <bdi lang="en" dir="ltr" style="font-size:.6em;color:var(--muted)">Flower Adaptations</bdi></h2><p>أعضاء الزهرة توجد في معظم الأزهار، لكن لكثير منها تكيّفات في عضو أو أكثر، ويصنّف العلماء الأزهار في ضوء هذه التكيّفات.</p></div>
+    <h3 style="font-size:1.1rem;margin-bottom:10px">الفروق التركيبية <bdi dir="ltr" style="color:var(--muted);font-size:.85rem">Structural differences</bdi></h3>
+    <div class="types">
+      <div class="type"><span class="pair-label">حسب وجود الأعضاء الأربعة</span><h3>زهرة كاملة <small>complete</small></h3><p>لها سبلات وبتلات وأسدية وكربلة واحدة أو أكثر.</p></div>
+      <div class="type"><span class="pair-label">حسب وجود الأعضاء الأربعة</span><h3>زهرة ناقصة <small>incomplete</small></h3><p>تفتقر إلى واحد أو أكثر من هذه الأعضاء.</p><p class="ex"><b>مثال:</b> أزهار الزنجبيل البرية ناقصة؛ لأنها ليس لها بتلات.</p></div>
+      <div class="type"><span class="pair-label">حسب أعضاء التكاثر</span><h3>ثنائية الجنس <small>perfect</small></h3><p>لها أسدية وكرابل معًا.</p><p class="ex"><b>مثال:</b> نبات تبّاع الشمس.</p></div>
+      <div class="type"><span class="pair-label">حسب أعضاء التكاثر</span><h3>أحادية الجنس <small>imperfect</small></h3><p>لها إما أسدية أو كرابل نشطة تؤدي وظائفها. الأزهار الذكرية تحوي أسدية وحبوب لقاح، وتتشكّل الثمار بعد الإخصاب في الأزهار الأنثوية المحتوية على الكرابل.</p><p class="ex"><b>أمثلة:</b> النخيل، والخيار، والقرع.</p></div>
+    </div>
+
+    <div class="activity" id="classify">
+      <h3>نشاط: صنّفي الزهرة</h3>
+      <p>اختاري الوصف الصحيح لكل زهرة، ثم اضغطي «تحقّقي».</p>
+      <div class="rows" id="cls-rows"></div>
+      <button class="btn" type="button" id="cls-check" style="margin-top:10px">تحقّقي</button>
+      <div class="result" id="cls-result" aria-live="polite"></div>
+    </div>
+
+    <div class="activity" id="monodi">
+      <h3>ذوات الفلقة الواحدة أم ذوات الفلقتين؟</h3>
+      <p>يُستعمل عدد أجزاء الزهرة للتمييز بينهما: إذا كان عدد البتلات أربعًا أو خمسًا أو مضاعفاتهما فالنبات عادة من ذوات الفلقتين، وإذا كان ثلاثًا أو مضاعفاتها فهو من ذوات الفلقة الواحدة. وعادة يكون عدد الأعضاء الأخرى (السبلات والكرابل والأسدية) بالنمط نفسه. اختاري عدد البتلات:</p>
+      <div class="counter">
+        <svg viewBox="-60 -60 120 120" id="cnt-svg" role="img" aria-label="زهرة بعدد البتلات المختار"></svg>
+        <div>
+          <div class="opts" id="cnt-opts"></div>
+          <div class="verdict-big" id="cnt-verdict"></div>
+          <p class="ex" id="cnt-ex" style="color:var(--muted);font-size:.9rem;margin-top:4px"></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ٦ آليات التلقيح -->
+  <section class="sec wrap" id="pollination">
+    <div class="sec-head"><span class="n">٦</span><h2>آليات التلقيح <bdi lang="en" dir="ltr" style="font-size:.6em;color:var(--muted)">Pollination mechanisms</bdi></h2><p>لأنواع النباتات الزهرية المختلفة أزهار متميزة في الحجم والشكل واللون وترتيب البتلات، ويرتبط كثير من هذه التكيّفات بالتلقيح.</p></div>
+    <div class="two">
+      <div class="mech">
+        <h3>التلقيح بوساطة الحيوانات <bdi dir="ltr" style="font-size:.75em;color:var(--muted)">Animal pollination</bdi></h3>
+        <ul>
+          <li>أزهار ذات ألوان زاهية، أو رائحة قوية، أو تنتج سائلًا حلو المذاق يُسمّى <b>الرحيق</b>.</li>
+          <li>عندما تتنقل الحشرات والحيوانات الصغيرة من زهرة إلى أخرى بحثًا عن الرحيق تحمل معها حبوب اللقاح.</li>
+          <li>تجمع حشرات أخرى حبوب اللقاح غذاءً لها.</li>
+        </ul>
+      </div>
+      <div class="mech">
+        <h3>التلقيح بوساطة الرياح <bdi dir="ltr" style="font-size:.75em;color:var(--muted)">Wind pollination</bdi></h3>
+        <ul>
+          <li>أزهار تفتقر إلى الأجزاء الزهرية ذات المظهر الواضح أو الروائح القوية.</li>
+          <li>تنتج كميات كبيرة من حبوب اللقاح الخفيفة الوزن.</li>
+          <li>تقع أسديتها غالبًا تحت مستوى البتلات فتتعرّض للرياح.</li>
+          <li>مياسمها كبيرة وواسعة، مما يضمن سقوط حبوب اللقاح عليها واستقرارها.</li>
+          <li>تُلقَّح أزهار معظم الأشجار والحشائش بوساطة الرياح.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="pollinators">
+      <div class="pol"><span class="ic" aria-hidden="true">🐝</span><b>النحل والفراش والخنافس والدبابير</b>الألوان الناصعة والرائحة الطيبة لأزهار التفاح والورد والليلك تجذبها.</div>
+      <div class="pol"><span class="ic" aria-hidden="true">🌼</span><b>النحل وحشرات أخرى</b>بعض أصباغ الأزهار الصفراء والبرتقالية تعكس ضوءًا غير مرئي لعين الإنسان، لكن النحل وحشرات أخرى تميّزه.</div>
+      <div class="pol"><span class="ic" aria-hidden="true">🦋</span><b>العث والخفافيش</b>الأزهار البيضاء أو الصفراء الفاتحة أكثر وضوحًا عند الغسق وفي الليل، فتجذب الحيوانات الليلية. وتجذب الرائحة التي تشبه رائحة الفاكهة الخفاش.</div>
+      <div class="pol"><span class="ic" aria-hidden="true">🐦</span><b>الطيور (الطائر الطنّان)</b>تنجذب إلى الأزهار الحمراء، ويصل منقارها الطويل إلى الرحيق في قاعدة الزهرة. ولا تفرز هذه الأزهار روائح كثيرة؛ لأن حاسة الشم لدى الطيور محدودة، فتحدّد موقع الأزهار بالنظر.</div>
+      <div class="pol"><span class="ic" aria-hidden="true">🪰</span><b>الذباب الملقّح</b>زهرة رافليسيا لها رائحة اللحم الفاسد، فتجذب الذباب والخنافس.</div>
+      <div class="pol"><span class="ic" aria-hidden="true">🌬️</span><b>الرياح</b>تبعثر الرياح حبوب لقاح البلوط الخفيفة الوزن، وأزهاره الدانية تتدلّى نحو الأسفل وتتأرجح مع الرياح.</div>
+    </div>
+
+    <div class="activity" id="match">
+      <h3>نشاط: من يلقّح هذه الزهرة؟</h3>
+      <p>اربطي بين تركيب الزهرة وآلية تلقيحها: اختاري الملقّح الأنسب لكل زهرة، ثم اضغطي «تحقّقي».</p>
+      <div class="rows" id="m-rows"></div>
+      <button class="btn" type="button" id="m-check" style="margin-top:10px">تحقّقي</button>
+      <div class="result" id="m-result" aria-live="polite"></div>
+    </div>
+
+    <div class="activity">
+      <h3>التلقيح الذاتي والخلطي <bdi dir="ltr" style="font-size:.75em;color:var(--muted)">Self and cross pollination</bdi></h3>
+      <div class="sc">
+        <svg viewBox="0 0 260 150" id="sc-svg" role="img" aria-label="رسم يوضح انتقال حبوب اللقاح"></svg>
+        <div>
+          <div class="seg2" role="group" aria-label="نوع التلقيح">
+            <button type="button" data-sc="self" aria-pressed="true">ذاتي</button>
+            <button type="button" data-sc="cross" aria-pressed="false">خلطي</button>
+          </div>
+          <p id="sc-text" style="margin-top:10px"></p>
+        </div>
+      </div>
+      <p style="margin-top:10px;font-size:.93rem">يُعدّ التلقيح الخلطي أحد أسباب أهمية الملقّحات في تكاثر النباتات الزهرية؛ فهي تنقل حبوب اللقاح إلى الأزهار التي يجب أن تُلقَّح خلطيًّا، وتضمن تكاثر الأزهار الأحادية الجنس، ومنها القرع (الشكل 4–7).</p>
+      <details class="reveal"><summary>حدّدي: هل زهرة نبات القرع أحادية أم ثنائية الجنس؟</summary><p>أحادية الجنس: للقرع أزهار ذكرية وأزهار أنثوية، وينقل النحل والحشرات الأخرى حبوب اللقاح من الزهرة الذكرية إلى الزهرة الأنثوية، فيتم التلقيح وتتكوّن اللاقحة.</p></details>
+    </div>
+  </section>
+
+  <!-- ٧ الفترة الضوئية -->
+  <section class="sec wrap" id="photo">
+    <div class="sec-head"><span class="n">٧</span><h2>الفترة الضوئية <bdi lang="en" dir="ltr" style="font-size:.6em;color:var(--muted)">Photoperiodism</bdi></h2><p>لاحظ العلماء أن بعض النباتات تزهر في أوقات معيّنة من السنة فقط، واكتشفوا أن العامل الحاسم في الإزهار هو عدد ساعات <b>الظلام المتواصلة</b> التي يتعرّض لها النبات، لا عدد ساعات الضوء.</p></div>
+    <div class="callout">يُسمّى هذا العامل <b>الفترة الضوئية</b>. ولكل نوع من النبات استجابة لعدد من ساعات الظلام تُسمّى <b>الفترة الحرجة</b>، وتُصنَّف النباتات الزهرية في أربع مجموعات حسبها. والمصطلح الأدق لنباتات النهار القصير مثلًا هو «نباتات الليل الطويل».</div>
+
+    <div class="activity">
+      <h3>جرّبي: حرّكي عدد ساعات الظلام</h3>
+      <p>مثال توضيحي: الفترة الحرجة هنا ١٢ ساعة، ونبات النهار المتوسط يزهر بين ١٠ و١٤ ساعة ظلام. الأرقام الحقيقية تختلف من نبات إلى آخر.</p>
+      <label for="dark" style="font-weight:600">ساعات الظلام في اليوم: <span id="dark-v" style="color:var(--violet)"></span></label>
+      <input type="range" id="dark" min="0" max="24" step="1" value="9" dir="ltr">
+      <div class="daybar" aria-hidden="true"><span class="lab day" id="day-l"></span><span class="night" id="night"></span><span class="lab dark" id="dark-l"></span><span class="crit" id="crit" title="الفترة الحرجة"></span></div>
+      <div class="scale"><span>0</span><span>6</span><span>12</span><span>18</span><span>24</span></div>
+      <div class="plants" id="plants"></div>
+    </div>
+    <p class="note">انظري الشكل 5–7 في الكتاب: تحدّد الفترة الحرجة للنبات موعد إزهاره.</p>
+    <div class="activity" style="text-align:center">
+      <h3>انتهيتِ من أقسام الدرس</h3>
+      <p>عودي إلى جدول التعلّم واكتبي في عمود «ماذا تعلّمت؟» ثلاث أفكار من الدرس.</p>
+      <a class="btn" href="#kwl" style="display:inline-block;text-decoration:none">العودة إلى جدول التعلّم</a>
+    </div>
+  </section>
 </main>
 <footer>لبيبة · فكّري بذكاء، تعلّمي بعمق. · المحتوى من كتاب الأحياء، الدرس 7-1 الأزهار.</footer>
 
@@ -269,9 +457,9 @@ const VOCAB = [
   ["الكربلة (المتاع)", "Pistil", "عضو التكاثر الأنثوي في مركز الزهرة، يتكوّن من الميسم والقلم والمبيض."],
   ["الفترة الضوئية", "Photoperiodism", "استجابة النبات في إزهاره لعدد ساعات الظلام المتواصلة التي يتعرّض لها، لا لعدد ساعات الضوء."],
   ["نباتات النهار القصير", "Short-day plants", "تزهر عندما تتعرّض يوميًّا لعدد من ساعات الظلام أكبر من الفترة الحرجة لها، مثل البنفسج والبونسيتة والتيوليب وفم السمكة."],
-  ["نباتات النهار الطويل", "Long-day plants", "تزهر عندما تكون ساعات الظلام أقل من الفترة الحرجة، فتزهر في الصيف عادة، مثل الخس والسبانخ والبيتونيا والبطاطس."],
-  ["نباتات النهار المتوسط", "Intermediate-day plants", "تزهر عندما يكون عدد ساعات الظلام ضمن مدى معيّن، فلا تزهر إذا زادت عنه أو قلّت."],
-  ["نباتات النهار المحايد", "Day-neutral plants", "لا يعتمد إزهارها على عدد ساعات الظلام."]
+  ["نباتات النهار الطويل", "Long-day plants", "تزهر عندما تكون ساعات الظلام أقل من الفترة الحرجة، فتزهر في الصيف عادة، مثل الخس والسبانخ والبيتونيا والبطاطس والنجمة."],
+  ["نباتات النهار المتوسط", "Intermediate-day plants", "تزهر ما دام عدد ساعات الظلام ليس كبيرًا ولا صغيرًا، وعديد منها من نباتات المناطق الاستوائية، مثل قصب السكر وبعض الحشائش."],
+  ["نباتات النهار المحايد", "Day-neutral plants", "تزهر في مدى واسع من عدد ساعات الظلام، ما دامت تستقبل كمية كافية من الضوء اللازم للبناء الضوئي ودعم النمو، مثل الحنطة السوداء والذرة والقطن والطماطم والورد."]
 ];
 $("cards").innerHTML = VOCAB.map(([t, en, d], i) => `
   <button class="card" type="button" aria-label="${t}: اقلبي البطاقة">
@@ -296,6 +484,130 @@ const io = new IntersectionObserver(es => es.forEach(en => {
 document.querySelectorAll("section.sec").forEach(s => io.observe(s));
 </script>
 
+
+<script>
+/* ===== تكيّفات الزهرة: صنّفي الزهرة ===== */
+(function () {
+  const ROWS = [
+    ["زهرة لها سبلات وبتلات وأسدية وكربلة.", ["كاملة", "ناقصة"], 0, "الأعضاء الأربعة كلها موجودة."],
+    ["أزهار الزنجبيل البرية: ليس لها بتلات.", ["كاملة", "ناقصة"], 1, "تفتقر إلى عضو واحد على الأقل (البتلات)."],
+    ["زهرة نبات تبّاع الشمس: فيها أسدية وكرابل معًا.", ["ثنائية الجنس", "أحادية الجنس"], 0, "تحوي عضوي التكاثر الذكري والأنثوي."],
+    ["زهرة ذكرية في نبات الخيار: فيها أسدية فقط.", ["ثنائية الجنس", "أحادية الجنس"], 1, "لها أسدية فقط، فهي أحادية الجنس."],
+    ["زهرة فيها أسدية فقط ولا كرابل فيها: هل يمكن أن تكون كاملة؟", ["نعم، كاملة", "لا، ناقصة"], 1, "الزهرة الكاملة لها الأعضاء الأربعة، وهذه تفتقر إلى الكربلة."]
+  ];
+  const box = document.getElementById("cls-rows"); const picks = ROWS.map(() => null);
+  box.innerHTML = ROWS.map(([q, opts], i) => `<div class="arow" id="cr${i}"><span>${q}</span><span class="opts">${opts.map((o, j) => `<button type="button" class="opt" data-i="${i}" data-j="${j}">${o}</button>`).join("")}</span><span class="why" hidden></span></div>`).join("");
+  box.addEventListener("click", e => {
+    const b = e.target.closest(".opt"); if (!b) return;
+    const i = +b.dataset.i; picks[i] = +b.dataset.j;
+    box.querySelectorAll(`.opt[data-i="${i}"]`).forEach(x => x.classList.toggle("pick", x === b));
+    const r = document.getElementById("cr" + i); r.classList.remove("ok", "no"); r.querySelector(".why").hidden = true;
+  });
+  document.getElementById("cls-check").addEventListener("click", () => {
+    const res = document.getElementById("cls-result");
+    if (picks.some(p => p === null)) { res.className = "result no"; res.textContent = "اختاري إجابة لكل زهرة أولًا."; return; }
+    let ok = 0;
+    ROWS.forEach((r, i) => { const good = picks[i] === r[2]; if (good) ok++; const el = document.getElementById("cr" + i); el.classList.add(good ? "ok" : "no"); const w = el.querySelector(".why"); w.hidden = false; w.textContent = (good ? "✓ " : "✗ ") + r[3]; });
+    res.className = "result " + (ok === ROWS.length ? "ok" : "no");
+    res.textContent = ok === ROWS.length ? "أحسنتِ! صنّفتِ الأزهار كلها صحيحًا." : `${ok} من ${ROWS.length} صحيحة. راجعي التي باللون الأحمر.`;
+  });
+})();
+
+/* ===== ذوات الفلقة الواحدة أم الفلقتين ===== */
+(function () {
+  const NS = [3, 4, 5, 6, 8, 9, 10];
+  const svg = document.getElementById("cnt-svg"), opts = document.getElementById("cnt-opts");
+  opts.innerHTML = NS.map(n => `<button type="button" class="opt" data-n="${n}">${n.toLocaleString("ar-SA")} بتلات</button>`).join("");
+  function draw(n) {
+    const mono = n % 3 === 0;
+    const col = mono ? "#8f7bd0" : "#A8D8D0", edge = mono ? "#62508F" : "#2C6E63";
+    let g = "";
+    for (let i = 0; i < n; i++) { const a = (360 / n) * i; g += `<ellipse cx="0" cy="-30" rx="${Math.max(7, 40 / n * 2.2)}" ry="26" fill="${col}" stroke="${edge}" stroke-width="1.5" transform="rotate(${a})"/>`; }
+    svg.innerHTML = g + `<circle r="11" fill="#E6A823" stroke="#a87708" stroke-width="1.5"/>`;
+    const v = document.getElementById("cnt-verdict");
+    v.className = "verdict-big " + (mono ? "mono" : "di");
+    v.textContent = mono ? "ذوات الفلقة الواحدة" : "ذوات الفلقتين";
+    document.getElementById("cnt-ex").textContent = mono
+      ? `${n.toLocaleString("ar-SA")} من مضاعفات الثلاثة. مثال: زنابق النهار لها ثلاث سبلات وثلاث بتلات وست أسدية (الشكل 2–7).`
+      : `${n.toLocaleString("ar-SA")} أربعة أو خمسة أو من مضاعفاتهما. مثال: أفراد العائلة الخردلية لها أربع سبلات وأربع بتلات (الشكل 2–7).`;
+    opts.querySelectorAll(".opt").forEach(b => b.classList.toggle("pick", +b.dataset.n === n));
+  }
+  opts.addEventListener("click", e => { const b = e.target.closest(".opt"); if (b) draw(+b.dataset.n); });
+  draw(5);
+})();
+
+/* ===== من يلقّح هذه الزهرة؟ ===== */
+(function () {
+  const WHO = ["النحل", "الطائر الطنّان", "العث (فراشة ليلية)", "الذباب", "الرياح"];
+  const ROWS = [
+    ["زهرة حمراء طويلة، رحيقها في قاعدتها، ولا تكاد تفرز رائحة.", 1, "الطيور تنجذب إلى الأحمر وتحدّد الأزهار بالنظر، ومنقارها الطويل يصل إلى الرحيق."],
+    ["زهرة بيضاء فاتحة تتفتح ليلًا ولها رائحة قوية.", 2, "الألوان الفاتحة والرائحة أوضح عند الغسق وفي الليل للحيوانات الليلية."],
+    ["زهرة صغيرة باهتة بلا رائحة، أسديتها متدلّية خارجها، وميسمها كبير واسع، وتنتج حبوب لقاح كثيرة خفيفة.", 4, "صفات الأزهار التي تُلقَّح بالرياح."],
+    ["زهرة لها رائحة اللحم الفاسد.", 3, "مثل زهرة رافليسيا التي تجذب الذباب."],
+    ["زهرة صفراء زاهية ذات رائحة طيبة وفيها رحيق.", 0, "الألوان الناصعة والرائحة الطيبة تجذب النحل، ويميّز النحل أصباغًا لا تراها عين الإنسان."]
+  ];
+  const box = document.getElementById("m-rows");
+  box.innerHTML = ROWS.map(([q], i) => `<div class="arow" id="mr${i}"><span>${q}</span><select class="pick" id="ms${i}" aria-label="الملقّح"><option value="">اختاري…</option>${WHO.map((w, j) => `<option value="${j}">${w}</option>`).join("")}</select><span class="why" hidden></span></div>`).join("");
+  box.addEventListener("change", e => { const r = e.target.closest(".arow"); if (r) { r.classList.remove("ok", "no"); r.querySelector(".why").hidden = true; } });
+  document.getElementById("m-check").addEventListener("click", () => {
+    const res = document.getElementById("m-result");
+    const vals = ROWS.map((_, i) => document.getElementById("ms" + i).value);
+    if (vals.some(v => v === "")) { res.className = "result no"; res.textContent = "اختاري ملقّحًا لكل زهرة أولًا."; return; }
+    let ok = 0;
+    ROWS.forEach((r, i) => { const good = +vals[i] === r[1]; if (good) ok++; const el = document.getElementById("mr" + i); el.classList.add(good ? "ok" : "no"); const w = el.querySelector(".why"); w.hidden = false; w.textContent = (good ? "✓ " : "✗ الإجابة: " + WHO[r[1]] + ". ") + r[2]; });
+    res.className = "result " + (ok === ROWS.length ? "ok" : "no");
+    res.textContent = ok === ROWS.length ? "أحسنتِ! ربطتِ تركيب كل زهرة بآلية تلقيحها." : `${ok} من ${ROWS.length} صحيحة.`;
+  });
+})();
+
+/* ===== التلقيح الذاتي والخلطي ===== */
+(function () {
+  const svg = document.getElementById("sc-svg"), txt = document.getElementById("sc-text");
+  const flower = (x, c) => `<g transform="translate(${x},78)">
+      <line x1="0" y1="20" x2="0" y2="70" stroke="#5f9a4a" stroke-width="4"/>
+      ${[0, 72, 144, 216, 288].map(a => `<ellipse cx="0" cy="-20" rx="11" ry="20" fill="${c}" opacity=".85" transform="rotate(${a})"/>`).join("")}
+      <line x1="-9" y1="0" x2="-14" y2="-26" stroke="#ddd3b8" stroke-width="2"/><rect x="-19" y="-34" width="10" height="9" rx="4" fill="#E6A823"/>
+      <line x1="0" y1="0" x2="0" y2="-30" stroke="#9fcf86" stroke-width="3"/><circle cx="0" cy="-33" r="5" fill="#d8e86a" stroke="#8aa52a"/>
+    </g>`;
+  function set(mode) {
+    document.querySelectorAll("[data-sc]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.sc === mode)));
+    if (mode === "self") {
+      svg.innerHTML = flower(130, "#8f7bd0") + `<path class="flow" d="M116 46 C 112 20, 128 18, 130 40" fill="none" stroke="#C98A12" stroke-width="2.5"/><text x="130" y="145" text-anchor="middle" font-size="12" fill="#5D6A80">زهرة واحدة</text>`;
+      txt.textContent = "التلقيح الذاتي: تُلقِّح الزهرة نفسها، أو تُلقِّح زهرة أخرى على النبات نفسه.";
+    } else {
+      svg.innerHTML = flower(200, "#8f7bd0") + flower(60, "#A8D8D0") + `<path class="flow" d="M186 46 C 160 -5, 80 -5, 60 40" fill="none" stroke="#C98A12" stroke-width="2.5"/><text x="200" y="145" text-anchor="middle" font-size="12" fill="#5D6A80">نبات ١</text><text x="60" y="145" text-anchor="middle" font-size="12" fill="#5D6A80">نبات ٢</text>`;
+      txt.textContent = "التلقيح الخلطي: تستقبل الزهرة حبوب اللقاح من نبات آخر. بعض الأزهار يجب أن تُلقَّح خلطيًّا.";
+    }
+  }
+  document.querySelector(".seg2").addEventListener("click", e => { const b = e.target.closest("[data-sc]"); if (b) set(b.dataset.sc); });
+  set("self");
+})();
+
+/* ===== الفترة الضوئية ===== */
+(function () {
+  const CRIT = 12, MID = [10, 14];
+  const P = [
+    ["نبات النهار القصير", "ليل طويل", d => d > CRIT, "البنفسج، البونسيتة، التيوليب، فم السمكة"],
+    ["نبات النهار الطويل", "ليل قصير", d => d < CRIT, "الخس، السبانخ، البيتونيا، البطاطس، النجمة"],
+    ["نبات النهار المتوسط", "", d => d >= MID[0] && d <= MID[1], "قصب السكر، بعض الحشائش"],
+    ["نبات النهار المحايد", "", () => true, "الحنطة السوداء، الذرة، القطن، الطماطم، الورد"]
+  ];
+  const plant = () => `<svg viewBox="0 0 70 80" aria-hidden="true"><path d="M35 78 V30" stroke="#5f9a4a" stroke-width="3"/><path d="M35 60 C 20 55, 14 46, 16 42 C 26 44, 32 50, 35 58" fill="#6aa653"/><path d="M35 50 C 50 45, 56 36, 54 32 C 44 34, 38 40, 35 48" fill="#6aa653"/><g class="bud">${[0, 72, 144, 216, 288].map(a => `<ellipse cx="35" cy="12" rx="5.5" ry="10" fill="#8f7bd0" transform="rotate(${a} 35 22)"/>`).join("")}<circle cx="35" cy="22" r="4.5" fill="#E6A823"/></g></svg>`;
+  const box = document.getElementById("plants");
+  box.innerHTML = P.map(([n, alt, , eg], i) => `<div class="plant" id="pl${i}">${plant()}<b>${n}</b>${alt ? `<span class="eg">(${alt})</span>` : ""}<span class="st"></span><span class="eg">${eg}</span></div>`).join("");
+  const r = document.getElementById("dark");
+  document.getElementById("crit").style.insetInlineEnd = (CRIT / 24 * 100) + "%";
+  function upd() {
+    const d = +r.value;
+    document.getElementById("dark-v").textContent = d.toLocaleString("ar-SA") + " ساعة";
+    document.getElementById("night").style.width = (d / 24 * 100) + "%";
+    document.getElementById("day-l").textContent = "ضوء " + (24 - d).toLocaleString("ar-SA") + " س";
+    document.getElementById("dark-l").textContent = "ظلام " + d.toLocaleString("ar-SA") + " س";
+    P.forEach((p, i) => { const on = p[2](d); const el = document.getElementById("pl" + i); el.classList.toggle("bloom", on); el.querySelector(".st").textContent = on ? "يزهر" : "لا يزهر"; });
+  }
+  r.addEventListener("input", upd); upd();
+})();
+</script>
 <script type="module">
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
