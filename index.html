@@ -1415,12 +1415,65 @@ async function viewLab(id) {
   setFrame(frame, lab.html);
   $("#lab-reset").addEventListener("click", () => { setFrame(frame, lab.html); $("#lab-done").innerHTML = ""; });
   $("#lab-full").addEventListener("click", () => { const w = $("#lab-wrap"); (w.requestFullscreen ? w.requestFullscreen() : Promise.reject()).catch(() => toast("ملء الشاشة غير متاح في هذا المتصفح.")); });
+  const started = Date.now();
+  let sent = false;
   labMsgHandler = e => {
     if (e.source !== frame.contentWindow || !e.data || e.data.type !== "labeeba-lab-complete") return;
     const score = Math.max(0, Math.min(100, Math.round(Number(e.data.score) || 100)));
-    $("#lab-done").innerHTML = `<div class="labdone">أحسنتِ! أنجزتِ مختبر «${esc(lab.title)}» بنسبة ${pct(score)}.${labQuizQs(lab).length ? " أجيبي الآن عن أسئلة المختبر تحته." : ""}</div>`;
-    $("#lab-done").scrollIntoView({ behavior: motionOK() ? "smooth" : "auto", block: "center" });
+    const total = Math.max(1, Math.min(200, Math.round(Number(e.data.tasks) || 1)));
+    const correct = Math.round((score / 100) * total);
+    const preview = !DEMO && state.isTeacher;
+    const me = ls.get("student", { name: "", cls: "" });
     const mine = ls.get("labsDone", {}); mine[lab.id] = Math.max(mine[lab.id] || 0, score); ls.set("labsDone", mine);
+    if (sent) return;
+    // نتيجة الطالبة داخل المختبر نفسه تُرسل إلى المعلمة بعد تأكيد الاسم (مرة واحدة لكل فتح)
+    $("#lab-done").innerHTML = `
+      <form class="labdone stack" id="ld-form" style="gap:10px">
+        <div>أحسنتِ! أنجزتِ مختبر «${esc(lab.title)}» بنسبة ${pct(score)}.${labQuizQs(lab).length ? " وبعدها أجيبي عن أسئلة المختبر تحته." : ""}</div>
+        ${preview ? `<div class="muted" style="font-weight:400">معاينة المعلمة: لن تُرسل النتيجة.</div>` : `
+        <div class="grid2">
+          <label class="f">الاسم الكامل<input id="ld-name" required maxlength="80" value="${esc(me.name)}" autocomplete="name"></label>
+          <label class="f">الفصل / الشعبة<input id="ld-cls" maxlength="30" value="${esc(me.cls)}" placeholder="مثال: ٢/أ"></label>
+        </div>
+        <div class="row"><button class="btn" type="submit">أرسلي نتيجتك إلى المعلمة</button><span id="ld-note" class="muted" style="font-weight:400"></span></div>`}
+      </form>
+      <div id="ld-award"></div>`;
+    $("#lab-done").scrollIntoView({ behavior: motionOK() ? "smooth" : "auto", block: "center" });
+    $("#ld-form")?.addEventListener("submit", async ev => {
+      ev.preventDefault();
+      const name = $("#ld-name").value.trim(), cls = $("#ld-cls").value.trim();
+      if (!name) { $("#ld-name").focus(); return; }
+      const btn = $("#ld-form button[type=submit]"); btn.disabled = true;
+      ls.set("student", { name, cls });
+      try {
+        await Store.addResult({
+          labId: lab.id, lessonId: lab.id, lessonTitle: "مختبر: " + lab.title + " · داخل المختبر", subject: lab.subject || "",
+          gradeId: lab.gradeId || "", gradeName: g ? g.name : "",
+          studentName: name.slice(0, 80), studentClass: cls.slice(0, 30),
+          correct, total, score, attempts: 1,
+          minutes: Math.max(1, Math.round((Date.now() - started) / 60000)), completedAt: new Date().toISOString()
+        });
+        sent = true;
+        $("#ld-form .row").innerHTML = `<span>✓ وصلت نتيجتك إلى المعلمة.</span>`;
+        $$("#ld-form input").forEach(i => (i.disabled = true));
+        const tier = badgeTier(score);
+        const badges = ls.get("badges", {}), key = "lab:" + lab.id;
+        if (!badges[key] || TIERS.findIndex(t => t.key === badges[key]) > TIERS.indexOf(tier)) badges[key] = tier.key;
+        ls.set("badges", badges);
+        $("#ld-award").innerHTML = `
+          <section class="award" style="margin-top:14px">
+            <span class="eyebrow">شارة إنجاز · مختبر ${esc(lab.subject || "")}</span>
+            ${medalSVG(tier, lab.subject)}
+            <div class="tier" style="color:var(--t-${tier.key})">${tier.title}</div>
+            <div class="who">${esc(name)}</div>
+            <p>أنجزتِ مختبر <b>${esc(lab.title)}</b></p>
+            <p class="score">${pct(score)}</p>
+          </section>`;
+      } catch (err) {
+        console.error(err); btn.disabled = false;
+        $("#ld-note").textContent = "تعذّر الإرسال. تأكدي من الاتصال ثم اضغطي مرة أخرى، أو التقطي صورة للشاشة وأرسليها للمعلمة.";
+      }
+    });
   };
   window.addEventListener("message", labMsgHandler);
 }
@@ -1946,12 +1999,65 @@ async function viewILesson(id) {
   setFrame(frame, lab.html);
   $("#lab-reset").addEventListener("click", () => { setFrame(frame, lab.html); $("#lab-done").innerHTML = ""; });
   $("#lab-full").addEventListener("click", () => { const w = $("#lab-wrap"); (w.requestFullscreen ? w.requestFullscreen() : Promise.reject()).catch(() => toast("ملء الشاشة غير متاح في هذا المتصفح.")); });
+  const started = Date.now();
+  let sent = false;
   labMsgHandler = e => {
     if (e.source !== frame.contentWindow || !e.data || e.data.type !== "labeeba-lab-complete") return;
     const score = Math.max(0, Math.min(100, Math.round(Number(e.data.score) || 100)));
-    $("#lab-done").innerHTML = `<div class="labdone">أحسنتِ! أنجزتِ الدرس التفاعلي «${esc(lab.title)}» بنسبة ${pct(score)}.${labQuizQs(lab).length ? " أجيبي الآن عن أسئلة الدرس التفاعلي تحته." : ""}</div>`;
-    $("#lab-done").scrollIntoView({ behavior: motionOK() ? "smooth" : "auto", block: "center" });
+    const total = Math.max(1, Math.min(200, Math.round(Number(e.data.tasks) || 1)));
+    const correct = Math.round((score / 100) * total);
+    const preview = !DEMO && state.isTeacher;
+    const me = ls.get("student", { name: "", cls: "" });
     const mine = ls.get("labsDone", {}); mine[lab.id] = Math.max(mine[lab.id] || 0, score); ls.set("labsDone", mine);
+    if (sent) return;
+    // نتيجة الطالبة داخل الدرس التفاعلي نفسه تُرسل إلى المعلمة بعد تأكيد الاسم (مرة واحدة لكل فتح)
+    $("#lab-done").innerHTML = `
+      <form class="labdone stack" id="ld-form" style="gap:10px">
+        <div>أحسنتِ! أنجزتِ الدرس التفاعلي «${esc(lab.title)}» بنسبة ${pct(score)}.${labQuizQs(lab).length ? " وبعدها أجيبي عن أسئلة الدرس التفاعلي تحته." : ""}</div>
+        ${preview ? `<div class="muted" style="font-weight:400">معاينة المعلمة: لن تُرسل النتيجة.</div>` : `
+        <div class="grid2">
+          <label class="f">الاسم الكامل<input id="ld-name" required maxlength="80" value="${esc(me.name)}" autocomplete="name"></label>
+          <label class="f">الفصل / الشعبة<input id="ld-cls" maxlength="30" value="${esc(me.cls)}" placeholder="مثال: ٢/أ"></label>
+        </div>
+        <div class="row"><button class="btn" type="submit">أرسلي نتيجتك إلى المعلمة</button><span id="ld-note" class="muted" style="font-weight:400"></span></div>`}
+      </form>
+      <div id="ld-award"></div>`;
+    $("#lab-done").scrollIntoView({ behavior: motionOK() ? "smooth" : "auto", block: "center" });
+    $("#ld-form")?.addEventListener("submit", async ev => {
+      ev.preventDefault();
+      const name = $("#ld-name").value.trim(), cls = $("#ld-cls").value.trim();
+      if (!name) { $("#ld-name").focus(); return; }
+      const btn = $("#ld-form button[type=submit]"); btn.disabled = true;
+      ls.set("student", { name, cls });
+      try {
+        await Store.addResult({
+          labId: lab.id, lessonId: lab.id, lessonTitle: "درس تفاعلي: " + lab.title + " · اختبار الصفحة", subject: lab.subject || "",
+          gradeId: lab.gradeId || "", gradeName: g ? g.name : "",
+          studentName: name.slice(0, 80), studentClass: cls.slice(0, 30),
+          correct, total, score, attempts: 1,
+          minutes: Math.max(1, Math.round((Date.now() - started) / 60000)), completedAt: new Date().toISOString()
+        });
+        sent = true;
+        $("#ld-form .row").innerHTML = `<span>✓ وصلت نتيجتك إلى المعلمة.</span>`;
+        $$("#ld-form input").forEach(i => (i.disabled = true));
+        const tier = badgeTier(score);
+        const badges = ls.get("badges", {}), key = "lab:" + lab.id;
+        if (!badges[key] || TIERS.findIndex(t => t.key === badges[key]) > TIERS.indexOf(tier)) badges[key] = tier.key;
+        ls.set("badges", badges);
+        $("#ld-award").innerHTML = `
+          <section class="award" style="margin-top:14px">
+            <span class="eyebrow">شارة إنجاز · درس تفاعلي ${esc(lab.subject || "")}</span>
+            ${medalSVG(tier, lab.subject)}
+            <div class="tier" style="color:var(--t-${tier.key})">${tier.title}</div>
+            <div class="who">${esc(name)}</div>
+            <p>أنجزتِ الدرس التفاعلي <b>${esc(lab.title)}</b></p>
+            <p class="score">${pct(score)}</p>
+          </section>`;
+      } catch (err) {
+        console.error(err); btn.disabled = false;
+        $("#ld-note").textContent = "تعذّر الإرسال. تأكدي من الاتصال ثم اضغطي مرة أخرى، أو التقطي صورة للشاشة وأرسليها للمعلمة.";
+      }
+    });
   };
   window.addEventListener("message", labMsgHandler);
 }
