@@ -1,0 +1,776 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>انجراف القارات</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600&family=Readex+Pro:wght@500;600;700&display=swap">
+</head>
+<body>
+<style>
+/* Layout: one reading column; the drifting-continents map is the centerpiece, everything else is short cards around it. */
+:root{
+  --bg:#F2F6F7; --surface:#FFFFFF; --fg:#10262C; --muted:#4A6369; --line:#CBDADD;
+  --accent:#0B6E7F; --accent-fg:#FFFFFF; --accent-soft:#DCEEF1;
+  --warm:#A4501F; --warm-soft:#F6E4D8;
+  --ok:#1B7448; --ok-soft:#DCF1E5; --bad:#AE3029; --bad-soft:#F8E2E0;
+  --sea:#D8EBF1; --sea-line:#B7D5DF; --edge-a:#D1410C; --edge-b:#3D3FD1;
+  --c-na:#7FA27C; --c-sa:#CC8460; --c-af:#D6AC52; --c-eu:#98A872; --c-in:#C76B52; --c-au:#DE9A74; --c-an:#EEF4F6;
+  --land-line:#3C5A55;
+  --font-display:"Readex Pro","IBM Plex Sans Arabic","Segoe UI",Tahoma,sans-serif;
+  --font-body:"IBM Plex Sans Arabic","Segoe UI",Tahoma,Arial,sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0B171B; --surface:#12242A; --fg:#E3EFF1; --muted:#9BB3B9; --line:#27424C;
+    --accent:#4CC3D6; --accent-fg:#06222A; --accent-soft:#143640;
+    --warm:#EBA070; --warm-soft:#3A2A20;
+    --ok:#5BD08F; --ok-soft:#153529; --bad:#FF9990; --bad-soft:#3B1F1E;
+    --sea:#0F2E38; --sea-line:#1F4856; --edge-a:#FF8A5B; --edge-b:#9DA1FF;
+    --c-na:#4F7B57; --c-sa:#A5603F; --c-af:#B08A33; --c-eu:#6E8250; --c-in:#A8523B; --c-au:#B77652; --c-an:#BCD2D9;
+    --land-line:#0B171B;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0B171B; --surface:#12242A; --fg:#E3EFF1; --muted:#9BB3B9; --line:#27424C;
+  --accent:#4CC3D6; --accent-fg:#06222A; --accent-soft:#143640;
+  --warm:#EBA070; --warm-soft:#3A2A20;
+  --ok:#5BD08F; --ok-soft:#153529; --bad:#FF9990; --bad-soft:#3B1F1E;
+  --sea:#0F2E38; --sea-line:#1F4856; --edge-a:#FF8A5B; --edge-b:#9DA1FF;
+  --c-na:#4F7B57; --c-sa:#A5603F; --c-af:#B08A33; --c-eu:#6E8250; --c-in:#A8523B; --c-au:#B77652; --c-an:#BCD2D9;
+  --land-line:#0B171B;
+  color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:border-box}
+body{
+  background:var(--bg); color:var(--fg);
+  font-family:var(--font-body); font-size:17px; line-height:1.85;
+  padding-left:max(16px, env(safe-area-inset-left, 0px));
+  padding-right:max(16px, env(safe-area-inset-right, 0px));
+  padding-block:0;
+}
+.page{max-width:920px; margin-inline:auto; padding-block:28px 56px}
+h1,h2,h3{font-family:var(--font-display); line-height:1.35; margin:0; text-wrap:balance}
+p{margin:0 0 .9em}
+button{font:inherit; color:inherit; cursor:pointer}
+:focus-visible{outline:3px solid var(--accent); outline-offset:2px}
+
+/* hero */
+.hero{display:grid; grid-template-columns:auto 1fr; gap:8px 22px; align-items:end; padding-block:8px 24px; border-bottom:2px solid var(--fg)}
+.lesson-no{font-family:var(--font-display); font-weight:700; font-size:clamp(64px,16vw,112px); line-height:.9; color:var(--accent); letter-spacing:-.02em; direction:ltr}
+.hero h1{font-size:clamp(34px,7vw,58px); font-weight:700}
+.eyebrow{font-size:14px; color:var(--muted); letter-spacing:.04em; margin:0 0 4px}
+.idea{margin:22px 0 0; padding:16px 20px; background:var(--accent-soft); border-radius:10px}
+.idea strong{font-family:var(--font-display); color:var(--accent); display:block; font-size:14px; margin-bottom:2px}
+.idea p{margin:0; font-size:18px}
+.goals{margin:22px 0 0; display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:12px; padding:0; list-style:none}
+.goals li{padding:12px 16px; border:1px solid var(--line); background:var(--surface); border-radius:8px; font-size:15.5px; line-height:1.7}
+.goals b{display:block; font-family:var(--font-display); font-size:13px; color:var(--warm); font-weight:600}
+.nav{display:flex; flex-wrap:wrap; gap:8px; margin:26px 0 0; padding:0; list-style:none}
+.nav a{display:block; padding:6px 14px; border:1px solid var(--line); border-radius:999px; background:var(--surface); color:var(--fg); text-decoration:none; font-size:15px; line-height:1.6}
+.nav a:hover{border-color:var(--accent); color:var(--accent)}
+
+/* sections */
+section{padding-block:44px 8px}
+.sec-head{display:flex; align-items:baseline; gap:12px; margin-bottom:14px; flex-wrap:wrap}
+.sec-head h2{font-size:clamp(25px,4.6vw,34px)}
+.sec-head .en{font-family:var(--font-display); font-size:14px; color:var(--muted); direction:ltr; font-weight:500}
+.lead{max-width:68ch}
+
+.reveal{display:inline-flex; align-items:center; gap:8px; padding:8px 16px; border:1.5px solid var(--accent); background:transparent; color:var(--accent); border-radius:8px; font-weight:500; font-size:15.5px; line-height:1.5}
+.reveal:hover{background:var(--accent-soft)}
+.reveal[aria-expanded="true"]{background:var(--accent-soft)}
+.answer{margin-top:10px; padding:12px 16px; border-radius:8px; background:var(--ok-soft); border-inline-start:4px solid var(--ok); max-width:68ch; font-size:16px; line-height:1.8}
+.prompt{margin-top:18px; padding:14px 18px; border:1px dashed var(--accent); border-radius:10px; background:var(--surface)}
+.prompt .q{font-weight:600; margin:0 0 10px}
+.prompt .q span{font-family:var(--font-display); font-size:13px; color:var(--accent); display:block; font-weight:600}
+
+.trail{list-style:none; padding:0; margin:20px 0; display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:0}
+.trail li{position:relative; padding:12px 16px 12px 16px; border-top:3px solid var(--line); font-size:15.5px; line-height:1.7}
+.trail li:last-child{border-top-color:var(--accent)}
+.trail li b{display:block; font-family:var(--font-display); font-size:14px; color:var(--muted); font-weight:600}
+.trail li:last-child b{color:var(--accent)}
+
+/* map */
+.map{background:var(--sea); border:1px solid var(--sea-line); border-radius:14px; padding:12px 12px 16px; margin-top:18px}
+.map svg{display:block; width:100%; height:auto; max-height:70vh; direction:ltr}
+.when{display:flex; justify-content:space-between; align-items:baseline; gap:12px; flex-wrap:wrap; margin:2px 4px 6px}
+.when .mya{font-family:var(--font-display); font-weight:700; font-size:clamp(22px,4.4vw,30px)}
+.when .note{font-size:13px; color:var(--muted)}
+.cont polygon{stroke:var(--land-line); stroke-width:1.6; stroke-linejoin:round}
+.labels text{font-family:var(--font-body); font-weight:600; fill:var(--fg); text-anchor:middle; paint-order:stroke; stroke:var(--sea); stroke-width:3.5px; stroke-linejoin:round; pointer-events:none}
+.edge{fill:none; stroke-width:3.4; stroke-linecap:round; stroke-linejoin:round}
+.edge.a{stroke:var(--edge-a)} .edge.b{stroke:var(--edge-b)}
+#map.noedges .edge{display:none}
+.eq{stroke:var(--sea-line); stroke-width:1.2; stroke-dasharray:6 5}
+.eqt{font-family:var(--font-body); font-size:11px; fill:var(--muted); text-anchor:middle}
+.legend{display:flex; flex-wrap:wrap; gap:8px 18px; align-items:center; margin:8px 4px 0; font-size:14px; line-height:1.6}
+.chk{display:inline-flex; align-items:center; gap:8px; font-weight:600; cursor:pointer}
+.chk input{width:18px; height:18px; accent-color:var(--accent); margin:0}
+.key{display:inline-flex; align-items:center; gap:8px; color:var(--fg)}
+.key i{display:inline-block; width:26px; height:0; border-top:4px solid; border-radius:4px}
+.key i.a{border-color:var(--edge-a)} .key i.b{border-color:var(--edge-b)}
+.c-na polygon{fill:var(--c-na)} .c-sa polygon{fill:var(--c-sa)} .c-af polygon{fill:var(--c-af)}
+.c-eu polygon{fill:var(--c-eu)} .c-in polygon{fill:var(--c-in)} .c-au polygon{fill:var(--c-au)} .c-an polygon{fill:var(--c-an)}
+.controls{display:grid; gap:12px; margin-top:6px}
+.stages{display:grid; grid-template-columns:repeat(5,1fr); gap:6px}
+.stage{padding:8px 4px; border:1.5px solid var(--sea-line); border-radius:8px; background:var(--surface); text-align:center; line-height:1.3}
+.stage b{display:block; font-family:var(--font-display); font-size:clamp(16px,3.6vw,22px); font-weight:700}
+.stage small{display:block; font-size:11.5px; color:var(--muted)}
+.stage[aria-pressed="true"]{background:var(--accent); border-color:var(--accent); color:var(--accent-fg)}
+.stage[aria-pressed="true"] small{color:var(--accent-fg)}
+.slider-row{display:flex; gap:12px; align-items:center}
+input[type=range]{flex:1; min-width:0; accent-color:var(--accent); height:32px}
+.play{flex:none; padding:8px 18px; border-radius:8px; border:0; background:var(--accent); color:var(--accent-fg); font-weight:600; font-size:15.5px; min-width:92px}
+.stage-text{margin-top:14px; padding:14px 18px; background:var(--surface); border:1px solid var(--line); border-radius:10px; min-height:5.4em}
+.stage-text h3{font-size:18px; margin-bottom:4px}
+.stage-text p{margin:0; font-size:16.5px}
+.caption{font-size:13px; color:var(--muted); margin:8px 4px 0}
+
+.video{display:flex; gap:16px; align-items:center; margin-top:18px; padding:16px 18px; background:var(--surface); border:1px solid var(--line); border-radius:12px; flex-wrap:wrap}
+.video .ico{flex:none; width:56px; height:56px; border-radius:50%; background:var(--accent); color:var(--accent-fg); display:grid; place-items:center}
+.video .ico svg{width:24px; height:24px; margin-inline-start:-3px}
+.video .txt{flex:1; min-width:200px}
+.video h3{font-size:18px; margin-bottom:2px}
+.video p{margin:0; font-size:14.5px; color:var(--muted); line-height:1.7}
+.video a{flex:none; display:inline-block; padding:10px 20px; border-radius:8px; background:var(--accent); color:var(--accent-fg); font-weight:600; text-decoration:none; font-size:16px}
+.video a:hover{filter:brightness(1.08)}
+
+/* evidence */
+.tabs{display:flex; flex-wrap:wrap; gap:8px; margin:6px 0 14px}
+.tab{padding:8px 16px; border:1.5px solid var(--line); border-radius:8px; background:var(--surface); font-weight:500; font-size:15.5px; line-height:1.5}
+.tab[aria-selected="true"]{background:var(--fg); color:var(--bg); border-color:var(--fg)}
+.panel{background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:20px 22px}
+.panel h3{font-size:21px; margin-bottom:8px}
+.tag{display:inline-block; font-size:12.5px; font-weight:600; padding:2px 10px; border-radius:999px; background:var(--warm-soft); color:var(--warm); margin-bottom:8px; line-height:1.7}
+.panel p{max-width:68ch}
+
+/* failure */
+.two{display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:14px; margin-top:12px}
+.card{background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:18px 20px}
+.card h3{font-size:19px; margin-bottom:6px}
+.card .k{font-family:var(--font-display); font-size:13px; font-weight:600; color:var(--warm)}
+.card p{margin:0; font-size:16px; line-height:1.8}
+.turn{margin-top:14px; padding:14px 18px; border-radius:10px; background:var(--warm-soft); border-inline-start:4px solid var(--warm)}
+.turn p{margin:0}
+.sum{margin:24px 0 0; padding:0; list-style:none; display:grid; gap:8px}
+.sum li{padding:10px 16px; background:var(--surface); border:1px solid var(--line); border-radius:8px; font-size:16px; line-height:1.75}
+
+/* vocab */
+.vocab{display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:12px; margin-top:8px}
+.flash{min-height:132px; padding:16px 18px; text-align:start; border:1.5px solid var(--line); border-radius:12px; background:var(--surface); line-height:1.7; display:flex; flex-direction:column; justify-content:center; gap:4px}
+.flash .t{font-family:var(--font-display); font-weight:600; font-size:20px}
+.flash .hint{font-size:13px; color:var(--muted)}
+.flash[aria-pressed="true"]{background:var(--accent-soft); border-color:var(--accent)}
+.flash[aria-pressed="true"] .t{font-size:15px; color:var(--accent)}
+.flash .d{font-size:16px}
+
+/* quiz */
+.quiz{background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:22px}
+.bar{height:6px; background:var(--line); border-radius:99px; overflow:hidden; margin:6px 0 16px}
+.bar i{display:block; height:100%; background:var(--accent); width:0; transition:width .3s}
+.qmeta{display:flex; justify-content:space-between; font-size:14px; color:var(--muted)}
+.qtext{font-family:var(--font-display); font-weight:600; font-size:clamp(18px,3.8vw,22px); line-height:1.6; margin:0 0 14px}
+.opts{display:grid; gap:10px}
+.opt{text-align:start; padding:12px 16px; border:1.5px solid var(--line); border-radius:10px; background:var(--bg); font-size:16.5px; line-height:1.6}
+.opt:hover:not(:disabled){border-color:var(--accent)}
+.opt:disabled{cursor:default}
+.primary:disabled{opacity:.45; cursor:not-allowed}
+.opt.right{background:var(--ok-soft); border-color:var(--ok)}
+.opt.wrong{background:var(--bad-soft); border-color:var(--bad)}
+.fb{margin-top:14px; padding:12px 16px; border-radius:8px; font-size:16px; line-height:1.8}
+.fb.right{background:var(--ok-soft); border-inline-start:4px solid var(--ok)}
+.fb.wrong{background:var(--bad-soft); border-inline-start:4px solid var(--bad)}
+.fb b{display:block}
+.primary{margin-top:14px; padding:10px 22px; border:0; border-radius:8px; background:var(--accent); color:var(--accent-fg); font-weight:600; font-size:16px}
+.score{font-family:var(--font-display); font-weight:700; font-size:clamp(40px,10vw,64px); line-height:1.1; color:var(--accent); direction:ltr; text-align:start}
+
+.send{margin-top:24px; padding-top:18px; border-top:1px solid var(--line); display:grid; gap:8px}
+.send h3{font-size:19px}
+.send label{font-weight:600; font-size:15px}
+.send input{font:inherit; padding:10px 14px; border:1.5px solid var(--line); border-radius:8px; background:var(--bg); color:var(--fg); max-width:380px; width:100%}
+.send .primary{justify-self:start; margin-top:4px}
+.msg{margin:0; font-size:15px; line-height:1.7; min-height:1.7em}
+.msg.ok{color:var(--ok)} .msg.bad{color:var(--bad)}
+.tbl-wrap{overflow-x:auto}
+table.res{border-collapse:collapse; width:100%; min-width:480px; font-size:15.5px}
+table.res th,table.res td{padding:8px 10px; border-bottom:1px solid var(--line); text-align:start; vertical-align:top}
+table.res th{font-family:var(--font-display); font-size:13px; color:var(--muted); font-weight:600}
+table.res td.num{font-variant-numeric:tabular-nums; white-space:nowrap}
+details summary{cursor:pointer; color:var(--accent); font-weight:500}
+.dl{margin:8px 0 4px; padding:0; list-style:none; display:grid; gap:8px; font-size:14.5px; line-height:1.7}
+.dl .r{color:var(--ok); font-weight:600} .dl .w{color:var(--bad); font-weight:600}
+.dl .qq{font-weight:600}
+footer{margin-top:48px; padding-top:16px; border-top:1px solid var(--line); font-size:13.5px; color:var(--muted)}
+
+@media (max-width:520px){
+  body{font-size:16px}
+  .hero{grid-template-columns:1fr}
+  .panel,.quiz{padding:16px}
+  .stage small{font-size:10.5px}
+}
+@media (prefers-reduced-motion:reduce){
+  .bar i{transition:none}
+  html{scroll-behavior:auto}
+}
+html{scroll-behavior:smooth}
+</style>
+
+<div class="page" dir="rtl" lang="ar">
+
+<header>
+  <div class="hero">
+    <div class="lesson-no" aria-label="الدرس 5-1">5-1</div>
+    <div>
+      <p class="eyebrow">علوم الأرض · صفحة تفاعلية للدرس</p>
+      <h1>انجراف القارات</h1>
+    </div>
+  </div>
+
+  <div class="idea">
+    <strong>الفكرة الرئيسة</strong>
+    <p>تدل جيولوجية القارات وأشكالها على أنها كانت متصلة معًا يومًا ما.</p>
+  </div>
+
+  <ul class="goals">
+    <li><b>الهدف 1</b>تتعرّف الأدلة التي جعلت العالم فاجنر يقترح أن القارات قد تحركت.</li>
+    <li><b>الهدف 2</b>تناقش كيف دعم دليل المناخ القديم فرضية انجراف القارات.</li>
+    <li><b>الهدف 3</b>توضح لماذا لم تحظَ فرضية انجراف القارات بالقبول في البداية.</li>
+  </ul>
+
+  <ul class="nav">
+    <li><a href="#s-early">الملاحظات القديمة</a></li>
+    <li><a href="#s-drift">خريطة الانجراف</a></li>
+    <li><a href="#s-evidence">أدلة فاجنر</a></li>
+    <li><a href="#s-fail">قصور الفرضية</a></li>
+    <li><a href="#s-quiz">التقويم</a></li>
+  </ul>
+</header>
+
+<main>
+
+<section id="s-early" aria-labelledby="h-early">
+  <div class="sec-head"><h2 id="h-early">الملاحظات القديمة</h2><span class="en">Early observation</span></div>
+  <p class="lead">معظم معالم سطح الأرض لا تتغير تغيرًا واضحًا خلال حياة الإنسان، باستثناء الأحداث المفاجئة كالزلازل والبراكين والانزلاقات الأرضية. لكن الأرض مرت بتغيرات كثيرة عبر تاريخها الطويل الموثق في سلم الزمن الجيولوجي. وأول من اقترح فكرة تغير المعالم الرئيسة للأرض هم رسامو الخرائط.</p>
+
+  <ol class="trail">
+    <li><b>أبراهام أورتيليوس</b>رسام خرائط هولندي لاحظ تطابقًا بين حافات القارات على جانبي المحيط الأطلسي، واقترح أن الأمريكيتين انفصلتا عن أوروبا وإفريقيا بسبب الزلازل والفيضانات.</li>
+    <li><b>رسامو الخرائط في القرن التاسع عشر</b>لاحظ كثير من العلماء تطابق الحواف القارية، وأعدوا خرائط توضح ذلك (الشكل 5-1).</li>
+    <li><b>ألفريد فاجنر، 1912م</b>أول من اقترح فكرة حركة القارات في فرضية علمية قدمها إلى الأوساط العلمية.</li>
+  </ol>
+
+  <div class="prompt">
+    <p class="q"><span>ماذا قرأت؟</span>ما الذي جعل رسامي الخرائط من أوائل الذين اقترحوا أن القارات كانت متصلة معًا يومًا ما؟</p>
+    <button class="reveal" data-reveal="a-early" aria-expanded="false" aria-controls="a-early">اعرضي الإجابة</button>
+    <div class="answer" id="a-early" hidden>لاحظوا أن حواف القارات على جانبي المحيط الأطلسي تتطابق ظاهريًا، كما تتطابق قطع البازل.</div>
+  </div>
+
+  <div class="prompt">
+    <p class="q"><span>الربط مع الحياة</span>ما خصائص القطع التي تستعملينها في لعبة تركيب القطع (البازل)؟</p>
+    <button class="reveal" data-reveal="a-puzzle" aria-expanded="false" aria-controls="a-puzzle">اعرضي الإجابة</button>
+    <div class="answer" id="a-puzzle" hidden>الشكل والموقع. ويستعمل العلماء الخصائص نفسها ليعرفوا لماذا تتشابه حواف القارات وتتطابق على الرغم من تباعدها.</div>
+  </div>
+</section>
+
+<section id="s-drift" aria-labelledby="h-drift">
+  <div class="sec-head"><h2 id="h-drift">الانجراف القاري</h2><span class="en">Continental Drift</span></div>
+  <p class="lead">طوّر فاجنر فكرة تُسمى <b>الانجراف القاري</b>: كانت القارات مجتمعة معًا في قارة واحدة ضخمة (القارة الأم) أُطلق عليها <b>بانجيا</b>، وهي كلمة إغريقية تعني «جميع اليابسة». بدأت بانجيا تنقسم قبل 200 مليون سنة، ثم انجرفت أجزاؤها ببطء حتى وصلت إلى مواقعها الحالية. حرّكي المؤشر في الأسفل أو اضغطي «تشغيل» لتري ذلك، وانتبهي إلى الحواف الملونة: هي الحدود المتشابهة التي تلتقي عند قارة بانجيا.</p>
+
+  <div class="map">
+    <div class="when">
+      <div class="mya" id="mya" aria-live="polite">قبل 200 مليون سنة</div>
+      <div class="note">رسم مبسط، الحدود والمواقع تقريبية</div>
+    </div>
+    <svg id="map" viewBox="0 0 600 372" role="img" aria-label="رسم تخطيطي لحدود القارات يوضح كيف تتطابق حواف أمريكا الجنوبية وإفريقيا وأمريكا الشمالية وأوروبا في بانجيا"></svg>
+    <div class="legend">
+      <label class="chk"><input type="checkbox" id="hl" checked> إبراز حدود التطابق</label>
+      <span class="key"><i class="a"></i>أمريكا الجنوبية وغرب إفريقيا</span>
+      <span class="key"><i class="b"></i>أمريكا الشمالية وشمال غرب إفريقيا وأوروبا</span>
+    </div>
+  </div>
+
+  <div class="controls">
+    <div class="stages" id="stages"></div>
+    <div class="slider-row">
+      <input type="range" id="time" min="0" max="400" step="1" value="0" aria-label="الزمن الجيولوجي من قبل 200 مليون سنة إلى اليوم">
+      <button class="play" id="play" type="button">تشغيل</button>
+    </div>
+  </div>
+
+  <div class="stage-text" aria-live="polite">
+    <h3 id="st-title"></h3>
+    <p id="st-body"></p>
+  </div>
+
+  <div class="video">
+    <div class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 4l14 8-14 8z"/></svg></div>
+    <div class="txt">
+      <h3>شاهدي الفيديو</h3>
+      <p>يفتح الفيديو على يوتيوب في صفحة جديدة.</p>
+    </div>
+    <a href="https://www.youtube.com/shorts/3P8M763su9w" target="_blank" rel="noopener noreferrer">تشغيل الفيديو</a>
+  </div>
+
+  <div class="prompt">
+    <p class="q"><span>حدّدي</span>حدّدي أجزاء بانجيا التي تشكلت منها القارتان الأمريكيتان الشمالية والجنوبية. متى كانتا متحدتين؟ ومتى انفصلتا؟</p>
+    <button class="reveal" data-reveal="a-drift" aria-expanded="false" aria-controls="a-drift">اعرضي الإجابة</button>
+    <div class="answer" id="a-drift" hidden>كانتا متحدتين مع بقية القارات في بانجيا قبل 200 مليون سنة. بعد تشقق بانجيا إلى كتل أصغر قبل 180 مليون سنة بدأتا الانفصال، وبدأت أمريكا الجنوبية تنفصل عن إفريقيا قبل 135 مليون سنة. جرّبي المؤشر لتتابعي ذلك على الخريطة.</div>
+  </div>
+</section>
+
+<section id="s-evidence" aria-labelledby="h-ev">
+  <div class="sec-head"><h2 id="h-ev">أدلة فاجنر على الانجراف القاري</h2><span class="en">Wegener's Evidences</span></div>
+  <p class="lead">يُعد فاجنر أول عالم قدّم أكثر من دليل على تطابق شواطئ القارات على جانبي المحيط الأطلسي، وجمع أدلة صخرية ومناخية وأحفورية. اختاري دليلًا، ثم فكّري قبل أن تعرضي استنتاجه.</p>
+
+  <div class="tabs" role="tablist" aria-label="أدلة فاجنر" id="tabs"></div>
+  <div class="panel" id="panel" role="tabpanel" tabindex="0"></div>
+</section>
+
+<section id="s-fail" aria-labelledby="h-fail">
+  <div class="sec-head"><h2 id="h-fail">قصور فرضية الانجراف القاري</h2><span class="en">Failure of the Hypothesis</span></div>
+  <p class="lead">كانت الفكرة السائدة في مطلع القرن العشرين أن قيعان المحيطات والقارات معالم ثابتة لا تتغير مع الزمن. واصل فاجنر رحلاته إلى مناطق نائية لجمع المزيد من الأدلة، ومع أنه جمع مجموعة قيّمة من البيانات لم تُقبل فكرته في المجتمع العلمي آنذاك، لأنها واجهت مشكلتين رئيستين.</p>
+
+  <div class="two">
+    <div class="card">
+      <span class="k">المشكلة الأولى</span>
+      <h3>ما القوة التي تحرك القارات؟</h3>
+      <p>لم يوضح فاجنر على نحو مقنع القوة اللازمة لدفع الكتل الكبيرة من القارات ونقلها مسافات بعيدة. رأى أن دوران الأرض حول نفسها قد يكون هو القوة، لكن الفيزيائيين بيّنوا أنها لا تكفي لتحريك القارات.</p>
+    </div>
+    <div class="card">
+      <span class="k">المشكلة الثانية</span>
+      <h3>كيف تتحرك القارات؟</h3>
+      <p>اقترح فاجنر أن القارات تحركت فوق قيعان المحيطات الثابتة، وكان يُعتقد حينها أن ستار الأرض الذي يقع أسفل القشرة صلب. فكيف تتحرك القارات عبر شيء صلب؟</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <p>بسبب عجز الفرضية عن الرد على هذين السببين رُفضت في ذلك الوقت. لكن التقنية الجديدة منذ مطلع الستينات كشفت عن المزيد من الأدلة حول كيفية حركة القارات: فقد أدى إعداد خرائط متطورة لقيعان المحيطات وفهم المجال المغناطيسي للأرض إلى تقديم أدلة جوهرية حول آلية حركة القارات ومصدر القوى المحركة لها. لذلك أعاد العلماء النظر في أفكار فاجنر.</p>
+  </div>
+
+  <h3 style="margin-top:34px; font-size:21px">الخلاصة</h3>
+  <ul class="sum">
+    <li>يوحي تطابق شواطئ القارات على جانبي المحيط الأطلسي بأن القارات كانت مجتمعة معًا يومًا ما.</li>
+    <li>الانجراف القاري فكرة وُضعت في بداية القرن الماضي، تنص على أن القارات تتحرك فوق قيعان المحيطات.</li>
+    <li>جمع فاجنر أدلة من الصخور والأحافير والمناخات القديمة لدعم فرضيته.</li>
+    <li>لم تُقبل الفكرة لأنها لم تفسّر كيفية حركة القارات وما يسبب حركتها.</li>
+  </ul>
+
+  <h3 style="margin-top:34px; font-size:21px">مراجعة المفردات</h3>
+  <p class="caption" style="margin:4px 0 0">اضغطي على البطاقة لتري التعريف.</p>
+  <div class="vocab" id="vocab"></div>
+</section>
+
+<section id="s-quiz" aria-labelledby="h-quiz">
+  <div class="sec-head"><h2 id="h-quiz">التقويم</h2><span class="en">Assessment</span></div>
+  <p class="lead">تسعة أسئلة قصيرة تراجعين بها الدرس. بعد كل إجابة تظهر تغذية راجعة قصيرة، وعند إنهاء الأسئلة تصل نتيجتك إلى المعلمة تلقائيًا. تُحسب الدرجة من المحاولة الأولى.</p>
+  <p class="caption" id="prev" hidden></p>
+  <div class="quiz" id="quiz"></div>
+</section>
+
+
+
+</main>
+
+<footer>المصدر: كتاب الطالب، الدرس 5-1 «انجراف القارات»، الصفحات 152–156.</footer>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ---------- reveal buttons ---------- */
+  document.addEventListener('click', function(e){
+    var b = e.target.closest('[data-reveal]');
+    if(!b) return;
+    var el = document.getElementById(b.getAttribute('data-reveal'));
+    if(!el) return;
+    var open = el.hidden;
+    el.hidden = !open;
+    b.setAttribute('aria-expanded', String(open));
+    var onTxt = b.getAttribute('data-on') || 'أخفي الإجابة';
+    var offTxt = b.getAttribute('data-off') || 'اعرضي الإجابة';
+    b.textContent = open ? onTxt : offTxt;
+  });
+
+  /* ---------- drift map ---------- */
+/* coastlines as [longitude, latitude]; projected onto the 600 x 372 canvas */
+var LL = {
+  AF:[[-9,35],[-5,36],[10,37],[11,33],[20,31],[32,31],[34,28],[37,22],[39,16],[43,12],[51,12],[48,5],[41,-2],[40,-10],[40,-16],[35,-24],[32,-29],[27,-34],[20,-35],[18,-32],[12,-18],[13,-8],[9,-1],[9,4],[5,5],[-3,5],[-8,4],[-13,8],[-17,14],[-17,21],[-13,27],[-9,32]],
+  SA:[[-77,8],[-72,12],[-62,10],[-52,5],[-50,0],[-44,-2],[-35,-5],[-35,-9],[-39,-14],[-41,-22],[-48,-26],[-53,-34],[-58,-38],[-62,-39],[-65,-45],[-68,-52],[-70,-55],[-74,-50],[-73,-40],[-71,-30],[-70,-18],[-76,-14],[-81,-5],[-80,0],[-77,4]],
+  NA:[[-168,66],[-140,70],[-120,70],[-95,72],[-80,70],[-62,60],[-55,50],[-66,44],[-76,38],[-81,31],[-80,25],[-83,29],[-90,30],[-97,26],[-97,20],[-90,21],[-87,21],[-88,16],[-84,10],[-79,9],[-77,8],[-86,12],[-92,15],[-105,20],[-110,24],[-114,30],[-117,33],[-124,40],[-124,48],[-135,58],[-148,60],[-165,60]],
+  GL:[[-55,60],[-45,60],[-20,70],[-20,82],[-45,83],[-65,80],[-58,70]],
+  EU:[[-9,37],[-9,43],[-2,44],[-1,48],[3,51],[8,54],[9,57],[12,56],[18,60],[25,65],[22,69],[30,70],[40,67],[60,69],[80,73],[105,77],[140,72],[170,69],[170,66],[160,60],[156,52],[142,54],[140,46],[131,42],[128,35],[122,40],[122,30],[117,23],[108,21],[106,10],[101,3],[98,10],[97,17],[92,22],[88,22],[90,27],[80,31],[72,34],[67,29],[62,25],[57,25],[52,24],[56,18],[52,15],[44,12],[43,15],[39,21],[35,28],[34,31],[36,36],[30,36],[27,37],[26,40],[22,38],[19,42],[13,45],[8,44],[3,43],[0,39],[-5,36]],
+  IN:[[68,24],[72,21],[73,16],[77,8],[80,15],[87,21],[89,22],[90,27],[80,31],[72,34],[68,29]],
+  AU:[[114,-22],[122,-18],[130,-12],[137,-12],[142,-11],[146,-19],[153,-26],[150,-37],[141,-38],[135,-34],[129,-32],[116,-35],[114,-28]],
+  AN:[[-62,-64],[-58,-72],[-30,-74],[0,-70],[30,-69],[60,-67],[80,-68],[100,-72],[80,-78],[40,-82],[0,-83],[-40,-81],[-65,-77]]
+};
+function proj(p){ return [300 + 1.6*p[0], 190 - 2*p[1]]; }
+var PX = {};
+Object.keys(LL).forEach(function(k){ PX[k] = LL[k].map(proj); });
+function bboxCenter(pts){
+  var x0=1e9,y0=1e9,x1=-1e9,y1=-1e9;
+  pts.forEach(function(p){ x0=Math.min(x0,p[0]); x1=Math.max(x1,p[0]); y0=Math.min(y0,p[1]); y1=Math.max(y1,p[1]); });
+  return [(x0+x1)/2,(y0+y1)/2];
+}
+var PIV = {};
+Object.keys(PX).forEach(function(k){ PIV[k] = bboxCenter(PX[k]); });
+
+/* position in Pangaea relative to today: [dx, dy, rotation in degrees] */
+var PANG = {
+  SA:[93.5,-6.8,-42.9], NA:[105.6,7.2,-10.6], GL:[87.5,4.1,-27.3],
+  AN:[46.6,-79.4,-10.7], IN:[-54.9,86.3,46.7], AU:[-24.7,-30.5,0]
+};
+/* how far each continent has travelled toward its present position at 200, 180, 135, 65 mya and today */
+var PROG = {
+  SA:[0,.10,.34,.74,1], NA:[0,.12,.38,.78,1], GL:[0,.12,.38,.78,1],
+  IN:[0,.08,.28,.68,1], AU:[0,.02,.08,.40,1], AN:[0,.03,.15,.55,1]
+};
+/* coastlines that fit each other: indices into the coastlines above */
+var EDGES = [
+  {c:'a', id:'SA', idx:[3,4,5,6,7,8,9,10,11,12,13]},
+  {c:'a', id:'AF', idx:[29,28,27,26,25,24,23,22,21,20,19]},
+  {c:'b', id:'NA', idx:[6,7,8,9,10]},
+  {c:'b', id:'AF', idx:[29,30,31,0]},
+  {c:'b', id:'EU', idx:[0,1,2,3,4]}
+];
+var LABELS = {
+  AF:{at:[20,6], t:["إفريقيا"], fs:16},
+  SA:{at:[-60,-14], t:["أمريكا","الجنوبية"], fs:14},
+  NA:{at:[-105,47], t:["أمريكا","الشمالية"], fs:16},
+  GL:{at:[-42,72], t:["جرينلاند"], fs:11},
+  EU:{at:[85,55], t:["أوراسيا"], fs:18},
+  IN:{at:[80,19], t:["الهند"], fs:12},
+  AU:{at:[134,-26], t:["أستراليا"], fs:14},
+  AN:{at:[10,-77], t:["القارة القطبية الجنوبية"], fs:12}
+};
+var DRAW = [["AN","c-an"],["AU","c-au"],["EU","c-eu"],["IN","c-in"],["NA","c-na"],["GL","c-na"],["AF","c-af"],["SA","c-sa"]];
+var MOVING = ["SA","NA","GL","AN","IN","AU"];
+
+function pts2str(a){ return a.map(function(p){ return p[0].toFixed(1)+','+p[1].toFixed(1); }).join(' '); }
+
+var svg = document.getElementById('map');
+var h = '<line class="eq" x1="0" y1="190" x2="600" y2="190"/><text class="eqt" x="52" y="184">خط الاستواء</text>';
+DRAW.forEach(function(d){
+  h += '<g class="cont '+d[1]+'" id="g-'+d[0]+'"><polygon points="'+pts2str(PX[d[0]])+'"/></g>';
+});
+h += '<g class="edges">';
+Object.keys(PX).forEach(function(id){
+  var inner = '';
+  EDGES.forEach(function(e){
+    if(e.id !== id) return;
+    inner += '<polyline class="edge '+e.c+'" points="'+pts2str(e.idx.map(function(i){ return PX[id][i]; }))+'"/>';
+  });
+  h += '<g id="e-'+id+'">'+inner+'</g>';
+});
+h += '</g><g class="labels">';
+Object.keys(LABELS).forEach(function(id){
+  var L = LABELS[id], inner = '';
+  L.t.forEach(function(line,i){
+    var y = (i - (L.t.length-1)/2) * (L.fs+1) + L.fs*0.35;
+    inner += '<text x="0" y="'+y.toFixed(1)+'" font-size="'+L.fs+'">'+line+'</text>';
+  });
+  h += '<g id="l-'+id+'">'+inner+'</g>';
+});
+h += '</g>';
+svg.innerHTML = h;
+
+var gEl = {}, eEl = {}, lEl = {};
+Object.keys(PX).forEach(function(id){ gEl[id] = document.getElementById('g-'+id); eEl[id] = document.getElementById('e-'+id); });
+Object.keys(LABELS).forEach(function(id){ lEl[id] = document.getElementById('l-'+id); });
+
+document.getElementById('hl').addEventListener('change', function(ev){
+  svg.classList.toggle('noedges', !ev.target.checked);
+});
+
+var MYA = [200,180,135,65,0];
+var STAGES = [
+  {n:"200", cap:"مليون سنة", t:"قبل 200 مليون سنة", b:"كانت القارات مجتمعة معًا في قارة واحدة تُسمى بانجيا."},
+  {n:"180", cap:"مليون سنة", t:"قبل 180 مليون سنة", b:"تشققت بانجيا إلى كتل قارية أصغر، ثم انجرفت وبدأ تشكل المحيط الأطلسي."},
+  {n:"135", cap:"مليون سنة", t:"قبل 135 مليون سنة", b:"بدأت قارتا إفريقيا وأمريكا الجنوبية في الانفصال إحداهما عن الأخرى."},
+  {n:"65",  cap:"مليون سنة", t:"قبل 65 مليون سنة", b:"تحركت الهند شمالًا نحو قارة آسيا."},
+  {n:"اليوم", cap:"حاليًا", t:"حاليًا", b:"اصطدمت الهند بآسيا وكونت جبال الهملايا، وانفصلت أستراليا عن القارة القطبية الجنوبية، وتشكلت حفرة انهدام في شرقي إفريقيا، وما زالت القارات تواصل حركتها."}
+];
+
+var mya = document.getElementById('mya');
+var slider = document.getElementById('time');
+var stBox = document.getElementById('stages');
+var stTitle = document.getElementById('st-title');
+var stBody = document.getElementById('st-body');
+var playBtn = document.getElementById('play');
+var stageBtns = [];
+var curStage = -1;
+var v = 0;
+var raf = null;
+var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+STAGES.forEach(function(s,i){
+  var b = document.createElement('button');
+  b.type = 'button';
+  b.className = 'stage';
+  b.setAttribute('aria-pressed','false');
+  b.innerHTML = '<b>'+s.n+'</b><small>'+s.cap+'</small>';
+  b.addEventListener('click', function(){ tweenTo(i*100, 900); });
+  stBox.appendChild(b);
+  stageBtns.push(b);
+});
+
+function lerp(a,b,f){ return a + (b-a)*f; }
+
+function offsetOf(id, val){
+  if(!PANG[id]) return [0,0,0];
+  var i = Math.min(3, Math.floor(val/100));
+  var f = (val - i*100)/100;
+  var g = lerp(PROG[id][i], PROG[id][i+1], f);
+  var o = PANG[id];
+  return [o[0]*(1-g), o[1]*(1-g), o[2]*(1-g)];
+}
+function setTransform(id, val){
+  var o = offsetOf(id, val), c = PIV[id];
+  var t = 'translate('+o[0].toFixed(1)+' '+o[1].toFixed(1)+') rotate('+o[2].toFixed(1)+' '+c[0].toFixed(1)+' '+c[1].toFixed(1)+')';
+  gEl[id].setAttribute('transform', t);
+  eEl[id].setAttribute('transform', t);
+  if(lEl[id]){
+    var p = proj(LABELS[id].at);
+    var th = o[2]*Math.PI/180, cs = Math.cos(th), sn = Math.sin(th);
+    var rx = c[0] + (p[0]-c[0])*cs - (p[1]-c[1])*sn + o[0];
+    var ry = c[1] + (p[0]-c[0])*sn + (p[1]-c[1])*cs + o[1];
+    lEl[id].setAttribute('transform','translate('+rx.toFixed(1)+' '+ry.toFixed(1)+')');
+  }
+}
+
+function setV(val){
+  v = Math.max(0, Math.min(400, val));
+  Object.keys(PX).forEach(function(id){ setTransform(id, v); });
+  slider.value = String(Math.round(v));
+  var i = Math.min(3, Math.floor(v/100));
+  var f = (v - i*100)/100;
+  var m = lerp(MYA[i], MYA[i+1], f);
+  mya.textContent = v >= 399.5 ? 'اليوم' : 'قبل ' + Math.round(m) + ' مليون سنة';
+  var near = Math.round(v/100);
+  if(near !== curStage){
+    curStage = near;
+    stTitle.textContent = STAGES[near].t;
+    stBody.textContent = STAGES[near].b;
+    stageBtns.forEach(function(b,k){ b.setAttribute('aria-pressed', k===near ? 'true' : 'false'); });
+  }
+}
+
+function stop(){
+  if(raf){ cancelAnimationFrame(raf); raf = null; }
+  playBtn.textContent = 'تشغيل';
+}
+
+function tweenTo(target, dur, done){
+  stop();
+  if(reduce || dur <= 0){ setV(target); if(done) done(); return; }
+  var from = v, t0 = null;
+  function step(ts){
+    if(t0 === null) t0 = ts;
+    var p = Math.min(1, (ts - t0)/dur);
+    var e = p < .5 ? 2*p*p : 1 - Math.pow(-2*p+2, 2)/2;
+    setV(from + (target-from)*e);
+    if(p < 1){ raf = requestAnimationFrame(step); }
+    else { raf = null; if(done) done(); }
+  }
+  raf = requestAnimationFrame(step);
+}
+
+slider.addEventListener('input', function(){ stop(); setV(Number(slider.value)); });
+
+playBtn.addEventListener('click', function(){
+  if(raf){ stop(); return; }
+  if(v >= 399) setV(0);
+  var remaining = (400 - v)/400;
+  tweenTo(400, 9000*remaining, function(){ playBtn.textContent = 'تشغيل'; });
+  if(raf) playBtn.textContent = 'إيقاف';
+});
+
+setV(0);
+
+/* ---------- evidence tabs ---------- */
+  var EV = [
+    {id:"rocks", tab:"الصخور", tag:"دليل صخري", h:"التكوينات الصخرية",
+     f:"عندما بدأت بانجيا تنقسم إلى أجزاء أصغر، تكسرت تراكيب جيولوجية ضخمة، منها السلاسل الجبلية، بسبب انفصال القارات وتباعدها. لاحظ فاجنر تشابهًا بين طبقات صخرية يزيد عمرها على 200 مليون سنة في جبال الأبلاش في أمريكا الشمالية، وطبقات صخرية لجبال في جرينلاند وأوروبا.",
+     q:"لو كانت القارات منفصلة دائمًا، هل نتوقع هذا التشابه في الصخور؟",
+     a:"لا. هذا التشابه يدعم فكرة أن القارات كانت مجتمعة معًا قبل 200 مليون سنة، ثم تباعدت فانفصلت الجبال عن بعضها. لذلك اعتقد فاجنر أنه لا بد من وجود تشابه في أنواع الصخور على جانبي المحيط الأطلسي."},
+    {id:"fossils", tab:"الأحافير", tag:"دليل أحفوري", h:"الأحافير",
+     f:"عثر فاجنر على أحافير لأنواع مختلفة من الحيوانات والنباتات كانت تعيش على اليابسة وتنتشر انتشارًا واسعًا في القارات. من ذلك أحفورة الميزوسورس، وهو زاحف كان يعيش في المياه العذبة فقط، وغير قادر على السباحة مسافات طويلة في مياه المحيط المالحة.",
+     q:"كيف وصل الميزوسورس إلى قارات يفصل بينها اليوم محيط مالح؟",
+     a:"لم يعبر المحيط. هذا يؤكد أن القارات كانت متصلة معًا في زمن حياة هذه المخلوقات التي عاشت على بانجيا، ثم انقسمت بانجيا بعد ذلك."},
+    {id:"plant", tab:"نبات جلاسابتروس", tag:"دليل مناخي", h:"المناخ القديم: أحفورة جلاسابتروس",
+     f:"جلاسابتروس أحفورة لنبات سرخسي بذري يشبه الشجيرات الصغيرة. عُثر عليها في أمريكا الجنوبية والقارة القطبية الجنوبية والهند. هذه الأماكن منفصلة ومتباعدة جدًا اليوم، ويصعب أن يسود فيها مناخ واحد، بينما كان هذا النبات يعيش في مناخ معتدل.",
+     q:"ماذا استنتج فاجنر من وجود الأحفورة نفسها في أماكن متباعدة؟",
+     a:"استنتج أن هذه الأماكن كانت متصلة معًا يومًا ما، في مكان معتدل المناخ. وقد ساعدته خلفيته العلمية في الأرصاد الجوية على قراءة المناخات القديمة من الأحافير."},
+    {id:"coal", tab:"الفحم الحجري", tag:"دليل مناخي", h:"توضعات الفحم الحجري",
+     f:"توفر الصخور الرسوبية أدلة على البيئة والمناخ القديمين. وُجدت توضعات من الفحم الحجري في القارة القطبية الجنوبية. ويتكون الفحم الحجري من تراكم نباتات ميتة قديمة في مستنقعات المناطق الاستوائية.",
+     q:"ماذا يعني وجود طبقة من الفحم الحجري في القارة القطبية الجنوبية المتجمدة؟",
+     a:"يدل دلالة قطعية على أن القارة القطبية الجنوبية كانت تقع على خط الاستواء أو قريبة منه في الزمن البعيد. أي أن المناخ تغير في بعض القارات."},
+    {id:"ice", tab:"الترسبات الجليدية", tag:"دليل مناخي", h:"الترسبات الجليدية",
+     f:"وُجدت ترسبات جليدية يعود عمرها إلى 290 مليون سنة في أجزاء من إفريقيا والهند وأستراليا وأمريكا الجنوبية. هذه مناطق دافئة اليوم، ولا يمكن لمناطق دافئة جدًا أن تتشكل فيها أغطية جليدية.",
+     q:"ما الاحتمالان اللذان اقترحهما فاجنر لتفسيرها، وأيهما رجّح؟",
+     a:"الاحتمال الأول: أن القطب الجنوبي غيّر موقعه. الثاني: أن هذه القارات كانت في موقع القطب الجنوبي وغيّرت مواقعها. رجّح فاجنر الاحتمال الثاني: القارات هي التي انجرفت بعيدًا، وكانت مجتمعة معًا ومغطاة بالجليد في ذلك الوقت."}
+  ];
+  var tabsEl = document.getElementById('tabs');
+  var panel = document.getElementById('panel');
+  var tabBtns = [];
+  var curTab = 0;
+
+  EV.forEach(function(e,i){
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'tab';
+    b.id = 'tab-'+e.id;
+    b.setAttribute('role','tab');
+    b.setAttribute('aria-controls','panel');
+    b.textContent = e.tab;
+    b.addEventListener('click', function(){ showTab(i); });
+    tabsEl.appendChild(b);
+    tabBtns.push(b);
+  });
+
+  function showTab(i){
+    curTab = i;
+    var e = EV[i];
+    tabBtns.forEach(function(b,k){
+      b.setAttribute('aria-selected', k===i ? 'true' : 'false');
+      b.tabIndex = k===i ? 0 : -1;
+    });
+    panel.setAttribute('aria-labelledby','tab-'+e.id);
+    panel.innerHTML =
+      '<span class="tag">'+e.tag+'</span>'+
+      '<h3>'+e.h+'</h3>'+
+      '<p>'+e.f+'</p>'+
+      '<p style="font-weight:600; margin-top:14px">'+e.q+'</p>'+
+      '<button class="reveal" type="button" data-reveal="ev-ans" data-on="أخفي الاستنتاج" data-off="اعرضي استنتاج فاجنر" aria-expanded="false" aria-controls="ev-ans">اعرضي استنتاج فاجنر</button>'+
+      '<div class="answer" id="ev-ans" hidden>'+e.a+'</div>';
+  }
+  tabsEl.addEventListener('keydown', function(ev){
+    var k = ev.key, n = EV.length, i = curTab;
+    /* RTL: ArrowRight goes to the previous tab, ArrowLeft to the next */
+    if(k === 'ArrowLeft') i = (curTab+1) % n;
+    else if(k === 'ArrowRight') i = (curTab-1+n) % n;
+    else return;
+    ev.preventDefault();
+    showTab(i);
+    tabBtns[i].focus();
+  });
+  showTab(0);
+
+  /* ---------- vocabulary ---------- */
+  var VOC = [
+    {t:"الفرضية", d:"تفسير لموقف ما قابل للاختبار."},
+    {t:"الانجراف القاري", d:"فكرة تنص على أن القارات تتحرك فوق قيعان المحيطات، فقد كانت مجتمعة في قارة واحدة ثم انجرفت إلى مواقعها الحالية."},
+    {t:"بانجيا", d:"كلمة من أصل إغريقي تعني جميع اليابسة، وهي القارة الأم التي كانت القارات مجتمعة فيها قبل 200 مليون سنة."}
+  ];
+  var vocab = document.getElementById('vocab');
+  VOC.forEach(function(c){
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'flash';
+    b.setAttribute('aria-pressed','false');
+    b.innerHTML = '<span class="t">'+c.t+'</span><span class="hint">اضغطي لعرض التعريف</span>';
+    b.addEventListener('click', function(){
+      var on = b.getAttribute('aria-pressed') !== 'true';
+      b.setAttribute('aria-pressed', String(on));
+      b.innerHTML = on
+        ? '<span class="t">'+c.t+'</span><span class="d">'+c.d+'</span>'
+        : '<span class="t">'+c.t+'</span><span class="hint">اضغطي لعرض التعريف</span>';
+    });
+    vocab.appendChild(b);
+  });
+
+  /* ---------- quiz ---------- */
+  var Q = [
+    {q:"من أول من اقترح فكرة حركة القارات في فرضية علمية قدمها عام 1912م؟",
+     o:["أبراهام أورتيليوس","ألفريد فاجنر","رسامو الخرائط في القرن التاسع عشر","فيزيائيو مطلع القرن العشرين"], a:1,
+     e:"ألفريد فاجنر عالم ألماني قدّم فرضية الانجراف القاري عام 1912م. أما أورتيليوس فلاحظ تطابق حافات القارات على جانبي الأطلسي."},
+    {q:"ماذا تعني كلمة «بانجيا» الإغريقية؟",
+     o:["المحيط الواحد","جميع اليابسة","الجبال المتصدعة","القطب الجنوبي"], a:1,
+     e:"بانجيا تعني جميع اليابسة، وهي القارة الأم التي كانت القارات مجتمعة فيها."},
+    {q:"قبل كم سنة اقترح فاجنر أن بانجيا بدأت بالانقسام؟",
+     o:["65 مليون سنة","135 مليون سنة","200 مليون سنة","290 مليون سنة"], a:2,
+     e:"اقترح فاجنر أن بانجيا بدأت الانقسام قبل 200 مليون سنة، ثم انفصلت أجزاؤها وانجرفت ببطء إلى مواقعها الحالية."},
+    {q:"ماذا حدث قبل 65 مليون سنة بحسب الشكل 5-2؟",
+     o:["بدأت إفريقيا وأمريكا الجنوبية بالانفصال","تحركت الهند شمالًا نحو قارة آسيا","تشققت بانجيا إلى كتل أصغر","اصطدمت الهند بآسيا وتكونت الهملايا"], a:1,
+     e:"قبل 65 مليون سنة تحركت الهند شمالًا نحو آسيا، ثم اصطدمت بها فتكونت جبال الهملايا."},
+    {q:"لماذا تدعم أحفورة الميزوسورس فكرة الانجراف القاري؟",
+     o:["لأنه زاحف كان يسبح مسافات طويلة في المحيط","لأنه كان يعيش في المياه العذبة فقط ولا يقطع المحيط المالح","لأنه عاش في القطب الجنوبي فقط","لأنه تكوّن منه الفحم الحجري"], a:1,
+     e:"الميزوسورس لا يستطيع عبور المحيط المالح، فوجوده في قارات متباعدة يعني أنها كانت متصلة في زمن حياته."},
+    {q:"ماذا استنتج فاجنر من وجود الفحم الحجري في القارة القطبية الجنوبية؟",
+     o:["أنها كانت قريبة من خط الاستواء في الزمن البعيد","أن الفحم يتكون في الجليد","أن البراكين كانت نشطة فيها","أنها كانت منفصلة عن بقية القارات"], a:0,
+     e:"يتكون الفحم من نباتات مستنقعات المناطق الاستوائية، فوجوده في القطب الجنوبي يدل على أن القارة كانت على خط الاستواء أو قريبة منه."},
+    {q:"ماذا تدل عليه الترسبات الجليدية القديمة (290 مليون سنة) في إفريقيا والهند وأستراليا وأمريكا الجنوبية؟",
+     o:["أن المناخ كان دافئًا دائمًا في هذه المناطق","أن هذه القارات كانت مجتمعة قرب القطب الجنوبي ومغطاة بالجليد","أن المحيطات كانت متجمدة","أن الصخور هناك أحدث من الأحافير"], a:1,
+     e:"لا تتشكل أغطية جليدية في مناطق دافئة جدًا، لذا رجّح فاجنر أن القارات كانت قريبة من القطب الجنوبي ثم انجرفت بعيدًا."},
+    {q:"لماذا لم تُقبل فرضية الانجراف القاري في البداية؟",
+     o:["لأنه لم يجمع أي أدلة","لأنها لم توضح القوة التي تحرك القارات ولا كيف تتحرك","لأن الأحافير كانت متشابهة في كل القارات","لأن العلماء لم يهتموا بالقارات"], a:1,
+     e:"عجزت الفرضية عن تفسير القوة اللازمة لتحريك القارات وعن آلية حركتها، فرُفضت في ذلك الوقت."},
+    {q:"ما الذي جعل العلماء يعيدون النظر في أفكار فاجنر منذ مطلع الستينات؟",
+     o:["اكتشاف بانجيا في الأحافير","خرائط متطورة لقيعان المحيطات وفهم المجال المغناطيسي للأرض","ملاحظات رسامي الخرائط القدماء","قياس دوران الأرض حول نفسها"], a:1,
+     e:"التقنية الجديدة قدمت أدلة جوهرية عن آلية حركة القارات ومصدر القوى المحركة لها."}
+  ];
+  var qi = 0, score = 0, answered = false;
+  var picks = [];
+  var box = document.getElementById('quiz');
+  var firstScore = null;
+
+  function renderQuiz(){
+    if(qi >= Q.length){ renderResult(); return; }
+    var it = Q[qi];
+    var opts = it.o.map(function(t,i){
+      return '<button type="button" class="opt" data-i="'+i+'">'+t+'</button>';
+    }).join('');
+    box.innerHTML =
+      '<div class="qmeta"><span>السؤال '+(qi+1)+' من '+Q.length+'</span><span>الدرجة: '+score+'</span></div>'+
+      '<div class="bar"><i style="width:'+(qi/Q.length*100)+'%"></i></div>'+
+      '<p class="qtext">'+it.q+'</p>'+
+      '<div class="opts">'+opts+'</div>'+
+      '<div id="fb" aria-live="polite"></div>';
+    answered = false;
+  }
+
+  function renderResult(){
+    var pct = Math.round(score/Q.length*100);
+    var msg = score >= 8 ? "ممتاز. أنتِ متمكنة من الدرس." : score >= 5 ? "جيد. راجعي الأدلة التي أخطأتِ فيها ثم أعيدي المحاولة." : "ارجعي إلى قسم أدلة فاجنر وقسم قصور الفرضية، ثم أعيدي المحاولة.";
+    box.innerHTML =
+      '<div class="qmeta"><span>النتيجة النهائية</span></div>'+
+      '<div class="bar"><i style="width:100%"></i></div>'+
+      '<div class="score">'+score+' / '+Q.length+'</div>'+
+      '<p style="margin-top:6px">'+msg+' ('+pct+'٪)</p>'+
+      '<button class="reveal" type="button" data-restart="1">أعيدي الاختبار</button>'+
+      '<p class="msg ok" style="margin-top:12px">'+(firstScore === null || firstScore === score ? 'وصلت نتيجتك إلى المعلمة.' : 'وصلت نتيجتك من المحاولة الأولى ('+firstScore+' من '+Q.length+') إلى المعلمة.')+'</p>';
+    // إشعار منصة لبيبة مرة واحدة بنتيجة المحاولة الأولى
+    if(firstScore === null){
+      firstScore = score;
+      try{ parent.postMessage({type:"labeeba-lab-complete", score: pct, tasks: Q.length}, "*"); }catch(e){}
+    }
+  }
+
+  box.addEventListener('click', function(ev){
+    if(ev.target.closest('[data-restart]')){ qi = 0; score = 0; picks = []; renderQuiz(); return; }
+    if(ev.target.closest('[data-next]')){ qi++; renderQuiz(); return; }
+    var o = ev.target.closest('.opt');
+    if(!o || answered) return;
+    answered = true;
+    var it = Q[qi];
+    var pick = Number(o.getAttribute('data-i'));
+    var ok = pick === it.a;
+    picks[qi] = pick;
+    if(ok) score++;
+    box.querySelectorAll('.opt').forEach(function(b,i){
+      b.disabled = true;
+      if(i === it.a) b.classList.add('right');
+      else if(i === pick) b.classList.add('wrong');
+    });
+    document.getElementById('fb').innerHTML =
+      '<div class="fb '+(ok?'right':'wrong')+'"><b>'+(ok?'إجابة صحيحة':'إجابة غير صحيحة')+'</b>'+it.e+'</div>'+
+      '<button class="primary" type="button" data-next="1">'+(qi === Q.length-1 ? 'اعرضي النتيجة' : 'السؤال التالي')+'</button>';
+  });
+
+  renderQuiz();
+
+})();
+</script>
+
+</body></html>
