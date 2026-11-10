@@ -1,0 +1,1029 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>النباتات الزهرية</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600&family=Readex+Pro:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --violet:#7864A8; --violet-2:#62508F; --navy:#263A55; --mint:#A8D8D0; --ivory:#F5F0E9;
+  --surface:#FFFDF9; --soft:#ECE6F2; --mint-soft:#DDF0EC; --line:#E2DACF; --muted:#5D6A80;
+  --good:#2C6E63; --bad:#B4432A; --bad-soft:#F8E4DD; --gold:#C9941A;
+  --male:#C98A12; --female:#2C6E63; --helper:#62508F;
+  --f-display:"Readex Pro","IBM Plex Sans Arabic",Tahoma,sans-serif;
+  --f-body:"IBM Plex Sans Arabic",Tahoma,"Segoe UI",sans-serif;
+  --ease-out:cubic-bezier(.23,1,.32,1);
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:64px}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{margin:0;background:var(--ivory);color:var(--navy);font:16px/1.75 var(--f-body);-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:var(--f-display);line-height:1.3;margin:0;text-wrap:balance}
+p{margin:0}
+button,input,textarea,select{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--violet);outline-offset:2px}
+[hidden]{display:none!important}
+.wrap{max-width:1120px;margin:0 auto;padding-inline:16px}
+
+/* ترويسة الدرس */
+.hero{background:linear-gradient(160deg,#fff 0%,var(--ivory) 70%);border-bottom:1px solid var(--line)}
+.hero .wrap{padding-block:28px 24px;display:grid;gap:10px}
+.lesson-no{font-family:var(--f-display);font-weight:700;color:var(--violet);font-size:.95rem;letter-spacing:.02em}
+.hero h1{font-size:clamp(1.9rem,5vw,2.8rem)}
+.hero h1 bdi{font-family:var(--f-display);font-weight:500;color:var(--muted);font-size:.55em;margin-inline-start:8px}
+.idea{display:flex;gap:10px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px;max-width:760px}
+.idea b{font-family:var(--f-display);color:var(--violet);white-space:nowrap}
+.hook{color:var(--muted);max-width:760px}
+
+/* شريط الأقسام */
+.tabs{position:sticky;top:0;z-index:20;background:rgba(245,240,233,.94);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.tabs .wrap{display:flex;gap:6px;overflow-x:auto;padding-block:8px;scrollbar-width:none}
+.tabs a{flex:none;text-decoration:none;color:var(--muted);font-weight:600;padding:6px 14px;border-radius:999px;transition:background-color 150ms ease,color 150ms ease}
+.tabs a.on{background:var(--violet);color:#fff}
+@media (hover:hover) and (pointer:fine){.tabs a:not(.on):hover{background:var(--soft);color:var(--navy)}}
+
+section.sec{padding-block:34px 10px}
+.sec-head{display:flex;align-items:baseline;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+.sec-head h2{font-size:1.5rem}
+.sec-head .n{width:32px;height:32px;border-radius:50%;background:var(--violet);color:#fff;display:grid;place-items:center;font-family:var(--f-display);font-size:.95rem;flex:none;align-self:center}
+.sec-head p{color:var(--muted);font-size:.95rem;flex-basis:100%}
+
+/* الأهداف */
+.goals{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px}
+.goal{display:flex;gap:12px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px;cursor:pointer;transition:border-color 150ms ease,background-color 150ms ease}
+.goal input{accent-color:var(--violet);width:20px;height:20px;margin-top:4px;flex:none}
+.goal b{color:var(--violet);font-family:var(--f-display)}
+.goal:has(input:checked){border-color:var(--mint);background:var(--mint-soft)}
+.goal .here{display:inline-block;margin-top:6px;font-size:.8rem;font-weight:600;color:var(--good);text-decoration:none}
+
+/* المفردات */
+.review{display:flex;gap:10px;align-items:center;flex-wrap:wrap;background:var(--surface);border:1px dashed var(--violet);border-radius:12px;padding:10px 14px;margin-bottom:14px;font-size:.95rem}
+.review .tag{font-size:.78rem;font-weight:700;color:#fff;background:var(--violet);padding:1px 10px;border-radius:999px}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px}
+.card{display:block;width:100%;perspective:900px;min-height:170px;border:0;background:none;padding:0;cursor:pointer;text-align:start;color:inherit}
+.card .in{display:block;position:relative;width:100%;height:170px;transition:transform 450ms var(--ease-out);transform-style:preserve-3d}
+.card.flip .in{transform:rotateY(180deg)}
+.face{position:absolute;inset:0;border-radius:12px;padding:14px 16px;backface-visibility:hidden;display:flex;flex-direction:column;gap:6px;border:1px solid var(--line)}
+.front{background:var(--surface);justify-content:center;align-items:center;text-align:center}
+.front .t{font-family:var(--f-display);font-weight:700;font-size:1.25rem;line-height:1.35}
+.front .en{direction:ltr;color:var(--muted);font-size:.85rem}
+.front .hint{font-size:.75rem;color:var(--muted);position:absolute;bottom:10px;inset-inline:0;text-align:center}
+.back{background:var(--navy);color:#fff;transform:rotateY(180deg);font-size:.88rem;line-height:1.6;overflow:auto}
+.back b{color:var(--mint);font-family:var(--f-display)}
+@media (prefers-reduced-motion:reduce){.card .in{transition:none}}
+.usage{margin-top:14px;display:grid;gap:4px;background:var(--surface);border:1px dotted var(--muted);border-radius:12px;padding:12px 16px;font-size:.93rem;max-width:620px}
+.usage h3{font-size:1rem;color:var(--good)}
+
+/* جدول التعلّم */
+.kwl-wrap{overflow-x:auto;border-radius:12px;border:1px solid var(--line);background:var(--surface)}
+table.kwl{width:100%;border-collapse:collapse;min-width:640px}
+.kwl th{padding:12px 14px;font-family:var(--f-display);text-align:start;font-size:1rem;color:#fff}
+.kwl th small{display:block;font-family:var(--f-body);font-weight:400;font-size:.8rem;opacity:.9}
+.kwl th:nth-child(1){background:var(--violet)}
+.kwl th:nth-child(2){background:var(--navy)}
+.kwl th:nth-child(3){background:var(--good)}
+.kwl td{vertical-align:top;padding:10px;border-inline-start:1px solid var(--line)}
+.kwl td:first-child{border-inline-start:0}
+.kwl textarea{width:100%;min-height:170px;resize:vertical;border:1px solid var(--line);border-radius:10px;background:var(--ivory);padding:10px 12px;line-height:1.7}
+.kwl textarea:focus{outline:none;border-color:var(--violet);background:#fff}
+.starters{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.starters button{border:1px solid var(--line);background:#fff;border-radius:999px;padding:2px 10px;font-size:.8rem;cursor:pointer;color:var(--muted)}
+.starters button:active{transform:scale(.97)}
+.note{font-size:.85rem;color:var(--muted);margin-top:8px}
+
+/* أجزاء الزهرة */
+  background:radial-gradient(120% 90% at 50% 35%,#ffffff 0%,#EFEAF6 55%,#E3EEEB 100%)}
+  background:rgba(255,253,249,.92);color:var(--navy);box-shadow:0 2px 8px rgba(38,58,85,.15);transform:translate(-50%,-140%);transition:opacity 200ms ease,background-color 150ms ease}
+
+.panel{display:grid;gap:12px}
+.box{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+.groups{display:grid;gap:10px}
+.group h3{font-size:.85rem;color:var(--muted);font-weight:600;margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.group h3 i{width:10px;height:10px;border-radius:50%;display:inline-block}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1px solid var(--line);background:#fff;border-radius:999px;padding:4px 12px;font-size:.88rem;font-weight:600;cursor:pointer;transition:background-color 150ms ease,border-color 150ms ease,transform 160ms var(--ease-out)}
+.chip:active{transform:scale(.97)}
+.chip.sel{background:var(--navy);border-color:var(--navy);color:#fff}
+.detail h3{font-size:1.3rem}
+.detail .en{direction:ltr;text-align:right;color:var(--muted);font-size:.85rem}
+.detail .role{display:inline-block;font-size:.75rem;font-weight:700;padding:1px 10px;border-radius:999px;margin:6px 0;color:#fff}
+.detail p{font-size:.95rem}
+.detail .from{font-size:.8rem;color:var(--muted);margin-top:8px}
+
+.quiz .q{font-family:var(--f-display);font-size:1.15rem;margin:6px 0 4px}
+.quiz .fb{min-height:1.6em;font-weight:600}
+.quiz .fb.ok{color:var(--good)} .quiz .fb.no{color:var(--bad)}
+.dots{display:flex;gap:5px;margin-top:6px}
+.dots span{width:10px;height:10px;border-radius:50%;background:var(--line)}
+.dots span.ok{background:var(--good)} .dots span.no{background:var(--bad)} .dots span.now{background:var(--violet)}
+.btn{border:0;border-radius:10px;padding:8px 16px;font-weight:600;cursor:pointer;background:var(--violet);color:#fff;transition:background-color 150ms ease,transform 160ms var(--ease-out)}
+.btn:hover{background:var(--violet-2)} .btn:active{transform:scale(.97)}
+.btn.ghost{background:#fff;color:var(--navy);border:1px solid var(--line)}
+.done{background:var(--mint-soft);color:var(--good);border-radius:12px;padding:12px 14px;font-weight:600;margin-top:8px}
+@keyframes nudge{0%,100%{transform:none}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+.shake{animation:nudge 240ms cubic-bezier(.77,0,.175,1)}
+@media (prefers-reduced-motion:reduce){.shake{animation:none}}
+
+/* ===== تكيّفات الزهرة ===== */
+.types{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px}
+.type{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px;display:grid;gap:6px;align-content:start}
+.type h3{font-size:1.1rem;display:flex;gap:8px;align-items:baseline;flex-wrap:wrap}
+.type h3 small{font-family:var(--f-body);font-weight:500;color:var(--muted);font-size:.8rem;direction:ltr}
+.type .ex{font-size:.88rem;color:var(--muted)}
+.type .ex b{color:var(--navy)}
+.pair-label{font-size:.78rem;font-weight:700;color:var(--violet);letter-spacing:.02em}
+.activity{margin-top:16px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px}
+.activity h3{font-size:1.1rem;margin-bottom:4px}
+.activity > p{color:var(--muted);font-size:.92rem;margin-bottom:10px}
+.rows{display:grid;gap:8px}
+.arow{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--ivory);transition:border-color 150ms ease,background-color 150ms ease}
+.arow.ok{border-color:var(--good);background:var(--mint-soft)} .arow.no{border-color:var(--bad);background:var(--bad-soft)}
+.arow .why{grid-column:1/-1;font-size:.85rem;color:var(--muted)}
+.opts{display:flex;gap:6px;flex-wrap:wrap}
+.opt{border:1px solid var(--line);background:#fff;border-radius:999px;padding:4px 12px;font-size:.85rem;font-weight:600;cursor:pointer;transition:background-color 150ms ease,border-color 150ms ease,transform 160ms var(--ease-out)}
+.opt:active{transform:scale(.97)}
+.opt.pick{background:var(--navy);border-color:var(--navy);color:#fff}
+select.pick{border:1px solid var(--line);border-radius:10px;padding:6px 10px;background:#fff;font-weight:600;max-width:100%}
+.result{margin-top:10px;font-weight:600;min-height:1.5em}
+.result.ok{color:var(--good)} .result.no{color:var(--bad)}
+.counter{display:grid;grid-template-columns:auto minmax(0,1fr);gap:18px;align-items:center}
+@media (max-width:620px){.counter{grid-template-columns:1fr;justify-items:center;text-align:center}}
+.counter svg{width:170px;height:170px}
+.counter .opts{margin:8px 0}
+.verdict-big{font-family:var(--f-display);font-size:1.25rem}
+.verdict-big.mono{color:var(--violet)} .verdict-big.di{color:var(--good)}
+
+/* ===== الفيديو ===== */
+.video{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:16px;align-items:start}
+@media (max-width:860px){.video{grid-template-columns:1fr}}
+.player{position:relative;aspect-ratio:16/9;border-radius:16px;overflow:hidden;background:var(--navy);border:1px solid var(--line)}
+.player img{width:100%;height:100%;object-fit:cover;display:block;opacity:.85}
+.player iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.play{position:absolute;inset:0;display:grid;place-items:center;border:0;background:linear-gradient(180deg,rgba(38,58,85,0) 40%,rgba(38,58,85,.55));cursor:pointer;color:#fff}
+.play span{display:grid;place-items:center;width:74px;height:74px;border-radius:50%;background:var(--violet);box-shadow:0 8px 24px rgba(38,58,85,.35);transition:transform 160ms var(--ease-out)}
+.play:active span{transform:scale(.96)}
+@media (hover:hover) and (pointer:fine){.play:hover span{transform:scale(1.05)}}
+.play svg{width:30px;height:30px;fill:#fff;margin-inline-start:4px}
+.vlinks{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.vlinks a{text-decoration:none}
+.watch ol{margin:6px 0 0;padding-inline-start:20px;display:grid;gap:6px;font-size:.95rem}
+
+/* ===== دورة الحياة ===== */
+.cycle-grid{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:16px;align-items:start}
+@media (max-width:860px){.cycle-grid{grid-template-columns:1fr}}
+.cycle{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:8px}
+.cycle svg{width:100%;height:auto;display:block}
+.cnode{cursor:pointer}
+.cnode circle{transition:stroke-width 150ms ease,transform 200ms var(--ease-out);transform-box:fill-box;transform-origin:center}
+.cnode.sel circle.dot{stroke:var(--navy);stroke-width:4}
+.cnode:focus-visible{outline:none}
+.cnode:focus-visible circle.dot{stroke:var(--violet);stroke-width:4}
+.cnode text{font-family:var(--f-display);pointer-events:none}
+.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:.82rem;color:var(--muted);padding:6px 8px}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:50%;margin-inline-end:5px;vertical-align:-1px}
+.ploidy{display:inline-block;font-size:.78rem;font-weight:700;padding:1px 10px;border-radius:999px;color:#fff;direction:ltr}
+.p1{background:var(--male)} .p2{background:var(--good)} .p3{background:var(--violet)}
+.steps-nav{display:flex;gap:8px;align-items:center;margin-top:10px;flex-wrap:wrap}
+.steps-nav .count{font-size:.85rem;color:var(--muted);margin-inline-start:auto}
+
+/* ترتيب المراحل */
+.order-pool,.order-line{display:flex;flex-wrap:wrap;gap:8px}
+.order-line{min-height:52px;padding:10px;border:1px dashed var(--line);border-radius:12px;background:var(--ivory);counter-reset:o;margin:10px 0}
+.ocard{border:1px solid var(--line);background:#fff;border-radius:10px;padding:8px 12px;font-weight:600;font-size:.9rem;cursor:pointer;text-align:start;transition:background-color 150ms ease,border-color 150ms ease,transform 160ms var(--ease-out),opacity 150ms ease}
+.ocard:active{transform:scale(.97)}
+.order-line .ocard{counter-increment:o;background:var(--surface)}
+.order-line .ocard::before{content:counter(o, arabic-indic) ". ";color:var(--violet)}
+.order-line .ocard.fixed{cursor:default;background:var(--mint-soft);border-color:var(--mint)}
+.order-line .ocard.ok{border-color:var(--good);background:var(--mint-soft)}
+.order-line .ocard.no{border-color:var(--bad);background:var(--bad-soft)}
+.order-pool .ocard[disabled]{opacity:.3;cursor:default}
+
+/* الطور المشيجي الأنثوي */
+.gam{display:grid;grid-template-columns:auto minmax(0,1fr);gap:18px;align-items:center}
+@media (max-width:620px){.gam{grid-template-columns:1fr;justify-items:center}}
+.gam svg{width:190px;height:auto}
+.gam svg circle,.gam svg ellipse{transition:cx 450ms var(--ease-out),cy 450ms var(--ease-out),r 300ms var(--ease-out),opacity 300ms ease,fill 300ms ease}
+@media (prefers-reduced-motion:reduce){.gam svg circle,.gam svg ellipse{transition:none}}
+.stepdots{display:flex;gap:5px;margin:8px 0}
+.stepdots span{width:22px;height:6px;border-radius:3px;background:var(--line)}
+.stepdots span.on{background:var(--violet)}
+
+/* التلقيح والإخصاب */
+.fert{display:grid;grid-template-columns:auto minmax(0,1fr);gap:18px;align-items:start}
+@media (max-width:620px){.fert{grid-template-columns:1fr;justify-items:center}}
+.fert svg{width:300px;max-width:100%;height:auto}
+#tube{transition:stroke-dashoffset 1100ms var(--ease-out)}
+.mover{transition:transform 900ms var(--ease-out),opacity 300ms ease}
+@media (prefers-reduced-motion:reduce){#tube,.mover{transition:none}}
+.fert .stxt h3{font-size:1.1rem;margin-bottom:4px}
+.eq{display:grid;gap:6px;margin-top:10px}
+.eq div{background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 12px;font-size:.93rem}
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px;margin-top:14px}
+
+/* البذور */
+.seeds{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
+.seed{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 14px;display:grid;gap:6px;justify-items:center;text-align:center}
+.seed h3{font-size:1.05rem}
+.seed svg{width:280px;max-width:100%;height:auto}
+.seed svg text{font-family:var(--f-body);font-size:12.5px;font-weight:600;fill:var(--navy)}
+.fruits{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-top:14px}
+
+/* الإنبات */
+.germ{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;align-items:start}
+@media (max-width:760px){.germ{grid-template-columns:1fr}}
+.pot{background:linear-gradient(#EAF4FB 0 58%,#B9926A 58% 100%);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.pot svg{width:100%;height:auto;display:block}
+.pot svg .g{transition:opacity 400ms ease,transform 600ms var(--ease-out);transform-box:fill-box}
+.conds{display:grid;gap:8px}
+.cond{display:flex;gap:10px;align-items:center;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 12px;cursor:pointer;font-weight:600}
+.cond input{accent-color:var(--violet);width:20px;height:20px}
+.cond:has(input:checked){border-color:var(--mint);background:var(--mint-soft)}
+.gstate{font-weight:600;margin-top:8px;min-height:3em}
+
+/* مختبر تحليل البيانات */
+.chart{background:#fff;border:1px solid var(--line);border-radius:12px;padding:8px}
+.chart svg{width:100%;height:auto;display:block}
+.chart text{font-family:var(--f-body);font-size:11px;fill:var(--muted)}
+.mcq{display:grid;gap:6px;margin-top:10px}
+.mcq .q{font-weight:600}
+.mcq .opts{display:grid;gap:6px}
+.mcq .opt{text-align:start;border-radius:10px}
+.mcq .opt.ok{border-color:var(--good);background:var(--mint-soft);color:var(--good)}
+.mcq .opt.no{border-color:var(--bad);background:var(--bad-soft);color:var(--bad)}
+
+/* التقويم */
+.qitem{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px;display:grid;gap:8px}
+.qitem.ok{border-color:var(--good)} .qitem.no{border-color:var(--bad)}
+.qitem .qn{font-family:var(--f-display);font-weight:600}
+.qitem .opts{display:grid;gap:6px}
+.qitem label{display:flex;gap:8px;align-items:flex-start;border:1px solid var(--line);background:#fff;border-radius:10px;padding:7px 12px;cursor:pointer;font-size:.93rem}
+.qitem label:has(input:checked){border-color:var(--violet);background:var(--soft)}
+.qitem input{accent-color:var(--violet);margin-top:5px}
+.qitem .exp{font-size:.88rem;color:var(--muted)}
+.qitem.ok .exp b{color:var(--good)} .qitem.no .exp b{color:var(--bad)}
+.summary-list{margin:0;padding-inline-start:20px;display:grid;gap:4px;font-size:.95rem}
+footer{padding-block:30px;color:var(--muted);font-size:.85rem;text-align:center}
+svg{direction:ltr}
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px}
+.mech{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+.mech h3{font-size:1.1rem;margin-bottom:6px}
+.mech ul{margin:0;padding-inline-start:20px;display:grid;gap:4px;font-size:.93rem}
+.pollinators{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:12px}
+@media (max-width:860px){.pollinators{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:520px){.pollinators{grid-template-columns:1fr}}
+.pol{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px 14px;font-size:.9rem;display:grid;gap:4px;align-content:start}
+.pol b{font-family:var(--f-display);font-size:1rem}
+.pol .ic{font-size:1.5rem;line-height:1}
+.sc{display:grid;grid-template-columns:auto minmax(0,1fr);gap:16px;align-items:center}
+@media (max-width:620px){.sc{grid-template-columns:1fr}}
+.sc svg{width:260px;max-width:100%;height:auto}
+.seg2{display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:3px;background:#fff;gap:3px}
+.seg2 button{border:0;background:none;border-radius:999px;padding:5px 14px;font-weight:600;cursor:pointer;color:var(--muted)}
+.seg2 button[aria-pressed="true"]{background:var(--violet);color:#fff}
+.reveal{margin-top:10px}
+.reveal summary{cursor:pointer;font-weight:600;color:var(--violet)}
+.reveal p{margin-top:6px}
+.callout{background:var(--soft);border-radius:12px;padding:12px 14px;font-size:.93rem;margin-top:12px}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <span class="lesson-no">الدرس 7-2 · صفحات الكتاب 181–187</span>
+    <h1>النباتات الزهرية <bdi lang="en" dir="ltr">Flowering plants</bdi></h1>
+    <div class="idea"><b>الفكرة الرئيسة</b><span>يمكن أن تنمو البذور والثمار في النباتات الزهرية من الأزهار بعد الإخصاب.</span></div>
+    <p class="hook"><b>الربط مع الحياة:</b> هل تُعدّ ثمار الطماطم من الخضراوات أو من الفواكه؟ علمًا بأن الطماطم ليست حلوة المذاق. قرّري في أثناء دراستك لهذه الصفحة ما إذا كانت الطماطم من الخضراوات أو من الفواكه.</p>
+  </div>
+</header>
+
+<nav class="tabs" aria-label="أقسام الدرس">
+  <div class="wrap">
+    <a href="#goals" class="on">الأهداف</a>
+    <a href="#vocab">المفردات</a>
+    <a href="#kwl">جدول التعلّم</a>
+    <a href="#video">الفيديو</a>
+    <a href="#cycle">دورة الحياة</a>
+    <a href="#fert">التلقيح والإخصاب</a>
+    <a href="#seeds">البذور والثمار</a>
+    <a href="#germ">الانتشار والإنبات</a>
+    <a href="#review">التقويم</a>
+  </div>
+</nav>
+
+<main>
+  <!-- ١ الأهداف -->
+  <section class="sec wrap" id="goals">
+    <div class="sec-head"><span class="n">١</span><h2>الأهداف</h2><p>اقرئي أهداف الدرس، وعلّمي كل هدف تشعرين أنك حقّقتِه.</p></div>
+    <div class="goals">
+      <label class="goal"><input type="checkbox"><span><b>تتتبّع</b> دورة حياة نبات زهري.<br><a class="here" href="#cycle">في قسم «دورة الحياة» ←</a></span></label>
+      <label class="goal"><input type="checkbox"><span><b>تصف</b> عملية الإخصاب وتكوين البذرة في نبات زهري.<br><a class="here" href="#fert">في قسمي «التلقيح والإخصاب» و«البذور والثمار» ←</a></span></label>
+      <label class="goal"><input type="checkbox"><span><b>تلخّص</b> إنبات البذرة.<br><a class="here" href="#germ">في قسم «الانتشار والإنبات» ←</a></span></label>
+    </div>
+  </section>
+
+  <!-- ٢ المفردات -->
+  <section class="sec wrap" id="vocab">
+    <div class="sec-head"><span class="n">٢</span><h2>المفردات</h2><p>اضغطي على البطاقة لقلبها ومعرفة معنى المصطلح.</p></div>
+    <div class="review"><span class="tag">مراجعة المفردات</span><span><b>الهيكل الخلوي</b> <bdi dir="ltr">Cytoskeleton</bdi>: ألياف البروتين الطويلة الرفيعة التي تشكّل هيكل الخلية.</span></div>
+    <div class="cards" id="cards"></div>
+    <div class="usage">
+      <h3>مفردات أكاديمية: متطابق مع <bdi dir="ltr">Compatible</bdi></h3>
+      <p>قابل للعمل مع بعضهما.</p>
+      <p><b>مثال:</b> لأن حبوب لقاح الذرة الزراعية متطابقة مع حبوب لقاح الذرة الحلوة، يجب ألّا يُزرع المحصولان أحدهما قريبًا من الآخر لكي لا تتلف الذرة الحلوة أو تتلوث.</p>
+    </div>
+  </section>
+
+  <!-- ٣ جدول التعلّم -->
+  <section class="sec wrap" id="kwl">
+    <div class="sec-head"><span class="n">٣</span><h2>جدول التعلّم</h2><p>املئي العمودين الأول والثاني قبل أن تبدئي الدرس، ثم عودي في النهاية واملئي «ماذا تعلّمت؟».</p></div>
+    <div class="kwl-wrap">
+      <table class="kwl">
+        <thead><tr>
+          <th scope="col">ماذا أعرف؟<small>ما أعرفه عن تكاثر النباتات الزهرية</small></th>
+          <th scope="col">ماذا أريد أن أعرف؟<small>أسئلة أبحث عن إجاباتها</small></th>
+          <th scope="col">ماذا تعلّمت؟<small>بعد دراسة الدرس</small></th>
+        </tr></thead>
+        <tbody><tr>
+          <td><textarea id="k1" aria-label="ماذا أعرف"></textarea><div class="starters" data-for="k1"><button type="button">الزهرة فيها أسدية وكربلة…</button><button type="button">البذرة تنمو إلى…</button></div></td>
+          <td><textarea id="k2" aria-label="ماذا أريد أن أعرف"></textarea><div class="starters" data-for="k2"><button type="button">كيف تتكوّن البذرة؟</button><button type="button">ما الفرق بين التلقيح والإخصاب؟</button><button type="button">لماذا…؟</button></div></td>
+          <td><textarea id="k3" aria-label="ماذا تعلّمت"></textarea><div class="starters" data-for="k3"><button type="button">الإخصاب المزدوج يعني…</button><button type="button">الجذير هو…</button></div></td>
+        </tr></tbody>
+      </table>
+    </div>
+    <p class="note">ما تكتبينه يبقى ما دامت الصفحة مفتوحة. إن طلبت المعلمة الجدول، التقطي صورة له قبل الخروج.</p>
+  </section>
+
+  <!-- ٤ الفيديو -->
+  <section class="sec wrap" id="video">
+    <div class="sec-head"><span class="n">٤</span><h2>فيديو الدرس</h2><p>شاهدي الفيديو، وابحثي في أثنائه عن إجابات الأسئلة المجاورة.</p></div>
+    <div class="video">
+      <div>
+        <div class="player" id="player">
+          <img id="thumb" src="https://i.ytimg.com/vi/Lak6YUkyOu4/hqdefault.jpg" alt="" onerror="this.remove()">
+          <button class="play" type="button" id="play" aria-label="شغّلي فيديو الدرس"><span><svg viewBox="0 0 24 24"><path d="M7 4v16l13-8z"/></svg></span></button>
+        </div>
+        <div class="vlinks">
+          <a class="btn ghost" href="https://www.youtube.com/watch?v=Lak6YUkyOu4" target="_blank" rel="noopener">افتحي الفيديو في يوتيوب ↗</a>
+        </div>
+        <p class="note">إن لم يعمل الفيديو داخل الصفحة، افتحيه في يوتيوب ثم عودي إلى هنا.</p>
+      </div>
+      <div class="box watch">
+        <h3 style="font-size:1.05rem">لاحظي أثناء المشاهدة</h3>
+        <ol>
+          <li>ما الفرق بين التلقيح والإخصاب؟</li>
+          <li>كم مشيجًا مذكرًا ينقل أنبوب اللقاح؟ ومع ماذا يتحد كل منهما؟</li>
+          <li>ماذا يصبح المبيض؟ وماذا تصبح البويضة بعد الإخصاب؟</li>
+        </ol>
+        <label for="vnotes" style="display:block;font-weight:600;margin-top:10px">ملاحظاتي</label>
+        <textarea id="vnotes" style="width:100%;min-height:110px;border:1px solid var(--line);border-radius:10px;background:var(--ivory);padding:10px 12px;margin-top:4px"></textarea>
+      </div>
+    </div>
+  </section>
+
+  <!-- ٥ دورة الحياة -->
+  <section class="sec wrap" id="cycle">
+    <div class="sec-head"><span class="n">٥</span><h2>دورة الحياة <bdi lang="en" dir="ltr" style="font-size:.6em;color:var(--muted)">Life Cycle</bdi></h2><p>النباتات الزهرية هي الأكثر تباينًا وتوزيعًا بين مجموعات النبات، وهي فريدة لأن لها أزهارًا. وهي كغيرها من النباتات تُظهر تعاقبًا للأجيال: <b>الجيل البوغي هو السائد</b>، ويدعم الجيل المشيجي، وهي بهذا تشبه المخروطيات (الشكل 7–7). اضغطي على أي مرحلة في الدورة.</p></div>
+    <div class="cycle-grid">
+      <div class="cycle">
+        <svg viewBox="0 0 400 400" id="cyc" role="group" aria-label="دورة حياة نبات زهري"></svg>
+        <div class="legend"><span><i style="background:var(--good)"></i>ثنائي المجموعة الكروموسومية <bdi dir="ltr">(2n)</bdi></span><span><i style="background:var(--male)"></i>أحادي المجموعة الكروموسومية <bdi dir="ltr">(n)</bdi></span><span><i style="background:var(--violet)"></i>الإخصاب المزدوج</span></div>
+      </div>
+      <div class="box detail" id="cyc-detail" aria-live="polite"></div>
+    </div>
+
+    <div class="activity" id="gam">
+      <h3>نمو الطور المشيجي الأنثوي <bdi dir="ltr" style="font-size:.75em;color:var(--muted)">Gametophyte development</bdi></h3>
+      <p>يبدأ نمو الطور المشيجي الذكري والأنثوي في الزهرة غير المكتملة النمو. تابعي ما يحدث داخل البويضة خطوة بخطوة (الشكل 6–7).</p>
+      <div class="gam">
+        <svg viewBox="0 0 160 220" id="gam-svg" role="img" aria-label="مراحل نمو الطور المشيجي الأنثوي"></svg>
+        <div>
+          <div class="stepdots" id="gam-dots"></div>
+          <h3 id="gam-t" style="font-size:1.05rem"></h3>
+          <p id="gam-p" style="margin-top:4px"></p>
+          <div class="steps-nav"><button class="btn ghost" type="button" id="gam-prev">السابق</button><button class="btn" type="button" id="gam-next">التالي</button><span class="count" id="gam-c"></span></div>
+        </div>
+      </div>
+      <details class="reveal"><summary>استنتجي: لهذا النبات 12 كروموسومًا. كم عدد الكروموسومات في البييضة؟</summary><p>6 كروموسومات؛ لأن الأبواغ الكبيرة تنتج عن انقسام منصف (n)، أما البييضة فتنتج عن انقسام متساوٍ فتبقى أحادية المجموعة الكروموسومية.</p></details>
+    </div>
+
+    <div class="activity">
+      <h3>والطور المشيجي الذكري؟</h3>
+      <p>في المتك تنقسم خلايا متخصصة انقسامًا منصفًا وتنتج أبواغًا صغيرة. وتنقسم النواة في كل بوغ صغير انقسامًا متساويًا ينتج عنه نواتان: كبيرة تُسمّى <b>النواة الأنبوبية (الخضرية)</b>، وأخرى تُسمّى <b>النواة المولدة (التناسلية)</b>، ويتكوّن جدار خلية سميك واقٍ حول البوغ الصغير. عند هذه المرحلة يُعدّ البوغ الصغير <b>حبة لقاح</b> أو طورًا مشيجيًّا غير ناضج.</p>
+      <div class="callout">يمكن أن يتعرّف العلماء فصيلة النبات أو الجنس الذي تنتمي إليه حبة اللقاح بوساطة الطبقة الخارجية المميزة لجدارها. وقد استعمل علماء الطب الجنائي لأكثر من خمسين عامًا حبوب اللقاح دليلًا لتحديد مكان حدوث بعض الجرائم وزمانها، ويتتبّع علماء الآثار التاريخ الزراعي لمناطق محددة باستعمال أحافير حبوب اللقاح.</div>
+    </div>
+
+    <div class="activity" id="order">
+      <h3>نشاط: رتّبي مراحل دورة الحياة</h3>
+      <p>بدأنا لكِ بالمرحلة الأولى. اضغطي على البطاقات بالترتيب الصحيح لتكملي الدورة، ثم اضغطي «تحقّقي». للتراجع اضغطي على بطاقة في السطر.</p>
+      <div class="order-line" id="o-line" aria-label="ترتيبك"></div>
+      <div class="order-pool" id="o-pool"></div>
+      <div class="steps-nav"><button class="btn" type="button" id="o-check">تحقّقي</button><button class="btn ghost" type="button" id="o-reset">ابدئي من جديد</button></div>
+      <div class="result" id="o-result" aria-live="polite"></div>
+    </div>
+  </section>
+
+  <!-- ٦ التلقيح والإخصاب -->
+  <section class="sec wrap" id="fert">
+    <div class="sec-head"><span class="n">٦</span><h2>التلقيح والإخصاب <bdi lang="en" dir="ltr" style="font-size:.6em;color:var(--muted)">Pollination and fertilization</bdi></h2><p>تساعد تكيّفات الأزهار المختلفة على ضمان انتقال حبوب اللقاح من المتك إلى المياسم في الكرابل. تابعي ما يحدث بعد ذلك (الشكلان 7–7 و8–7).</p></div>
+    <div class="activity" style="margin-top:0">
+      <div class="fert">
+        <svg viewBox="0 0 230 330" id="fert-svg" role="img" aria-label="رسم متحرك لنمو أنبوب اللقاح والإخصاب المزدوج">
+          <defs><clipPath id="sac-clip"><ellipse cx="128" cy="258" rx="30" ry="36"/></clipPath></defs>
+          <ellipse cx="115" cy="258" rx="80" ry="62" fill="#DDF0EC" stroke="#2C6E63" stroke-width="2"/>
+          <path d="M102 44 L98 200 L132 200 L128 44 Z" fill="#EEF7E6" stroke="#7fae6a" stroke-width="1.5"/>
+          <ellipse cx="115" cy="34" rx="38" ry="13" fill="#d8e86a" stroke="#8aa52a" stroke-width="2"/>
+          <ellipse cx="128" cy="258" rx="40" ry="48" fill="#FFF6D8" stroke="#C98A12" stroke-width="2"/>
+          <ellipse cx="128" cy="258" rx="30" ry="36" fill="#fff" stroke="#c9b27a" stroke-width="1"/>
+          <path d="M96 296 q4 10 12 4" fill="none" stroke="#C98A12" stroke-width="2"/>
+          <path id="tube" d="M115 24 C 116 80, 113 150, 114 200 C 115 240, 70 268, 78 296 C 84 312, 100 306, 106 298" fill="none" stroke="#C98A12" stroke-width="4" stroke-linecap="round"/>
+          <circle cx="115" cy="18" r="11" fill="#E6A823" stroke="#a87708" stroke-width="2"/>
+          <circle id="egg" cx="116" cy="282" r="8" fill="#2C6E63"/>
+          <circle id="pol1" cx="122" cy="252" r="5" fill="#2C6E63"/>
+          <circle id="pol2" cx="134" cy="252" r="5" fill="#2C6E63"/>
+          <circle class="mover" id="tn" cx="0" cy="0" r="5" fill="#62508F"/>
+          <circle class="mover" id="s1" cx="0" cy="0" r="4" fill="#B4432A"/>
+          <circle class="mover" id="s2" cx="0" cy="0" r="4" fill="#B4432A"/>
+          <g font-size="11.5" fill="#263A55" font-family="IBM Plex Sans Arabic,Tahoma" paint-order="stroke" stroke="#fff" stroke-width="3">
+            <text x="160" y="30">الميسم</text><text x="140" y="120">القلم</text><text x="8" y="215">المبيض</text>
+            <text x="170" y="262">البويضة</text><text x="20" y="318">فتحة النقير</text>
+            <text id="lab-egg" x="60" y="276" font-weight="700">بييضة</text>
+            <text id="lab-pol" x="98" y="230" font-weight="700">نواتان قطبيتان</text>
+          </g>
+        </svg>
+        <div class="stxt">
+          <div class="stepdots" id="f-dots"></div>
+          <h3 id="f-t"></h3>
+          <p id="f-p"></p>
+          <div class="steps-nav"><button class="btn ghost" type="button" id="f-prev">السابق</button><button class="btn" type="button" id="f-next">التالي</button><span class="count" id="f-c"></span></div>
+          <div class="eq" id="f-eq" hidden>
+            <div><span class="ploidy p1">n</span> مشيج مذكر + <span class="ploidy p1">n</span> بييضة ← <span class="ploidy p2">2n</span> <b>لاقحة</b> (الطور البوغي الجديد)</div>
+            <div><span class="ploidy p1">n</span> مشيج مذكر + <span class="ploidy p1">n + n</span> نواتان قطبيتان ← <span class="ploidy p3">3n</span> <b>الإندوسبيرم</b></div>
+          </div>
+        </div>
+      </div>
+      <p class="note">ألوان الرسم: البنفسجي النواة الأنبوبية، والأحمر نواة المشيج المذكر. رسم تعليمي مبسّط ليس بمقياس حقيقي.</p>
+    </div>
+
+    <div class="facts">
+      <div class="mech"><h3>الربط مع الكيمياء</h3><p style="font-size:.93rem">قد يحتوي الجدار المزخرف لحبة اللقاح على مركبات تتفاعل مع المواد الكيميائية لميسم الكربلة، فتحفّز نمو أنبوب اللقاح أو تثبّطه. ففي بعض أنواع الخشخاش يتلف تفاعل كيميائي تكوين الهيكل الخلوي لحبة اللقاح، فيثبط نمو أنبوب اللقاح. وتمنع آليات مختلفة حبوب اللقاح <b>غير المتطابقة</b> مع الميسم من إنتاج أنبوب لقاح نشيط.</p></div>
+      <div class="mech"><h3>أنبوب اللقاح</h3><p style="font-size:.93rem">تشير البحوث الحديثة إلى أن نمو أنبوب اللقاح نحو البويضة استجابة جذب كيميائية، ووُجد في بعض النباتات أن الكالسيوم يؤثر في اتجاه نموه. ويعتمد طوله على طول القلم، فقد يتراوح بين عدة سنتمترات وأكثر من <bdi dir="ltr">50 cm</bdi> في بعض نباتات الذرة.</p></div>
+      <div class="mech"><h3>لماذا «مزدوج»؟</h3><p style="font-size:.93rem">لحدوث عمليتي إخصاب في بويضة النباتات الزهرية يُسمّى الإخصاب <b>إخصابًا مزدوجًا</b>، وهو يحدث في النباتات الزهرية فقط. وبعد الإخصاب تنمو البويضة لتكوّن البذرة، والمبيض ليكوّن الثمرة.</p></div>
+    </div>
+
+    <div class="activity" id="ploidy">
+      <h3>نشاط: ما المجموعة الكروموسومية؟</h3>
+      <p>اختاري المجموعة الكروموسومية لكل تركيب، ثم اضغطي «تحقّقي».</p>
+      <div class="rows" id="p-rows"></div>
+      <button class="btn" type="button" id="p-check" style="margin-top:10px">تحقّقي</button>
+      <div class="result" id="p-result" aria-live="polite"></div>
+    </div>
+  </section>
+
+  <!-- ٧ البذور والثمار -->
+  <section class="sec wrap" id="seeds">
+    <div class="sec-head"><span class="n">٧</span><h2>نتائج التكاثر: البذور والثمار <bdi lang="en" dir="ltr" style="font-size:.6em;color:var(--muted)">Seed and fruit growth</bdi></h2><p>يُعدّ الإخصاب بداية فقط لعملية طويلة تنتهي بتكوين البذرة. والبذرة في النباتات الزهرية جزء من الثمرة التي تتكوّن من المبيض، وأحيانًا من أجزاء أخرى من الزهرة.</p></div>
+    <div class="types">
+      <div class="type"><span class="pair-label">اللاقحة <bdi dir="ltr">2n</bdi></span><h3>الجنين</h3><p>انقسامات متعددة للبويضة المخصبة تنتج جنينًا طولي الشكل له <b>فلقة واحدة</b> في ذوات الفلقة الواحدة، أو <b>فلقتان</b> في ذوات الفلقتين.</p></div>
+      <div class="type"><span class="pair-label">الخلية الثلاثية <bdi dir="ltr">3n</bdi></span><h3>الإندوسبيرم</h3><p>يتكوّن بانقسامات سريعة في البداية دون جدر خلوية، ثم تتكوّن الجدر عندما ينضج. يوفّر التغذية للجنين. والسائل داخل ثمرة جوز الهند الطازجة إندوسبيرم سائل.</p></div>
+      <div class="type"><span class="pair-label">الطبقات الخارجية للبويضة</span><h3>غلاف البذرة</h3><p>تتصلّب في أثناء نضج الإندوسبيرم وتشكّل نسيجًا واقيًا. قد يكون رقيقًا كما في الفاصوليا والبازلاء، ويتشقق عند نقع البذور في الماء.</p></div>
+    </div>
+
+    <div class="activity">
+      <h3>قارني: بذرة ذات فلقة واحدة وبذرة ذات فلقتين (الشكل 9–7)</h3>
+      <div class="seeds">
+        <div class="seed">
+          <h3>ذوات الفلقة الواحدة</h3>
+          <svg viewBox="-44 0 274 190" role="img" aria-label="مقطع في بذرة ذات فلقة واحدة">
+            <path d="M110 12 C 160 12, 178 60, 172 104 C 166 150, 140 178, 110 178 C 80 178, 54 150, 48 104 C 42 60, 60 12, 110 12 Z" fill="#F3E3B0" stroke="#8a5a2b" stroke-width="5"/>
+            <path d="M84 120 C 70 140, 78 168, 104 170 C 120 171, 126 156, 120 138 C 114 120, 96 108, 84 120 Z" fill="#CFE6B8" stroke="#5f9a4a" stroke-width="1.5"/>
+            <path d="M94 136 C 92 148, 96 160, 106 160 C 112 158, 112 148, 108 140 C 104 132, 97 130, 94 136 Z" fill="#8fc27a" stroke="#4a7d38"/>
+            <g stroke="#263A55" stroke-width="1"><line x1="52" y1="70" x2="10" y2="50"/><line x1="78" y1="130" x2="14" y2="118"/><line x1="102" y1="150" x2="14" y2="170"/></g>
+            <text x="-42" y="44">غلاف البذرة</text>
+            <text x="112" y="74" text-anchor="middle" font-weight="600">الإندوسبيرم</text>
+            <text x="-42" y="114">فلقة</text>
+            <text x="-42" y="183">الجنين</text>
+          </svg>
+          <p style="font-size:.9rem;color:var(--muted)">يشكّل الإندوسبيرم معظم كتلة البذرة.</p>
+        </div>
+        <div class="seed">
+          <h3>ذوات الفلقتين</h3>
+          <svg viewBox="-44 0 274 190" role="img" aria-label="مقطع في بذرة ذات فلقتين">
+            <path d="M40 70 C 40 30, 90 18, 120 30 C 150 40, 182 34, 190 70 C 198 120, 160 170, 110 168 C 60 166, 40 120, 40 70 Z" fill="#F0E2C8" stroke="#8a5a2b" stroke-width="5"/>
+            <path d="M50 74 C 52 40, 96 30, 118 40 C 120 80, 118 130, 110 158 C 70 154, 48 118, 50 74 Z" fill="#E9D9A6" stroke="#b08a3a" stroke-width="1.5"/>
+            <path d="M122 40 C 146 46, 176 44, 180 74 C 186 116, 156 156, 116 158 C 124 128, 126 80, 122 40 Z" fill="#E2CF92" stroke="#b08a3a" stroke-width="1.5"/>
+            <path d="M112 44 C 104 52, 104 70, 112 80 C 120 70, 120 52, 112 44 Z" fill="#8fc27a" stroke="#4a7d38"/>
+            <g stroke="#263A55" stroke-width="1"><line x1="44" y1="56" x2="10" y2="40"/><line x1="70" y1="110" x2="10" y2="150"/><line x1="160" y1="110" x2="196" y2="150"/><line x1="112" y1="56" x2="150" y2="16"/></g>
+            <text x="-42" y="34">غلاف البذرة</text>
+            <text x="-42" y="163">فلقة</text>
+            <text x="218" y="163" text-anchor="end">فلقة</text>
+            <text x="152" y="14">الجنين</text>
+          </svg>
+          <p style="font-size:.9rem;color:var(--muted)">تمتص الفلقتان معظم الإندوسبيرم في أثناء نضج البذرة.</p>
+        </div>
+      </div>
+      <details class="reveal"><summary>حدّدي مصدر غذاء الجنين في كل بذرة.</summary><p>في ذوات الفلقة الواحدة: <b>الإندوسبيرم</b> المكوّن الأساسي للبذرة. وفي ذوات الفلقتين: <b>الفلقتان</b>؛ لأنهما امتصتا معظم الإندوسبيرم في أثناء نضج البذرة، فتوفران معظم الغذاء للجنين.</p></details>
+    </div>
+
+    <h3 style="font-size:1.15rem;margin-top:22px">أنواع الثمار (الجدول 1–7)</h3>
+    <p style="color:var(--muted);font-size:.95rem;margin-top:4px">تتكوّن الثمار عادة من جدار المبيض، وفي بعض الحالات تتشكّل من جدار المبيض ومن أعضاء زهرية أخرى؛ فبذور التفاح توجد داخل لبّ يتحوّل من المبيض، أما النسيج الطري الذي نأكله فينتج عن أجزاء أخرى من الزهرة.</p>
+    <div class="fruits">
+      <div class="type"><span class="pair-label">من زهرة واحدة</span><h3>ثمار لحمية بسيطة</h3><p>قد تحتوي على بذرة واحدة أو أكثر.</p><p class="ex"><b>أمثلة:</b> التفاح والمشمش والعنب والبرتقال والطماطم والقرع والخوخ.</p></div>
+      <div class="type"><span class="pair-label">من زهرة ذات أعضاء أنثوية عديدة</span><h3>ثمار مجمّعة (ملتحمة)</h3><p>تتكوّن من أزهار ذات أعضاء زهرية عديدة يلتحم بعضها ببعض عندما تنضج الثمرة.</p><p class="ex"><b>أمثلة:</b> الفراولة وأنواع العليق.</p></div>
+      <div class="type"><span class="pair-label">من أزهار عديدة</span><h3>ثمار مركّبة (مضاعفة)</h3><p>تتكوّن من أزهار عديدة تلتحم معًا عندما تنضج الثمار.</p><p class="ex"><b>أمثلة:</b> التين والأناناس والتوت وبرتقال الهنود الحمر.</p></div>
+      <div class="type"><span class="pair-label">جافة عند النضج</span><h3>ثمار جافة</h3><p>تكون هذه الثمار جافة عندما تنضج.</p><p class="ex"><b>أمثلة:</b> القرون والمكسّرات والحبوب.</p></div>
+    </div>
+
+    <div class="activity" id="fruit">
+      <h3>نشاط: صنّفي الثمرة</h3>
+      <p>اختاري نوع كل ثمرة، ثم اضغطي «تحقّقي».</p>
+      <div class="rows" id="fr-rows"></div>
+      <button class="btn" type="button" id="fr-check" style="margin-top:10px">تحقّقي</button>
+      <div class="result" id="fr-result" aria-live="polite"></div>
+      <details class="reveal"><summary>عودي إلى سؤال الربط مع الحياة: هل الطماطم من الخضراوات أو من الفواكه؟</summary><p>الطماطم <b>ثمرة</b> من الناحية العلمية، وتحديدًا ثمرة لحمية بسيطة؛ لأنها تتكوّن من مبيض الزهرة بعد الإخصاب وتحتوي على البذور. أما كونها غير حلوة المذاق فلا يغيّر ذلك؛ فالتصنيف العلمي يعتمد على الجزء الذي تكوّنت منه، لا على الطعم.</p></details>
+    </div>
+  </section>
+
+  <!-- ٨ الانتشار والإنبات -->
+  <section class="sec wrap" id="germ">
+    <div class="sec-head"><span class="n">٨</span><h2>انتشار البذور وإنباتها <bdi lang="en" dir="ltr" style="font-size:.6em;color:var(--muted)">Seed dispersal and germination</bdi></h2><p>تساعد الثمار على انتشار البذور إضافة إلى حمايتها، ويزيد انتشار البذور بعيدًا عن النبات الأم من معدل بقاء النسل.</p></div>
+    <div class="pollinators">
+      <div class="pol"><span class="ic" aria-hidden="true">🌱</span><b>لماذا الانتشار؟</b>عندما تنمو نباتات عديدة في بقعة واحدة يكون هناك تنافس على الضوء والماء والمغذيات في التربة، فالبذور التي تنمو بالقرب من النبات الأم تتنافس معه على هذه المصادر.</div>
+      <div class="pol"><span class="ic" aria-hidden="true">🐿️</span><b>الحيوانات</b>الحيوانات التي تجمع الثمار أو تدفنها لا تأكلها جميعها، فقد ينمو بعضها. وتأكل حيوانات مثل الغزلان والدببة والطيور الثمار، فتمر البذور خلال قناتها الهضمية دون تلف ثم تخرج مع البراز.</div>
+      <div class="pol"><span class="ic" aria-hidden="true">🌬️</span><b>الماء والرياح</b>لبعض البذور تحوّرات تركيبية تمكّنها من الانتقال بوساطة الماء والحيوانات والرياح.</div>
+    </div>
+
+    <div class="activity">
+      <h3>تجربة: ازرعي بذرة</h3>
+      <p><b>الإنبات</b> هو بدء نمو الجنين. وهناك عوامل تؤثر فيه، منها الماء والأكسجين ودرجة الحرارة. اختاري الظروف ونوع البذرة، ثم ازرعيها وتابعي ما يحدث (الشكل 10–7).</p>
+      <div class="germ">
+        <div class="pot"><svg viewBox="0 0 300 220" id="pot" role="img" aria-label="مراحل إنبات البذرة"></svg></div>
+        <div>
+          <div class="seg2" role="group" aria-label="نوع البذرة" style="margin-bottom:10px">
+            <button type="button" data-st="di" aria-pressed="true">ذوات الفلقتين</button>
+            <button type="button" data-st="mono" aria-pressed="false">ذوات الفلقة الواحدة</button>
+          </div>
+          <div class="conds">
+            <label class="cond"><input type="checkbox" id="c-water" checked> الماء</label>
+            <label class="cond"><input type="checkbox" id="c-o2" checked> الأكسجين (تربة غير مغمورة)</label>
+            <label class="cond"><input type="checkbox" id="c-temp" checked> درجة حرارة مناسبة لهذه البذرة</label>
+          </div>
+          <div class="steps-nav"><button class="btn" type="button" id="g-go">ازرعي البذرة</button><button class="btn ghost" type="button" id="g-reset">بذرة جديدة</button></div>
+          <div class="gstate" id="g-state" aria-live="polite"></div>
+        </div>
+      </div>
+      <p class="note">رسم تعليمي مبسّط. بعض البذور تنبت عندما تكون التربة باردة، في حين تحتاج بذور أخرى إلى تربة أكثر دفئًا.</p>
+    </div>
+
+    <div class="callout"><b>الكُمون (الراحة)</b> <bdi dir="ltr">dormancy</bdi>: تستطيع بعض البذور البقاء في ظروف البيئة القاسية، ومنها الجفاف والبرودة. تنبت بعض البذور حالًا بعد انتشارها، في حين ينمو بعضها الآخر بعد فترات طويلة؛ فبذور القيقب <bdi dir="ltr">Maple</bdi> يجب أن تنمو خلال أسابيع من انتشارها وإلا فلن تنمو على الإطلاق. وتدخل معظم البذور الناتجة عند نهاية فصل النمو في مرحلة الكمون، وهي فترة لا يوجد فيها نمو أو يوجد نمو قليل جدًا، وتُعدّ تكيّفًا يزيد معدل بقاء البذور المعرّضة لظروف قاسية. ويختلف طول فترة الكمون من نوع إلى آخر.</div>
+
+    <div class="activity" id="data">
+      <h3>مختبر تحليل البيانات 1–7: التمييز بين السبب والنتيجة</h3>
+      <p><b>ما التأثير الجيني المسبب للمرض؟</b> تنتج بعض النباتات مواد كيميائية تؤثر في النباتات المجاورة لها في الطبيعة. درس العلماء العلاقة بين التأثير الجيني المسبب للمرض وانتشار بعض الأنواع النباتية غير المستوطنة، ومنها خردل الثوم <bdi dir="ltr"><i>Alliaria petiolata</i></bdi>، فاستقصوا أثره في إنبات بذور نباتين مستوطنين.</p>
+      <div class="two" style="margin-top:10px">
+        <div class="chart"><svg viewBox="0 0 380 250" id="chart" role="img" aria-label="رسم بياني لمعدل الإنبات بوجود خردل الثوم وبدونه"></svg></div>
+        <div>
+          <div class="mcq" id="d-q"></div>
+        </div>
+      </div>
+      <p class="note">القيم في الرسم تقريبية، مقروءة من الرسم البياني في الكتاب. أُخذت البيانات من: Prati, D. and O. Bossdorf. 2004. Amer. Journal of Bot. 91(2): 285–288.</p>
+      <details class="reveal"><summary>صمّمي تجربة: نبات الفصّة (البرسيم) المعروف بتأثيره الجيني المثبط لإنبات بعض البذور.</summary><p>اقتراح: ازرعي مجموعتين متماثلتين من بذور النبات الذي تختارينه (العدد نفسه، والتربة والماء والضوء ودرجة الحرارة نفسها). أضيفي إلى إحداهما بادرات البرسيم أو مستخلصها (المتغير المستقل)، واتركي الأخرى ضابطة. سجّلي النسبة المئوية للبذور النامية كل أسبوع (المتغير التابع) مدة ثمانية أسابيع، ثم مثّليها بيانيًّا وقارني.</p></details>
+    </div>
+  </section>
+
+  <!-- ٩ التقويم -->
+  <section class="sec wrap" id="review">
+    <div class="sec-head"><span class="n">٩</span><h2>التقويم 7–2</h2><p>أجيبي عن الأسئلة كلها ثم اضغطي «أرسلي إجاباتي». تُحسب درجتك من المحاولة الأولى، وتصل نتيجتك إلى المعلمة.</p></div>
+    <div class="box" style="margin-bottom:12px">
+      <h3 style="font-size:1.05rem;margin-bottom:6px">الخلاصة</h3>
+      <ul class="summary-list">
+        <li>تشمل دورة حياة النباتات الزهرية تعاقبًا للأجيال.</li>
+        <li>يحدث نمو الطور المشيجي في الزهرة.</li>
+        <li>الإخصاب المزدوج خاصية فريدة بين النباتات الزهرية.</li>
+        <li>توفّر البذور الغذاء والحماية للنبات البوغي الجنيني.</li>
+        <li>تحمي الثمار البذور، وتساعد على انتشارها.</li>
+        <li>تؤثر الظروف البيئية في إنبات البذور.</li>
+      </ul>
+    </div>
+    <div class="rows" id="quiz" style="gap:12px"></div>
+    <div class="steps-nav"><button class="btn" type="button" id="qz-send">أرسلي إجاباتي</button></div>
+    <div class="result" id="qz-result" aria-live="polite"></div>
+    <div class="activity" style="text-align:center" id="qz-end" hidden>
+      <h3>انتهيتِ من الدرس</h3>
+      <p>عودي إلى جدول التعلّم واكتبي في عمود «ماذا تعلّمت؟» ثلاث أفكار من الدرس.</p>
+      <a class="btn" href="#kwl" style="display:inline-block;text-decoration:none">العودة إلى جدول التعلّم</a>
+    </div>
+  </section>
+</main>
+<footer>لبيبة · فكّري بذكاء، تعلّمي بعمق. · المحتوى من كتاب الأحياء، الدرس 7-2 النباتات الزهرية.</footer>
+
+<script>
+/* ===== عام ===== */
+const $ = id => document.getElementById(id);
+const AR = n => Number(n).toLocaleString("ar-SA");
+const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const SVGNS = "http://www.w3.org/2000/svg";
+
+/* ===== المفردات ===== */
+const VOCAB = [
+  ["النواتان القطبيتان", "Polar nuclei", "نواتان تنتقلان إلى مركز الطور المشيجي الأنثوي، وتتحدان مع نواة المشيج المذكر الثانية لتكوين الإندوسبيرم."],
+  ["الإندوسبيرم", "Endosperm", "نسيج ثلاثي المجموعة الكروموسومية (3n) ينتج عن الإخصاب المزدوج، ويوفّر التغذية للجنين."],
+  ["غلاف البذرة", "Seed coat", "نسيج واقٍ يتكوّن من الطبقات الخارجية للبويضة التي تتصلّب في أثناء نضج الإندوسبيرم."],
+  ["الإنبات", "Germination", "عملية بدء نمو الجنين في البذرة، وتؤثر فيها عوامل منها الماء والأكسجين ودرجة الحرارة."],
+  ["الجذير", "Radicle", "الجزء الأول من الجنين الذي يظهر خارج البذرة، ويبدأ امتصاص الماء والمواد المغذية من البيئة، وينمو لاحقًا إلى جذر النبات."],
+  ["السويقة تحت الفلقية", "Hypocotyl", "المنطقة من الساق الأقرب إلى البذرة، وهي في كثير من النباتات أول جزء من البادرة يظهر فوق سطح التربة."],
+  ["الكُمون (الراحة)", "Dormancy", "فترة لا يوجد فيها نمو، أو يوجد فيها نمو قليل جدًا، تدخلها معظم البذور عند نهاية فصل النمو، وتُعدّ تكيّفًا يزيد معدل بقائها."]
+];
+$("cards").innerHTML = VOCAB.map(([t, en, d]) => `
+  <button class="card" type="button" aria-label="${t}: اقلبي البطاقة">
+    <span class="in">
+      <span class="face front"><span class="t">${t}</span><span class="en">${en}</span><span class="hint">اضغطي لقلب البطاقة</span></span>
+      <span class="face back"><b>${t}</b>${d}</span>
+    </span>
+  </button>`).join("");
+$("cards").addEventListener("click", e => { const c = e.target.closest(".card"); if (c) c.classList.toggle("flip"); });
+
+document.querySelectorAll(".starters").forEach(box => box.addEventListener("click", e => {
+  const b = e.target.closest("button"); if (!b) return;
+  const ta = $(box.dataset.for); const txt = b.textContent.replace(/…/g, "");
+  ta.value = (ta.value.trim() ? ta.value.replace(/\s*$/, "\n") : "") + "• " + txt; ta.focus();
+}));
+
+// إبراز القسم الحالي في الشريط
+const navLinks = [...document.querySelectorAll(".tabs a")];
+const io = new IntersectionObserver(es => es.forEach(en => {
+  if (en.isIntersecting) navLinks.forEach(a => a.classList.toggle("on", a.getAttribute("href") === "#" + en.target.id));
+}), { rootMargin: "-45% 0px -50% 0px" });
+document.querySelectorAll("section.sec").forEach(s => io.observe(s));
+
+/* ===== الفيديو: يُحمَّل عند الضغط فقط ===== */
+$("play").addEventListener("click", () => {
+  const f = document.createElement("iframe");
+  f.src = "https://www.youtube-nocookie.com/embed/Lak6YUkyOu4?rel=0&autoplay=1&playsinline=1";
+  f.title = "فيديو الدرس: النباتات الزهرية";
+  f.allow = "autoplay; encrypted-media; picture-in-picture; fullscreen";
+  f.allowFullscreen = true; f.referrerPolicy = "strict-origin-when-cross-origin";
+  $("player").replaceChildren(f);
+});
+
+/* ===== دورة الحياة ===== */
+const CYCLE = [
+  { t: "الطور البوغي", p: "2n", c: "p2", d: "النبات الزهري البالغ. هو <b>الجيل السائد</b> في النباتات الزهرية، ويدعم الطور المشيجي، وفيه تتكوّن الأزهار." },
+  { t: "انقسام منصف", p: "2n ← n", c: "p1", d: "في المتك تنقسم خلايا متخصصة انقسامًا منصفًا فتنتج <b>أبواغًا صغيرة</b>. وفي البويضة داخل الكربلة تنقسم خلية متخصصة انقسامًا منصفًا فتنتج <b>أربعة أبواغ كبيرة</b>." },
+  { t: "الطور المشيجي", p: "n", c: "p1", d: "البوغ الصغير يصبح <b>حبة لقاح</b> فيها نواة أنبوبية ونواة مولدة. والبوغ الكبير الفعّال يكوّن بانقسامات متساوية <b>طورًا مشيجيًّا أنثويًّا</b> فيه البييضة والنواتان القطبيتان." },
+  { t: "التلقيح", p: "n", c: "p1", d: "انتقال حبة اللقاح من المتك إلى الميسم. تكوّن حبة اللقاح <b>أنبوب اللقاح</b> الذي ينمو داخل القلم نحو المبيض، وتنقسم النواة المولدة إلى نواتي مشيجين مذكرين." },
+  { t: "إخصاب مزدوج", p: "2n + 3n", c: "p3", d: "يتحد أحد المشيجين مع البييضة فتتكوّن <b>اللاقحة (2n)</b>، ويتحد الآخر مع النواتين القطبيتين فيتكوّن <b>الإندوسبيرم (3n)</b>." },
+  { t: "البذرة والثمرة", p: "2n", c: "p2", d: "تنمو اللاقحة إلى <b>جنين</b>، وتتحوّل البويضة إلى <b>بذرة</b> لها غلاف، ويتحوّل المبيض إلى <b>ثمرة</b> تحمي البذرة وتساعد على انتشارها." },
+  { t: "الإنبات", p: "2n", c: "p2", d: "تمتص البذرة الماء فتنتفخ ويتشقق غلافها، ويظهر الجذير، وينمو الجنين إلى <b>طور بوغي صغير</b> (بادرة)، ثم إلى نبات بالغ فتكتمل الدورة." }
+];
+const COL = { p1: "#C98A12", p2: "#2C6E63", p3: "#62508F" };
+(function () {
+  const svg = $("cyc"), cx = 200, cy = 200, R = 140, N = CYCLE.length;
+  const pt = (i, r = R) => { const a = -Math.PI / 2 + (i / N) * Math.PI * 2; return [cx + r * Math.cos(a), cy + r * Math.sin(a)]; };
+  let g = `<defs><marker id="ar" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#9aa5b5"/></marker></defs>`;
+  for (let i = 0; i < N; i++) {
+    const a0 = -Math.PI / 2 + ((i + .24) / N) * Math.PI * 2, a1 = -Math.PI / 2 + ((i + .76) / N) * Math.PI * 2;
+    g += `<path d="M${cx + R * Math.cos(a0)} ${cy + R * Math.sin(a0)} A ${R} ${R} 0 0 1 ${cx + R * Math.cos(a1)} ${cy + R * Math.sin(a1)}" fill="none" stroke="#9aa5b5" stroke-width="2.5" marker-end="url(#ar)"/>`;
+  }
+  g += `<text x="${cx}" y="${cy - 6}" text-anchor="middle" font-size="15" font-weight="700" fill="#263A55" font-family="Readex Pro,Tahoma">دورة حياة</text><text x="${cx}" y="${cy + 16}" text-anchor="middle" font-size="15" font-weight="700" fill="#263A55" font-family="Readex Pro,Tahoma">نبات زهري</text>`;
+  CYCLE.forEach((s, i) => {
+    const [x, y] = pt(i);
+    g += `<g class="cnode" data-i="${i}" tabindex="0" role="button" aria-label="${s.t}">
+      <circle class="dot" cx="${x}" cy="${y}" r="27" fill="${COL[s.c]}" stroke="#fff" stroke-width="3"/>
+      <text x="${x}" y="${y + 6}" text-anchor="middle" font-size="17" font-weight="700" fill="#fff">${AR(i + 1)}</text>
+      <text x="${x}" y="${y + 44}" text-anchor="middle" font-size="12.5" font-weight="600" fill="#263A55">${s.t}</text>
+    </g>`;
+  });
+  svg.innerHTML = g;
+  const show = i => {
+    const s = CYCLE[i];
+    svg.querySelectorAll(".cnode").forEach(n => n.classList.toggle("sel", +n.dataset.i === i));
+    $("cyc-detail").innerHTML = `<span class="pair-label">المرحلة ${AR(i + 1)} من ${AR(N)}</span><h3>${s.t}</h3><span class="ploidy ${s.c}">${s.p}</span><p>${s.d}</p>
+      <div class="steps-nav"><button class="btn ghost" type="button" data-go="${(i + N - 1) % N}">السابقة</button><button class="btn" type="button" data-go="${(i + 1) % N}">التالية</button></div>`;
+  };
+  svg.addEventListener("click", e => { const n = e.target.closest(".cnode"); if (n) show(+n.dataset.i); });
+  svg.addEventListener("keydown", e => { const n = e.target.closest(".cnode"); if (n && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); show(+n.dataset.i); } });
+  $("cyc-detail").addEventListener("click", e => { const b = e.target.closest("[data-go]"); if (b) show(+b.dataset.go); });
+  show(0);
+})();
+
+/* ===== نمو الطور المشيجي الأنثوي ===== */
+(function () {
+  const STEPS = [
+    ["أربعة أبواغ كبيرة", "تنقسم خلية متخصصة في البويضة داخل الكربلة انقسامًا منصفًا، فتنتج أربعة أبواغ كبيرة."],
+    ["بوغ أنثوي كبير فعّال", "تتحلّل ثلاثة من الأبواغ الكبيرة وتضمحل عند فتحة النقير، ويبقى بوغ كبير واحد (البعيد عن النقير)."],
+    ["انقسام متساوٍ أول", "تنقسم نواة البوغ الكبير المتبقي انقسامًا متساويًا دون أن ينقسم السيتوبلازم، فتتكوّن نواتان."],
+    ["انقسام متساوٍ ثانٍ", "تتواصل الانقسامات المتساوية، فتصبح أربع نوى، وينمو البوغ الكبير."],
+    ["انقسام متساوٍ ثالث", "يصبح البوغ الكبير خلية واحدة كبيرة داخلها <b>ثماني نوى</b>، أربع منها عند كل طرف."],
+    ["الطور المشيجي الأنثوي الناضج", "تنتقل نواتان نحو المركز وتُسمّيان <b>النواتين القطبيتين</b>، وتتشكّل أغشية حول النوى الست الأخرى. وتتحوّل واحدة من النوى الثلاث الموجودة قرب فتحة النقير إلى <b>البييضة</b>. الخلية التي تحوي البييضة والنوى السبع تمثّل الطور المشيجي الأنثوي الناضج."]
+  ];
+  // مواقع النوى الثماني في كل خطوة (null = مخفية)
+  const P = [
+    [], [[80, 62]],
+    [[80, 40], [80, 172]],
+    [[64, 38], [96, 38], [64, 174], [96, 174]],
+    [[60, 34], [100, 34], [72, 58], [88, 58], [60, 180], [100, 180], [72, 154], [88, 154]],
+    [[58, 36], [102, 36], [80, 54], [72, 108], [62, 172], [98, 172], [80, 184], [88, 108]]
+  ];
+  const svg = $("gam-svg");
+  svg.innerHTML = `
+    <ellipse cx="80" cy="108" rx="66" ry="102" fill="#FFF6D8" stroke="#C98A12" stroke-width="2"/>
+    <path d="M70 206 L80 218 L90 206" fill="none" stroke="#C98A12" stroke-width="2"/>
+    <text x="96" y="219" font-size="9" fill="#5D6A80" font-family="IBM Plex Sans Arabic,Tahoma">فتحة النقير</text>
+    <ellipse id="sac" cx="80" cy="108" rx="44" ry="88" fill="#fff" stroke="#2C6E63" stroke-width="1.5" opacity="0"/>
+    ${[0, 1, 2, 3].map(i => `<circle id="tet${i}" cx="80" cy="${62 + i * 34}" r="16" fill="#DDF0EC" stroke="#2C6E63" stroke-width="1.5"/>`).join("")}
+    <g id="cells" opacity="0">
+      <ellipse cx="58" cy="36" rx="13" ry="11" fill="#ECE6F2" stroke="#62508F"/><ellipse cx="102" cy="36" rx="13" ry="11" fill="#ECE6F2" stroke="#62508F"/><ellipse cx="80" cy="54" rx="13" ry="11" fill="#ECE6F2" stroke="#62508F"/>
+      <ellipse cx="62" cy="172" rx="13" ry="12" fill="#ECE6F2" stroke="#62508F"/><ellipse cx="98" cy="172" rx="13" ry="12" fill="#ECE6F2" stroke="#62508F"/>
+      <ellipse cx="80" cy="184" rx="15" ry="13" fill="#B8E2D9" stroke="#2C6E63" stroke-width="2"/>
+    </g>
+    ${[0, 1, 2, 3, 4, 5, 6, 7].map(i => `<circle class="nuc" id="nu${i}" cx="0" cy="0" r="5" fill="#C98A12" style="transform:translate(80px,108px);opacity:0;transition:transform 450ms cubic-bezier(.23,1,.32,1),opacity 300ms ease,fill 300ms ease"/>`).join("")}
+    <g id="gam-labels" opacity="0" font-size="9.5" font-weight="700" font-family="IBM Plex Sans Arabic,Tahoma">
+      <text x="80" y="128" text-anchor="middle" fill="#62508F">النواتان القطبيتان</text>
+      <text x="100" y="196" fill="#2C6E63" paint-order="stroke" stroke="#FFF6D8" stroke-width="3">البييضة</text>
+    </g>`;
+  let s = 0;
+  $("gam-dots").innerHTML = STEPS.map(() => "<span></span>").join("");
+  function draw() {
+    $("gam-t").textContent = STEPS[s][0]; $("gam-p").innerHTML = STEPS[s][1];
+    $("gam-c").textContent = `${AR(s + 1)} / ${AR(STEPS.length)}`;
+    [...$("gam-dots").children].forEach((d, i) => d.classList.toggle("on", i <= s));
+    $("gam-prev").disabled = s === 0; $("gam-next").textContent = s === STEPS.length - 1 ? "من البداية" : "التالي";
+    for (let i = 0; i < 4; i++) {
+      const t = $("tet" + i);
+      t.style.opacity = s === 0 ? 1 : s === 1 ? (i === 0 ? 1 : .15) : 0;
+      t.setAttribute("r", s === 1 && i === 0 ? 22 : 16);
+    }
+    $("sac").style.opacity = s >= 2 ? 1 : 0;
+    $("cells").style.opacity = s === 5 ? 1 : 0;
+    $("gam-labels").style.opacity = s === 5 ? 1 : 0;
+    for (let i = 0; i < 8; i++) {
+      const n = $("nu" + i), p = P[s][i];
+      if (p) { n.style.transform = `translate(${p[0]}px,${p[1]}px)`; n.style.opacity = 1; }
+      else { n.style.opacity = 0; if (s < 2) n.style.transform = "translate(80px,62px)"; }
+      n.setAttribute("fill", s === 5 && (i === 3 || i === 7) ? "#62508F" : s === 5 && i === 6 ? "#2C6E63" : "#C98A12");
+      n.setAttribute("r", s === 5 && i === 6 ? 6.5 : 5);
+    }
+  }
+  $("gam-prev").addEventListener("click", () => { if (s > 0) { s--; draw(); } });
+  $("gam-next").addEventListener("click", () => { s = s < STEPS.length - 1 ? s + 1 : 0; draw(); });
+  draw();
+})();
+
+/* ===== نشاط ترتيب مراحل الدورة ===== */
+(function () {
+  const FIRST = "نبات زهري بالغ (الطور البوغي) تتكوّن فيه الأزهار";
+  const ORDER = [
+    "خلايا في المتك والبويضة تنقسم انقسامًا منصفًا فتنتج أبواغًا",
+    "البوغ الصغير يصبح حبة لقاح، والبوغ الكبير يكوّن ثماني نوى",
+    "حبة لقاح تستقر على الميسم وينمو أنبوب اللقاح نحو البويضة",
+    "مشيج يتحد مع البييضة، والآخر مع النواتين القطبيتين",
+    "البويضة تصبح بذرة، والمبيض يصبح ثمرة",
+    "البذرة تمتص الماء ويظهر الجذير وينمو الجنين"
+  ];
+  let pool, line, checked = false;
+  function reset() { pool = shuffle(ORDER.map((_, i) => i)); line = []; checked = false; $("o-result").textContent = ""; draw(); }
+  function draw() {
+    $("o-line").innerHTML = `<span class="ocard fixed">${FIRST}</span>` + line.map((k, i) => `<button type="button" class="ocard ${checked ? (k === i ? "ok" : "no") : ""}" data-pos="${i}">${ORDER[k]}</button>`).join("");
+    $("o-pool").innerHTML = pool.map(k => `<button type="button" class="ocard" data-k="${k}" ${line.includes(k) ? "disabled" : ""}>${ORDER[k]}</button>`).join("");
+  }
+  $("o-pool").addEventListener("click", e => { const b = e.target.closest("[data-k]"); if (!b || b.disabled) return; checked = false; line.push(+b.dataset.k); $("o-result").textContent = ""; draw(); });
+  $("o-line").addEventListener("click", e => { const b = e.target.closest("[data-pos]"); if (!b) return; checked = false; line.splice(+b.dataset.pos, 1); $("o-result").textContent = ""; draw(); });
+  $("o-check").addEventListener("click", () => {
+    const r = $("o-result");
+    if (line.length < ORDER.length) { r.className = "result no"; r.textContent = `رتّبي البطاقات كلها أولًا (بقي ${AR(ORDER.length - line.length)}).`; return; }
+    checked = true; draw();
+    const ok = line.filter((k, i) => k === i).length;
+    r.className = "result " + (ok === ORDER.length ? "ok" : "no");
+    r.textContent = ok === ORDER.length ? "أحسنتِ! رتّبتِ دورة حياة النبات الزهري ترتيبًا صحيحًا، وبعد الإنبات يعود النبات بالغًا فتبدأ الدورة من جديد." : `${AR(ok)} من ${AR(ORDER.length)} في مكانها الصحيح. اضغطي على البطاقات الحمراء لإعادتها ثم رتّبيها من جديد.`;
+  });
+  $("o-reset").addEventListener("click", reset);
+  reset();
+})();
+
+/* ===== التلقيح والإخصاب المزدوج ===== */
+(function () {
+  const STEPS = [
+    ["حبة لقاح على الميسم", "عندما تستقر حبة لقاح <b>متطابقة</b> على الميسم فإنها تمتص منه مواد، ويبدأ أنبوب اللقاح في التشكّل. في حبة اللقاح نواتان: النواة الأنبوبية والنواة المولدة."],
+    ["نمو أنبوب اللقاح", "ينمو أنبوب اللقاح عادة نحو الأسفل داخل القلم في اتجاه المبيض، و<b>توجّه النواة الأنبوبية</b> نموه، وتنتقل نواتا حبة اللقاح فيه نحو البويضة."],
+    ["تكوين المشيجين المذكرين", "في أثناء نمو أنبوب اللقاح تنقسم <b>النواة المولدة</b> انقسامًا متساويًا، فتتشكّل نواتا مشيجين مذكرين ليس لهما أسواط. وتصبح حبة اللقاح الآن طورًا مشيجيًّا ذكريًّا ناضجًا."],
+    ["الوصول إلى البويضة", "عندما يصل أنبوب اللقاح إلى البويضة فإنه يمر عبر <b>فتحة النقير</b>، ويحرّر نواتي المشيجين المذكرين داخلها."],
+    ["الإخصاب المزدوج", "تتحد إحدى النواتين مع <b>البييضة</b> مكوّنة اللاقحة، أي الطور البوغي الجديد. وتتحد نواة المشيج المذكر الثانية مع <b>النواتين القطبيتين</b> في المركز لتتشكّل خلية ثلاثية المجموعة الكروموسومية (3n) هي الإندوسبيرم."]
+  ];
+  const tube = $("tube"), L = tube.getTotalLength();
+  tube.style.strokeDasharray = L; tube.style.strokeDashoffset = L;
+  const PROG = [0, .58, .82, 1, 1];
+  const at = d => { const p = tube.getPointAtLength(Math.max(0, Math.min(L, d))); return `translate(${p.x}px,${p.y}px)`; };
+  let s = 0;
+  $("f-dots").innerHTML = STEPS.map(() => "<span></span>").join("");
+  function draw() {
+    const d = PROG[s] * L;
+    $("f-t").textContent = STEPS[s][0]; $("f-p").innerHTML = STEPS[s][1];
+    $("f-c").textContent = `${AR(s + 1)} / ${AR(STEPS.length)}`;
+    [...$("f-dots").children].forEach((x, i) => x.classList.toggle("on", i <= s));
+    $("f-prev").disabled = s === 0; $("f-next").textContent = s === STEPS.length - 1 ? "من البداية" : "التالي";
+    tube.style.strokeDashoffset = L - d;
+    $("tn").style.transform = s === 0 ? "translate(111px,15px)" : at(d - 4);
+    $("tn").style.opacity = s >= 4 ? 0 : 1;
+    if (s <= 1) { // نواة مولدة واحدة
+      $("s1").style.transform = $("s2").style.transform = s === 0 ? "translate(119px,21px)" : at(d - 18);
+      $("s1").setAttribute("r", 5); $("s2").style.opacity = 0;
+    } else if (s < 4) {
+      $("s1").setAttribute("r", 4); $("s2").style.opacity = 1;
+      $("s1").style.transform = at(d - 14); $("s2").style.transform = at(d - 26);
+    } else {
+      $("s1").style.transform = "translate(116px,282px)"; $("s2").style.transform = "translate(128px,252px)";
+    }
+    $("s1").style.opacity = s >= 4 ? 0 : 1; if (s >= 4) $("s2").style.opacity = 0;
+    $("egg").setAttribute("fill", s >= 4 ? "#2C6E63" : "#2C6E63"); $("egg").setAttribute("r", s >= 4 ? 10 : 8);
+    $("lab-egg").textContent = s >= 4 ? "اللاقحة" : "بييضة";
+    $("pol1").setAttribute("fill", s >= 4 ? "#62508F" : "#2C6E63"); $("pol2").setAttribute("fill", s >= 4 ? "#62508F" : "#2C6E63");
+    $("pol1").setAttribute("cx", s >= 4 ? 125 : 122); $("pol2").setAttribute("cx", s >= 4 ? 131 : 134);
+    $("pol1").setAttribute("r", s >= 4 ? 7 : 5); $("pol2").setAttribute("r", s >= 4 ? 7 : 5);
+    $("lab-pol").textContent = s >= 4 ? "الإندوسبيرم" : "نواتان قطبيتان";
+    $("f-eq").hidden = s < 4;
+  }
+  $("f-prev").addEventListener("click", () => { if (s > 0) { s--; draw(); } });
+  $("f-next").addEventListener("click", () => { s = s < STEPS.length - 1 ? s + 1 : 0; draw(); });
+  draw();
+})();
+
+/* ===== نشاط: ما المجموعة الكروموسومية؟ ===== */
+function selectActivity(rowsId, checkId, resultId, OPTS, ROWS, okMsg) {
+  const box = $(rowsId);
+  box.innerHTML = ROWS.map(([q], i) => `<div class="arow" id="${rowsId}${i}"><span>${q}</span><select class="pick" id="${rowsId}s${i}" aria-label="${q}"><option value="">اختاري…</option>${OPTS.map((o, j) => `<option value="${j}">${o}</option>`).join("")}</select><span class="why" hidden></span></div>`).join("");
+  box.addEventListener("change", e => { const r = e.target.closest(".arow"); if (r) { r.classList.remove("ok", "no"); r.querySelector(".why").hidden = true; } });
+  $(checkId).addEventListener("click", () => {
+    const res = $(resultId), vals = ROWS.map((_, i) => $(rowsId + "s" + i).value);
+    if (vals.some(v => v === "")) { res.className = "result no"; res.textContent = "اختاري إجابة لكل سطر أولًا."; return; }
+    let ok = 0;
+    ROWS.forEach((r, i) => { const good = +vals[i] === r[1]; if (good) ok++; const el = $(rowsId + i); el.classList.add(good ? "ok" : "no"); const w = el.querySelector(".why"); w.hidden = false; w.textContent = (good ? "✓ " : "✗ الإجابة: " + OPTS[r[1]] + ". ") + r[2]; });
+    res.className = "result " + (ok === ROWS.length ? "ok" : "no");
+    res.textContent = ok === ROWS.length ? okMsg : `${AR(ok)} من ${AR(ROWS.length)} صحيحة. راجعي التي باللون الأحمر.`;
+  });
+}
+selectActivity("p-rows", "p-check", "p-result", ["أحادية (n)", "ثنائية (2n)", "ثلاثية (3n)"], [
+  ["البييضة", 0, "تنتج عن انقسامات متساوية لنواة البوغ الكبير، والبوغ الكبير ناتج عن انقسام منصف."],
+  ["نواة المشيج المذكر", 0, "تنتج عن انقسام متساوٍ للنواة المولدة في حبة اللقاح."],
+  ["النواة القطبية الواحدة", 0, "واحدة من نوى الطور المشيجي الأنثوي الثماني."],
+  ["اللاقحة", 1, "مشيج مذكر (n) + بييضة (n)."],
+  ["الإندوسبيرم", 2, "مشيج مذكر (n) + نواتان قطبيتان (n + n)."],
+  ["الجنين في البذرة", 1, "ينمو من اللاقحة بانقسامات متعددة، فهو الطور البوغي الجديد."]
+], "أحسنتِ! حدّدتِ المجموعة الكروموسومية لكل تركيب صحيحًا.");
+
+/* ===== نشاط: صنّفي الثمرة ===== */
+selectActivity("fr-rows", "fr-check", "fr-result", ["لحمية بسيطة", "مجمّعة (ملتحمة)", "مركّبة (مضاعفة)", "جافة"], [
+  ["الخوخ", 0, "ثمرة لحمية بسيطة تحتوي على بذرة واحدة."],
+  ["الفراولة", 1, "تتكوّن من زهرة ذات أعضاء زهرية عديدة يلتحم بعضها ببعض."],
+  ["الأناناس", 2, "يتكوّن من أزهار عديدة تلتحم معًا عندما تنضج الثمار."],
+  ["القرون", 3, "ثمار جافة عندما تنضج."],
+  ["العنب", 0, "ثمرة لحمية بسيطة."],
+  ["التين", 2, "ثمرة مركّبة من أزهار عديدة."],
+  ["العليق", 1, "ثمرة مجمّعة مثل الفراولة."],
+  ["المكسّرات", 3, "ثمار جافة عندما تنضج."]
+], "أحسنتِ! صنّفتِ الثمار كلها صحيحًا.");
+
+/* ===== تجربة الإنبات ===== */
+(function () {
+  const svg = $("pot"); let type = "di", stage = 0, timer = null;
+  const SOIL = 128;
+  const seed = (x, y, s, cracked, mono) => `<g transform="translate(${x},${y}) scale(${s})">
+      <ellipse cx="0" cy="0" rx="${mono ? 11 : 15}" ry="${mono ? 14 : 10}" fill="${mono ? "#E8C766" : "#C9965A"}" stroke="#7a4f22" stroke-width="2"/>
+      ${cracked ? `<path d="M-4 -9 L1 -2 L-3 4" fill="none" stroke="#7a4f22" stroke-width="1.6"/>` : ""}
+    </g>`;
+  const lbl = (x, y, t, anchor = "start") => `<text x="${x}" y="${y}" text-anchor="${anchor}" font-size="11" font-weight="600" fill="#263A55" font-family="IBM Plex Sans Arabic,Tahoma" paint-order="stroke" stroke="#fff" stroke-width="3">${t}</text>`;
+  function draw(note) {
+    const mono = type === "mono", x = 150, y = 158;
+    let g = `<line x1="0" y1="${SOIL}" x2="300" y2="${SOIL}" stroke="#7a5a3a" stroke-width="2"/>`;
+    if (stage === 0) g += seed(x, y, 1, false, mono);
+    if (stage >= 1) {
+      const rl = stage === 1 ? 26 : stage === 2 ? 42 : 52;
+      g += `<path d="M${x} ${y + 6} C ${x + 3} ${y + 20}, ${x - 2} ${y + rl - 10}, ${x + 1} ${y + rl}" fill="none" stroke="#e9e1cf" stroke-width="4" stroke-linecap="round"/>`;
+      if (stage >= 2) g += `<path d="M${x} ${y + 26} l-14 10 M${x + 1} ${y + 34} l14 10 M${x} ${y + 42} l-10 8" stroke="#e9e1cf" stroke-width="2"/>`;
+      if (stage === 1) g += lbl(x + 20, y + 30, "الجذير");
+    }
+    if (mono) {
+      if (stage >= 1) g += seed(x, y, 1.12, true, true);
+      if (stage === 2) g += `<path d="M${x} ${y - 10} L${x} ${SOIL - 22}" stroke="#7fbf63" stroke-width="5" stroke-linecap="round"/>`;
+      if (stage === 3) g += `<path d="M${x} ${y - 10} L${x} ${SOIL - 50}" stroke="#6aa653" stroke-width="5" stroke-linecap="round"/><path d="M${x} ${SOIL - 20} C ${x - 30} ${SOIL - 50}, ${x - 34} ${SOIL - 80}, ${x - 30} ${SOIL - 104}" fill="none" stroke="#6aa653" stroke-width="6" stroke-linecap="round"/><path d="M${x} ${SOIL - 40} C ${x + 24} ${SOIL - 70}, ${x + 30} ${SOIL - 96}, ${x + 26} ${SOIL - 116}" fill="none" stroke="#7fbf63" stroke-width="6" stroke-linecap="round"/>`;
+      if (stage === 2) g += lbl(x + 10, SOIL - 26, "الساق تخرج من التربة");
+      if (stage === 3) { g += lbl(x + 30, SOIL - 108, "الورقة الأولى") + lbl(x + 22, y + 4, "الفلقة تبقى في التربة"); }
+    } else {
+      if (stage === 1) g += seed(x, y, 1.15, true, false);
+      if (stage === 2) {
+        g += `<path d="M${x} ${y} C ${x} ${SOIL - 10}, ${x - 4} ${SOIL - 30}, ${x - 18} ${SOIL - 30} C ${x - 32} ${SOIL - 30}, ${x - 34} ${SOIL - 14}, ${x - 30} ${SOIL - 4}" fill="none" stroke="#9fcf86" stroke-width="5" stroke-linecap="round"/>`;
+        g += seed(x - 30, SOIL + 2, .9, true, false) + lbl(x + 8, SOIL - 34, "السويقة تحت الفلقية");
+      }
+      if (stage === 3) {
+        g += `<path d="M${x} ${y} L${x} ${SOIL - 64}" stroke="#7fbf63" stroke-width="5" stroke-linecap="round"/>`;
+        g += `<ellipse cx="${x - 16}" cy="${SOIL - 40}" rx="16" ry="8" fill="#C9B06A" stroke="#8a7a3a"/><ellipse cx="${x + 16}" cy="${SOIL - 40}" rx="16" ry="8" fill="#C9B06A" stroke="#8a7a3a"/>`;
+        g += `<path d="M${x} ${SOIL - 64} C ${x - 30} ${SOIL - 70}, ${x - 44} ${SOIL - 90}, ${x - 40} ${SOIL - 100} C ${x - 22} ${SOIL - 98}, ${x - 6} ${SOIL - 84}, ${x} ${SOIL - 64}" fill="#6aa653"/><path d="M${x} ${SOIL - 64} C ${x + 30} ${SOIL - 70}, ${x + 44} ${SOIL - 90}, ${x + 40} ${SOIL - 100} C ${x + 22} ${SOIL - 98}, ${x + 6} ${SOIL - 84}, ${x} ${SOIL - 64}" fill="#6aa653"/>`;
+        g += lbl(x + 36, SOIL - 36, "الفلقتان فوق التربة") + lbl(x + 44, SOIL - 98, "الأوراق الأولى");
+      }
+    }
+    svg.innerHTML = g;
+    const T = mono
+      ? ["", "امتصت البذرة الماء فانتفخت وتشقق غلافها، وظهر <b>الجذير</b> أولًا ليبدأ امتصاص الماء والمواد المغذية.", "تساعد إنزيمات هاضمة على تحليل الغذاء المخزون في البذرة، ويستعمل الجنين الطاقة الناتجة من التنفس الخلوي في النمو، فتنمو الساق نحو الأعلى.", "في ذوات الفلقة الواحدة <b>تبقى الفلقة في التربة</b> عندما تخرج الساق، وتظهر الورقة الأولى فتبدأ البناء الضوئي."]
+      : ["", "امتصت البذرة الماء فانتفخت وتشقق غلافها، وظهر <b>الجذير</b> أولًا ليبدأ امتصاص الماء والمواد المغذية.", "تنمو <b>السويقة تحت الفلقية</b>، وهي أول جزء من البادرة يظهر فوق سطح التربة، وتسحب الفلقتين نحو الأعلى.", "في بعض ذوات الفلقتين تسحب السويقة تحت الفلقية الفلقتين والأوراق الجنينية خارج التربة، وعندما تصبح خلايا البادرة المحتوية على البلاستيدات الخضراء فوق التربة يبدأ البناء الضوئي."];
+    $("g-state").innerHTML = note || (stage ? `<span style="color:var(--good)">${["", "اليوم ١–٢", "بعد أيام", "بعد أسبوع تقريبًا"][stage]}:</span> ${T[stage]}` : "اختاري الظروف ثم اضغطي «ازرعي البذرة».");
+  }
+  function reset() { clearInterval(timer); stage = 0; $("g-go").disabled = false; draw(); }
+  $("g-go").addEventListener("click", () => {
+    const miss = [["c-water", "الماء"], ["c-o2", "الأكسجين"], ["c-temp", "درجة حرارة مناسبة"]].filter(([id]) => !$(id).checked).map(x => x[1]);
+    reset();
+    if (miss.length) { draw(`<span style="color:var(--bad)">لم تنبت البذرة.</span> ينقصها: ${miss.join("، ")}. ${miss.includes("الماء") ? "عندما تمتص البذرة الماء تنتفخ ويتشقق غلافها، ثم ينقل الماء المواد الضرورية إلى المناطق النامية في البذرة." : "تحتاج البذرة إلى الأكسجين للتنفس الخلوي الذي تتحرّر منه الطاقة اللازمة لنمو الجنين."} وقد تبقى البذرة في الكمون حتى تتوافر الظروف المناسبة.`); return; }
+    $("g-go").disabled = true;
+    timer = setInterval(() => { stage++; draw(); if (stage >= 3) clearInterval(timer); }, 1400);
+    stage = 1; draw();
+  });
+  $("g-reset").addEventListener("click", reset);
+  document.querySelector("#germ .seg2").addEventListener("click", e => {
+    const b = e.target.closest("[data-st]"); if (!b) return;
+    type = b.dataset.st; document.querySelectorAll("[data-st]").forEach(x => x.setAttribute("aria-pressed", String(x === b))); reset();
+  });
+  document.querySelectorAll(".cond input").forEach(i => i.addEventListener("change", reset));
+  reset();
+})();
+
+/* ===== مختبر تحليل البيانات ===== */
+(function () {
+  const W = [1, 2, 3, 4, 5, 6, 8];
+  const S = [
+    { n: "النبات ١ بدون خردل الثوم", d: [0, 2, 45, 55, 62, 65, 65], c: "#2C6E63", dash: "" },
+    { n: "النبات ١ بوجود خردل الثوم", d: [0, 1, 38, 45, 52, 54, 55], c: "#2C6E63", dash: "6 4" },
+    { n: "النبات ٢ بدون خردل الثوم", d: [0, 0, 12, 24, 28, 30, 30], c: "#B4432A", dash: "" },
+    { n: "النبات ٢ بوجود خردل الثوم", d: [0, 0, 10, 20, 25, 27, 27], c: "#B4432A", dash: "6 4" }
+  ];
+  const X = w => 50 + (w / 8) * 300, Y = v => 200 - (v / 100) * 180;
+  let g = "";
+  [0, 20, 40, 60, 80, 100].forEach(v => { g += `<line x1="50" x2="350" y1="${Y(v)}" y2="${Y(v)}" stroke="#eee"/><text x="44" y="${Y(v) + 4}" text-anchor="end">${v}</text>`; });
+  [0, 2, 4, 6, 8].forEach(w => { g += `<text x="${X(w)}" y="216" text-anchor="middle">${w}</text>`; });
+  g += `<line x1="50" y1="20" x2="50" y2="200" stroke="#9aa5b5"/><line x1="50" y1="200" x2="350" y2="200" stroke="#9aa5b5"/>`;
+  g += `<text x="200" y="236" text-anchor="middle" font-weight="600">الزمن (بالأسابيع)</text><text x="14" y="110" text-anchor="middle" font-weight="600" transform="rotate(-90 14 110)">البذور النامية (%)</text>`;
+  S.forEach(s => {
+    g += `<polyline fill="none" stroke="${s.c}" stroke-width="2.4" stroke-dasharray="${s.dash}" points="${W.map((w, i) => X(w) + "," + Y(s.d[i])).join(" ")}"/>`;
+    g += W.map((w, i) => `<circle cx="${X(w)}" cy="${Y(s.d[i])}" r="2.6" fill="${s.c}"/>`).join("");
+  });
+  S.forEach((s, i) => { const y = 30 + i * 15; g += `<line x1="60" x2="82" y1="${y}" y2="${y}" stroke="${s.c}" stroke-width="2.4" stroke-dasharray="${s.dash}"/><text x="86" y="${y + 4}" font-size="9.5">${s.n}</text>`; });
+  $("chart").innerHTML = `<rect x="56" y="20" width="150" height="66" rx="6" fill="#fff" stroke="#eee"/>` + g;
+
+  const QS = [
+    ["1. صِفي أثر خردل الثوم في إنبات البذور.", ["قلّل النسبة المئوية للبذور النامية في النباتين", "زاد النسبة المئوية للبذور النامية", "لم يكن له أي أثر", "أوقف الإنبات تمامًا"], 0, "الخطوط المتقطعة (بوجود خردل الثوم) أقل من الخطوط المتصلة في النباتين، أي أنه ثبّط الإنبات جزئيًّا ولم يوقفه."],
+    ["2. في أي فترة حدثت أكبر زيادة في نسبة الإنبات؟", ["بين الأسبوعين 2 و3", "بين الأسبوعين 0 و1", "بين الأسبوعين 6 و8", "بين الأسبوعين 4 و5"], 0, "يرتفع الخط بحدّة بين الأسبوعين الثاني والثالث، ثم تقل الزيادة ويثبت تقريبًا بعد الأسبوع السادس."],
+    ["3. ما المتغير المستقل في هذه الدراسة؟", ["وجود خردل الثوم أو عدم وجوده", "النسبة المئوية للبذور النامية", "عدد الأسابيع فقط", "نوع التربة"], 0, "المتغير المستقل هو ما غيّره العلماء: وجود خردل الثوم. أما النسبة المئوية للبذور النامية فهي المتغير التابع."]
+  ];
+  $("d-q").innerHTML = QS.map(([q, o], i) => `<div class="mcq"><span class="q">${q}</span><div class="opts" data-q="${i}">${o.map((x, j) => `<button type="button" class="opt" data-j="${j}">${x}</button>`).join("")}</div><span class="why" id="dqw${i}" style="font-size:.85rem;color:var(--muted)"></span></div>`).join("");
+  $("d-q").addEventListener("click", e => {
+    const b = e.target.closest(".opt"); if (!b) return;
+    const box = b.parentElement, i = +box.dataset.q, good = +b.dataset.j === QS[i][2];
+    box.querySelectorAll(".opt").forEach(x => x.classList.remove("ok", "no"));
+    b.classList.add(good ? "ok" : "no");
+    $("dqw" + i).textContent = good ? "✓ " + QS[i][3] : "حاولي مرة أخرى.";
+  });
+})();
+
+/* ===== التقويم: يرسل النتيجة إلى لبيبة ===== */
+(function () {
+  const QZ = [
+    ["أيّ الجيلين هو السائد في دورة حياة النباتات الزهرية؟", ["الجيل البوغي", "الجيل المشيجي", "الجيلان متساويان", "لا يوجد فيها تعاقب للأجيال"], 0, "الجيل البوغي هو السائد، ويدعم الجيل المشيجي، كما في المخروطيات."],
+    ["كم نواة توجد داخل البوغ الكبير بعد الانقسامات المتساوية الثلاثة؟", ["ثماني نوى", "أربع نوى", "ثلاث نوى", "نواتان"], 0, "ثلاثة انقسامات متساوية: 1 ← 2 ← 4 ← 8 نوى، أربع منها عند كل طرف."],
+    ["ما وظيفة النواة الأنبوبية في حبة اللقاح؟", ["تتحد مع البييضة لتكوين اللاقحة", "توجّه نمو أنبوب اللقاح", "تتحد مع النواتين القطبيتين", "تكوّن غلاف البذرة"], 1, "النواة الأنبوبية توجّه نمو أنبوب اللقاح، أما النواة المولدة فتنقسم إلى مشيجين مذكرين."],
+    ["لماذا يُسمّى الإخصاب في النباتات الزهرية إخصابًا مزدوجًا؟", ["لأن حبتي لقاح تخصبان البويضة", "لأنه يحدث مرتين في السنة", "لأن أحد المشيجين يتحد مع البييضة والآخر مع النواتين القطبيتين", "لأن البويضة تنقسم إلى بذرتين"], 2, "تحدث عمليتا إخصاب في البويضة نفسها: لاقحة (2n) وإندوسبيرم (3n)."],
+    ["ما المجموعة الكروموسومية للإندوسبيرم؟", ["n", "2n", "3n", "4n"], 2, "مشيج مذكر (n) + نواتان قطبيتان (n + n) = 3n."],
+    ["ما المصدر الرئيس لغذاء الجنين في بذرة ناضجة من ذوات الفلقتين؟", ["غلاف البذرة", "الفلقتان", "الجذير", "جدار المبيض"], 1, "في ذوات الفلقتين تمتص الفلقتان معظم الإندوسبيرم في أثناء نضج البذرة، فتوفّران معظم الغذاء للجنين."],
+    ["ما أول جزء من الجنين يظهر خارج البذرة عند الإنبات؟", ["السويقة تحت الفلقية", "الورقة الأولى", "الفلقة", "الجذير"], 3, "الجذير يظهر أولًا، ويبدأ امتصاص الماء والمواد المغذية، ثم ينمو إلى جذر النبات."],
+    ["اكتبي تبريرًا: الطماطم من الناحية العلمية…", ["ثمرة؛ لأنها تتكوّن من المبيض وتحتوي على البذور", "من الخضراوات؛ لأنها ليست حلوة المذاق", "ثمرة جافة؛ لأنها تحتوي على بذور", "ليست ثمرة؛ لأنها تنمو على نبات عشبي"], 0, "الطماطم ثمرة لحمية بسيطة؛ لأنها تتكوّن من مبيض الزهرة بعد الإخصاب وتحتوي على البذور."],
+    ["الرياضيات في علم الأحياء: يمكن أن يتكوّن 3,000,000 من البذور في قرن نبات الأوركيد. إذا زُرعت كلها ونبت منها 1,860,000 فقط، فما نسبة الإنبات؟", ["38٪", "62٪", "60٪", "16٪"], 1, "1,860,000 ÷ 3,000,000 × 100 = 62٪."]
+  ];
+  const box = $("quiz");
+  box.innerHTML = QZ.map(([q, o], i) => `<div class="qitem" id="qi${i}"><span class="qn">${AR(i + 1)}. ${q}</span><div class="opts">${o.map((x, j) => `<label><input type="radio" name="q${i}" value="${j}"><span>${x}</span></label>`).join("")}</div><span class="exp" hidden></span></div>`).join("");
+  let first = null;
+  $("qz-send").addEventListener("click", () => {
+    const res = $("qz-result");
+    const ans = QZ.map((_, i) => { const c = box.querySelector(`input[name="q${i}"]:checked`); return c ? +c.value : null; });
+    const left = ans.filter(a => a === null).length;
+    if (left) { res.className = "result no"; res.textContent = `أجيبي عن الأسئلة كلها أولًا (بقي ${AR(left)}).`; return; }
+    let ok = 0;
+    QZ.forEach((q, i) => {
+      const good = ans[i] === q[2]; if (good) ok++;
+      const el = $("qi" + i); el.classList.remove("ok", "no"); el.classList.add(good ? "ok" : "no");
+      const ex = el.querySelector(".exp"); ex.hidden = false; ex.innerHTML = good ? `<b>✓ صحيح.</b> ${q[3]}` : `<b>✗ الإجابة الصحيحة: ${q[1][q[2]]}.</b> ${q[3]}`;
+    });
+    const total = QZ.length, score = Math.round((ok / total) * 100);
+    if (first === null) first = { ok, score };
+    res.className = "result " + (ok === total ? "ok" : "no");
+    res.textContent = `${ok === total ? "أحسنتِ! " : ""}${AR(ok)} من ${AR(total)} صحيحة (${AR(score)}٪).` + (first.score !== score ? ` درجتك المسجّلة من المحاولة الأولى: ${AR(first.score)}٪.` : "");
+    $("qz-send").textContent = "تحقّقي مرة أخرى";
+    $("qz-end").hidden = false;
+    // إشعار منصة لبيبة (مرة واحدة) لترسل الطالبة نتيجتها إلى المعلمة
+    if (!window.__labeebaDone) { window.__labeebaDone = true; try { parent.postMessage({ type: "labeeba-lab-complete", score: first.score, tasks: total }, "*"); } catch (e) {} }
+  });
+  box.addEventListener("change", e => { const q = e.target.closest(".qitem"); if (q) { q.classList.remove("ok", "no"); q.querySelector(".exp").hidden = true; } });
+})();
+</script>
+</body>
+</html>
