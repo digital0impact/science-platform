@@ -353,6 +353,8 @@ const nLessons = n => plural(n, "درس واحد", "درسان", "دروس", "د
 const nParts = n => plural(n, "جزء واحد", "جزءان", "أجزاء", "جزءاً");
 const nLabs = n => plural(n, "مختبر واحد", "مختبران", "مختبرات", "مختبراً");
 const nQs = n => plural(n, "سؤال واحد", "سؤالان", "أسئلة", "سؤالاً");
+// مدة الدرس بالدقائق: «٧ د» أو «١ س ١٥ د»
+const fmtMin = m => { m = Math.round(Number(m) || 0); if (!m) return "—"; const h = Math.floor(m / 60), r = m % 60; return h ? `${num(h)} س${r ? " " + num(r) + " د" : ""}` : `${num(r)} د`; };
 const pct = x => num(Math.round(x)) + "٪";
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
 const fmtTime = s => { if (s == null || isNaN(s)) return ""; s = Math.max(0, Math.floor(s)); return Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0"); };
@@ -2669,13 +2671,15 @@ async function viewResults() {
   const draw = () => {
     const rows = filtered();
     const avg = rows.length ? rows.reduce((a, r) => a + (Number(r.score) || 0), 0) / rows.length : 0;
+    const timed = rows.filter(r => Number(r.minutes) > 0);
+    const avgMin = timed.length ? timed.reduce((a, r) => a + Number(r.minutes), 0) / timed.length : 0;
     const students = new Set(rows.map(r => r.studentName + "|" + r.studentClass)).size;
-    $("#stats").innerHTML = `<div><span class="muted">دروس مكتملة</span><b>${num(rows.length)}</b></div><div><span class="muted">طلاب</span><b>${num(students)}</b></div><div><span class="muted">متوسط الدرجة</span><b>${rows.length ? pct(avg) : "—"}</b></div>`;
+    $("#stats").innerHTML = `<div><span class="muted">دروس مكتملة</span><b>${num(rows.length)}</b></div><div><span class="muted">طالبات</span><b>${num(students)}</b></div><div><span class="muted">متوسط المدة</span><b>${timed.length ? fmtMin(avgMin) : "—"}</b></div><div><span class="muted">متوسط الدرجة</span><b>${rows.length ? pct(avg) : "—"}</b></div>`;
     $("#rtable").innerHTML = rows.length ? `<div class="table-wrap"><table>
-      <thead><tr><th>الطالبة</th><th>الفصل</th><th>الدرس</th><th>الصف</th><th>الدرجة</th><th>المحاولات</th><th>التاريخ</th><th></th></tr></thead>
+      <thead><tr><th>الطالبة</th><th>الفصل</th><th>الدرس</th><th>الصف</th><th>الدرجة</th><th>المدة</th><th>المحاولات</th><th>التاريخ</th><th></th></tr></thead>
       <tbody>${rows.map(r => `<tr data-id="${esc(r.id)}"><td><b>${esc(r.studentName)}</b></td><td>${esc(r.studentClass || "—")}</td><td>${esc(r.lessonTitle)}</td><td>${esc(r.gradeName || "")}</td>
         <td class="num"><span class="chip ${Number(r.score) >= 80 ? "bio" : Number(r.score) >= 50 ? "sci" : "draft"}">${pct(r.score)}</span> <span class="muted">${num(r.correct)}/${num(r.total)}</span></td>
-        <td class="num">${num(r.attempts)}</td><td class="num">${esc(new Date(r.completedAt).toLocaleString("ar-SA", { dateStyle: "medium", timeStyle: "short" }))}</td>
+        <td class="num" title="من فتح الدرس حتى إنهائه">${fmtMin(r.minutes)}</td><td class="num">${num(r.attempts)}</td><td class="num">${esc(new Date(r.completedAt).toLocaleString("ar-SA", { dateStyle: "medium", timeStyle: "short" }))}</td>
         <td><button class="btn danger sm" type="button" data-act="del">حذف</button></td></tr>`).join("")}</tbody></table></div>`
       : `<div class="empty"><h2>لا نتائج بعد</h2><p>تظهر هنا نتيجة كل طالبة تُكمل درساً: اسمها وفصلها ودرجتها من المحاولة الأولى.</p></div>`;
   };
