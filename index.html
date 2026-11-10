@@ -491,9 +491,18 @@ function hashParts() {
   const i = h.indexOf("=");
   return i < 0 ? { k: h || "home", v: "" } : { k: h.slice(0, i), v: h.slice(i + 1) };
 }
+// الطالبة تبقى في صفّها: يُحفظ الصف عند فتح رابط الصف أو الدرس أو المختبر، ولا تظهر لها الصفوف الأخرى
+const myGrade = () => ls.get("myGrade", "");
+const rememberGrade = id => { if (id && !state.isTeacher) ls.set("myGrade", id); };
+// مسار التنقل أعلى الصفحة: المعلمة ترى «الصفوف»، والطالبة يبدأ مسارها من صفّها
+const crumbRoot = g => state.isTeacher
+  ? `<a href="#">الصفوف</a>${g ? ` › <a href="#grade=${encodeURIComponent(g.id)}">${esc(g.name)}</a>` : ""}`
+  : (g ? `<a href="#grade=${encodeURIComponent(g.id)}">${esc(g.name)}</a>` : `<a href="#">الرئيسية</a>`);
+const backHome = () => state.isTeacher || !myGrade() ? `${backHome()}` : `<a class="btn ghost" href="#grade=${encodeURIComponent(myGrade())}">العودة إلى دروسي</a>`;
 function renderNav() {
   const { k } = hashParts();
-  const items = [["#", "الصفوف", ["home", "grade", "lesson", "lab", "ilesson"].includes(k)]];
+  const stu = ["home", "grade", "lesson", "lab", "ilesson"].includes(k);
+  const items = [state.isTeacher || !myGrade() ? ["#", "الصفوف", stu] : ["#grade=" + encodeURIComponent(myGrade()), "دروسي", stu]];
   if (state.isTeacher) items.push(["#teacher", "الصف المقلوب", ["teacher", "edit"].includes(k)], ["#ilessons", "الدروس التفاعلية", ["ilessons", "iledit"].includes(k)], ["#labs", "المختبرات", ["labs", "labedit"].includes(k)], ["#results", "النتائج", k === "results"]);
   let html = items.map(([h, t, on]) => `<a href="${h}" class="${on ? "on" : ""}">${t}</a>`).join("");
   if (!DEMO) html += state.user ? `<button id="signout" type="button">خروج</button>` : `<a href="#teacher" class="${k === "teacher" ? "on" : ""}">دخول المعلمة</a>`;
@@ -556,6 +565,7 @@ async function viewHome() {
   app.innerHTML = `<p class="loading">جارٍ التحميل…</p>`;
   const [allGrades, lessons, labs] = await Promise.all([Store.grades(), Store.lessons(false), safeLabs(false)]);
   const grades = allGrades.filter(g => lessons.some(l => l.gradeId === g.id) || labs.some(l => l.gradeId === g.id));
+  if (!state.isTeacher && myGrade() && allGrades.some(g => g.id === myGrade())) { history.replaceState(null, "", "#grade=" + encodeURIComponent(myGrade())); renderNav(); return viewGrade(myGrade()); }
   const head = `<section class="hero"><p class="tagline"><bdi lang="en" dir="ltr">${SITE_TAGLINE_EN}</bdi> · ${SITE_TAGLINE_AR}</p><h1>اختاري صفّك</h1><p class="muted">كل درس مقطع مرئي مقسّم إلى أجزاء، وفي نهاية كل جزء أسئلة قصيرة. أجيبي عنها لتنتقلي إلى الجزء التالي، وتحصلي على شارة إنجاز في النهاية.</p></section>`;
   if (!grades.length) {
     app.innerHTML = head + `<div class="empty"><h2>لا توجد دروس منشورة بعد</h2><p>${state.isTeacher ? "أنشئ أول درس واختر صفّه، وسيظهر الصف هنا للطالبات." : "ستضيف المعلمة الدروس قريباً."}</p>${state.isTeacher ? `<a class="btn" href="#edit=new">+ درس جديد</a>` : ""}</div>`;
@@ -579,12 +589,13 @@ async function viewGrade(id) {
   const [grades, all, allLabs] = await Promise.all([Store.grades(), Store.lessons(false), safeLabs(false)]);
   const g = grades.find(x => x.id === id);
   const labs = allLabs.filter(l => l.gradeId === id).sort(byOrder);
-  if (!g) { app.innerHTML = `<div class="empty"><h2>الصف غير موجود</h2><a class="btn ghost" href="#">العودة إلى الصفوف</a></div>`; return; }
+  if (!g) { app.innerHTML = `<div class="empty"><h2>الصف غير موجود</h2>${backHome()}</div>`; return; }
+  rememberGrade(id); renderNav();
   const lessons = all.filter(l => l.gradeId === id).sort(byOrder);
   const subjects = [...new Set([...lessons, ...labs].map(l => l.subject))];
   let filter = "الكل";
   app.innerHTML = `
-    <div class="lesson-head"><div class="crumbs"><a href="#">الصفوف</a> › ${esc(g.name)}</div><h1>${esc(g.name)}</h1></div>
+    <div class="lesson-head"><div class="crumbs">${state.isTeacher ? `<a href="#">الصفوف</a> › ` : ""}${esc(g.name)}</div><h1>${esc(g.name)}</h1></div>
     ${subjects.length > 1 ? `<div class="filters" id="filters">${["الكل", ...subjects].map(s => `<button type="button" data-s="${esc(s)}" class="${s === filter ? "on" : ""}">${esc(s)}</button>`).join("")}</div>` : ""}
     <div id="list" class="stack" style="gap:28px"></div>`;
   const draw = () => {
@@ -649,12 +660,13 @@ function stopPlayer() { clearInterval(P.timer); P.timer = null; try { P.player &
 async function viewLesson(id) {
   app.innerHTML = `<p class="loading">جارٍ تحميل الدرس…</p>`;
   const [lesson, grades] = await Promise.all([Store.getLesson(id), Store.grades()]);
-  if (!lesson) { app.innerHTML = `<div class="empty"><h2>الدرس غير متاح</h2><p>ربما لم يُنشر بعد أو حُذف.</p><a class="btn ghost" href="#">العودة إلى الصفوف</a></div>`; return; }
+  if (!lesson) { app.innerHTML = `<div class="empty"><h2>الدرس غير متاح</h2><p>ربما لم يُنشر بعد أو حُذف.</p>${backHome()}</div>`; return; }
   const g = grades.find(x => x.id === lesson.gradeId);
+  if (g) { rememberGrade(g.id); renderNav(); }
   const preview = !DEMO && state.isTeacher;
   app.innerHTML = `
     <div class="lesson-head">
-      <div class="crumbs"><a href="#">الصفوف</a>${g ? ` › <a href="#grade=${encodeURIComponent(g.id)}">${esc(g.name)}</a>` : ""}${lesson.unit ? " › " + esc(lesson.unit) : ""}</div>
+      <div class="crumbs">${crumbRoot(g)}${lesson.unit ? " › " + esc(lesson.unit) : ""}</div>
       <div class="row"><span class="chip ${subjClass(lesson.subject)}">${esc(lesson.subject)}</span>${lesson.published ? "" : `<span class="chip draft">مسودة</span>`}</div>
       <h1>${esc(lesson.title)}</h1>
       <p class="muted">${[lesson.teacher && "المعلمة: " + esc(lesson.teacher), lesson.school && esc(lesson.school), nParts((lesson.segments || []).length), nQs(qCount(lesson))].filter(Boolean).join(" · ")}</p>
@@ -1397,12 +1409,13 @@ const READY_ILESSONS = [
 async function viewLab(id) {
   app.innerHTML = `<p class="loading">جارٍ تحميل المختبر…</p>`;
   const [lab, grades] = await Promise.all([Store.getLab(id), Store.grades()]);
-  if (!lab || !lab.html) { app.innerHTML = `<div class="empty"><h2>المختبر غير متاح</h2><p>ربما لم يُنشر بعد أو حُذف.</p><a class="btn ghost" href="#">العودة إلى الصفوف</a></div>`; return; }
+  if (!lab || !lab.html) { app.innerHTML = `<div class="empty"><h2>المختبر غير متاح</h2><p>ربما لم يُنشر بعد أو حُذف.</p>${backHome()}</div>`; return; }
   app.classList.add("wide");
   const g = grades.find(x => x.id === lab.gradeId);
+  if (g) { rememberGrade(g.id); renderNav(); }
   const head = `
     <div class="lesson-head">
-      <div class="crumbs"><a href="#">الصفوف</a>${g ? ` › <a href="#grade=${encodeURIComponent(g.id)}">${esc(g.name)}</a>` : ""} › المختبرات</div>
+      <div class="crumbs">${crumbRoot(g)} › المختبرات</div>
       <div class="row"><span class="chip lab">مختبر افتراضي</span><span class="chip ${subjClass(lab.subject)}">${esc(lab.subject)}</span>${lab.published ? "" : `<span class="chip draft">غير منشور</span>`}</div>
       <h1>${esc(lab.title)}</h1>
     </div>`;
@@ -2024,12 +2037,13 @@ async function saveLab(mode) {
 async function viewILesson(id) {
   app.innerHTML = `<p class="loading">جارٍ تحميل الدرس التفاعلي…</p>`;
   const [lab, grades] = await Promise.all([Store.getLab(id), Store.grades()]);
-  if (!lab || !lab.html) { app.innerHTML = `<div class="empty"><h2>الدرس التفاعلي غير متاح</h2><p>ربما لم يُنشر بعد أو حُذف.</p><a class="btn ghost" href="#">العودة إلى الصفوف</a></div>`; return; }
+  if (!lab || !lab.html) { app.innerHTML = `<div class="empty"><h2>الدرس التفاعلي غير متاح</h2><p>ربما لم يُنشر بعد أو حُذف.</p>${backHome()}</div>`; return; }
   app.classList.add("wide");
   const g = grades.find(x => x.id === lab.gradeId);
+  if (g) { rememberGrade(g.id); renderNav(); }
   const head = `
     <div class="lesson-head">
-      <div class="crumbs"><a href="#">الصفوف</a>${g ? ` › <a href="#grade=${encodeURIComponent(g.id)}">${esc(g.name)}</a>` : ""} › الدروس التفاعلية</div>
+      <div class="crumbs">${crumbRoot(g)} › الدروس التفاعلية</div>
       <div class="row"><span class="chip ilesson">درس تفاعلي</span><span class="chip ${subjClass(lab.subject)}">${esc(lab.subject)}</span>${lab.published ? "" : `<span class="chip draft">غير منشور</span>`}</div>
       <h1>${esc(lab.title)}</h1>
     </div>`;
