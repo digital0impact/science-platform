@@ -1398,12 +1398,41 @@ async function viewLab(id) {
   if (!lab || !lab.html) { app.innerHTML = `<div class="empty"><h2>المختبر غير متاح</h2><p>ربما لم يُنشر بعد أو حُذف.</p><a class="btn ghost" href="#">العودة إلى الصفوف</a></div>`; return; }
   app.classList.add("wide");
   const g = grades.find(x => x.id === lab.gradeId);
-  app.innerHTML = `
+  const head = `
     <div class="lesson-head">
       <div class="crumbs"><a href="#">الصفوف</a>${g ? ` › <a href="#grade=${encodeURIComponent(g.id)}">${esc(g.name)}</a>` : ""} › المختبرات</div>
       <div class="row"><span class="chip lab">مختبر افتراضي</span><span class="chip ${subjClass(lab.subject)}">${esc(lab.subject)}</span>${lab.published ? "" : `<span class="chip draft">غير منشور</span>`}</div>
       <h1>${esc(lab.title)}</h1>
-    </div>
+    </div>`;
+  // الطالبة تكتب اسمها وصفّها قبل أن تبدأ، فتُرسل نتيجتها باسمها تلقائياً عند الإنجاز
+  const preview = !DEMO && state.isTeacher;
+  if (!preview) {
+    const me = ls.get("student", { name: "", cls: "" });
+    app.innerHTML = head + `
+      <form class="panel start stack" id="lab-gate">
+        <h2>قبل أن تبدئي</h2>
+        <p class="muted">اكتبي اسمك وصفّك، لتصل نتيجتك إلى المعلمة باسمك عند إنجاز المختبر.</p>
+        <div class="grid2">
+          <label class="f">الاسم الكامل<input id="lg-name" required maxlength="80" value="${esc(me.name)}" autocomplete="name"></label>
+          <label class="f">الصف / الشعبة<input id="lg-cls" required maxlength="30" value="${esc(me.cls)}" placeholder="مثال: ٢/أ"></label>
+        </div>
+        <div class="row"><button class="btn" type="submit">ابدئي المختبر</button></div>
+      </form>`;
+    $("#lab-gate").addEventListener("submit", e => {
+      e.preventDefault();
+      const name = $("#lg-name").value.trim(), cls = $("#lg-cls").value.trim();
+      if (!name) { $("#lg-name").focus(); return; }
+      if (!cls) { $("#lg-cls").focus(); return; }
+      ls.set("student", { name, cls });
+      openLab({ name, cls });
+    });
+    return;
+  }
+  openLab(null);
+
+  async function openLab(who) {
+  app.innerHTML = head + `
+    ${who ? `<p class="muted" style="font-size:.9rem">الطالبة: <b>${esc(who.name)}</b> · ${esc(who.cls)} · <a href="#" id="lab-who">تغيير الاسم</a></p>` : ""}
     <div class="row noprint">
       ${state.isTeacher ? `<a class="btn sm" href="#labedit=${encodeURIComponent(lab.id)}">العودة إلى التعديل</a>` : ""}
       <button class="btn ghost sm" type="button" id="lab-full">ملء الشاشة</button>
@@ -1412,6 +1441,7 @@ async function viewLab(id) {
     <div id="lab-done" aria-live="polite"></div>
     <div class="lab-wrap" id="lab-wrap"><iframe class="lab-frame" id="lab-frame" title="${esc(lab.title)}" sandbox="${LAB_SANDBOX}"></iframe></div>
     <div id="lab-quiz"></div>`;
+  $("#lab-who")?.addEventListener("click", e => { e.preventDefault(); stopLab(); viewLab(id); });
   const frame = $("#lab-frame");
   drawLabQuiz(lab, grades.find(x => x.id === lab.gradeId));
   lab.html = await freshLabHtml(lab);
@@ -1425,8 +1455,7 @@ async function viewLab(id) {
     const score = Math.max(0, Math.min(100, Math.round(Number(e.data.score) || 100)));
     const total = Math.max(1, Math.min(200, Math.round(Number(e.data.tasks) || 1)));
     const correct = Math.round((score / 100) * total);
-    const preview = !DEMO && state.isTeacher;
-    const me = ls.get("student", { name: "", cls: "" });
+    const me = who || ls.get("student", { name: "", cls: "" });
     const mine = ls.get("labsDone", {}); mine[lab.id] = Math.max(mine[lab.id] || 0, score); ls.set("labsDone", mine);
     if (sent) return;
     // نتيجة الطالبة داخل المختبر نفسه تُرسل إلى المعلمة بعد تأكيد الاسم (مرة واحدة لكل فتح)
@@ -1436,9 +1465,9 @@ async function viewLab(id) {
         ${preview ? `<div class="muted" style="font-weight:400">معاينة المعلمة: لن تُرسل النتيجة.</div>` : `
         <div class="grid2">
           <label class="f">الاسم الكامل<input id="ld-name" required maxlength="80" value="${esc(me.name)}" autocomplete="name"></label>
-          <label class="f">الفصل / الشعبة<input id="ld-cls" maxlength="30" value="${esc(me.cls)}" placeholder="مثال: ٢/أ"></label>
+          <label class="f">الصف / الشعبة<input id="ld-cls" maxlength="30" value="${esc(me.cls)}" placeholder="مثال: ٢/أ"></label>
         </div>
-        <div class="row"><button class="btn" type="submit">أرسلي نتيجتك إلى المعلمة</button><span id="ld-note" class="muted" style="font-weight:400"></span></div>`}
+        <div class="row"><button class="btn" type="submit">${who ? "جارٍ إرسال نتيجتك…" : "أرسلي نتيجتك إلى المعلمة"}</button><span id="ld-note" class="muted" style="font-weight:400"></span></div>`}
       </form>
       <div id="ld-award"></div>`;
     $("#lab-done").scrollIntoView({ behavior: motionOK() ? "smooth" : "auto", block: "center" });
@@ -1474,11 +1503,14 @@ async function viewLab(id) {
           </section>`;
       } catch (err) {
         console.error(err); btn.disabled = false;
+        btn.textContent = "أعيدي إرسال النتيجة";
         $("#ld-note").textContent = "تعذّر الإرسال. تأكدي من الاتصال ثم اضغطي مرة أخرى، أو التقطي صورة للشاشة وأرسليها للمعلمة.";
       }
     });
+    if (who && $("#ld-form .grid2")) { $("#ld-form .grid2").hidden = true; $("#ld-form").requestSubmit(); }
   };
   window.addEventListener("message", labMsgHandler);
+  }
 }
 
 
@@ -1993,12 +2025,41 @@ async function viewILesson(id) {
   if (!lab || !lab.html) { app.innerHTML = `<div class="empty"><h2>الدرس التفاعلي غير متاح</h2><p>ربما لم يُنشر بعد أو حُذف.</p><a class="btn ghost" href="#">العودة إلى الصفوف</a></div>`; return; }
   app.classList.add("wide");
   const g = grades.find(x => x.id === lab.gradeId);
-  app.innerHTML = `
+  const head = `
     <div class="lesson-head">
       <div class="crumbs"><a href="#">الصفوف</a>${g ? ` › <a href="#grade=${encodeURIComponent(g.id)}">${esc(g.name)}</a>` : ""} › الدروس التفاعلية</div>
       <div class="row"><span class="chip ilesson">درس تفاعلي</span><span class="chip ${subjClass(lab.subject)}">${esc(lab.subject)}</span>${lab.published ? "" : `<span class="chip draft">غير منشور</span>`}</div>
       <h1>${esc(lab.title)}</h1>
-    </div>
+    </div>`;
+  // الطالبة تكتب اسمها وصفّها قبل أن تبدأ، فتُرسل نتيجتها باسمها تلقائياً عند الإنجاز
+  const preview = !DEMO && state.isTeacher;
+  if (!preview) {
+    const me = ls.get("student", { name: "", cls: "" });
+    app.innerHTML = head + `
+      <form class="panel start stack" id="lab-gate">
+        <h2>قبل أن تبدئي</h2>
+        <p class="muted">اكتبي اسمك وصفّك، لتصل نتيجتك إلى المعلمة باسمك عند إنجاز الدرس التفاعلي.</p>
+        <div class="grid2">
+          <label class="f">الاسم الكامل<input id="lg-name" required maxlength="80" value="${esc(me.name)}" autocomplete="name"></label>
+          <label class="f">الصف / الشعبة<input id="lg-cls" required maxlength="30" value="${esc(me.cls)}" placeholder="مثال: ٢/أ"></label>
+        </div>
+        <div class="row"><button class="btn" type="submit">ابدئي الدرس التفاعلي</button></div>
+      </form>`;
+    $("#lab-gate").addEventListener("submit", e => {
+      e.preventDefault();
+      const name = $("#lg-name").value.trim(), cls = $("#lg-cls").value.trim();
+      if (!name) { $("#lg-name").focus(); return; }
+      if (!cls) { $("#lg-cls").focus(); return; }
+      ls.set("student", { name, cls });
+      openLab({ name, cls });
+    });
+    return;
+  }
+  openLab(null);
+
+  async function openLab(who) {
+  app.innerHTML = head + `
+    ${who ? `<p class="muted" style="font-size:.9rem">الطالبة: <b>${esc(who.name)}</b> · ${esc(who.cls)} · <a href="#" id="lab-who">تغيير الاسم</a></p>` : ""}
     <div class="row noprint">
       ${state.isTeacher ? `<a class="btn sm" href="#iledit=${encodeURIComponent(lab.id)}">العودة إلى التعديل</a>` : ""}
       <button class="btn ghost sm" type="button" id="lab-full">ملء الشاشة</button>
@@ -2007,6 +2068,7 @@ async function viewILesson(id) {
     <div id="lab-done" aria-live="polite"></div>
     <div class="lab-wrap" id="lab-wrap"><iframe class="lab-frame" id="lab-frame" title="${esc(lab.title)}" sandbox="${LAB_SANDBOX}"></iframe></div>
     <div id="lab-quiz"></div>`;
+  $("#lab-who")?.addEventListener("click", e => { e.preventDefault(); stopLab(); viewILesson(id); });
   const frame = $("#lab-frame");
   drawILQuiz(lab, grades.find(x => x.id === lab.gradeId));
   lab.html = await freshLabHtml(lab);
@@ -2020,8 +2082,7 @@ async function viewILesson(id) {
     const score = Math.max(0, Math.min(100, Math.round(Number(e.data.score) || 100)));
     const total = Math.max(1, Math.min(200, Math.round(Number(e.data.tasks) || 1)));
     const correct = Math.round((score / 100) * total);
-    const preview = !DEMO && state.isTeacher;
-    const me = ls.get("student", { name: "", cls: "" });
+    const me = who || ls.get("student", { name: "", cls: "" });
     const mine = ls.get("labsDone", {}); mine[lab.id] = Math.max(mine[lab.id] || 0, score); ls.set("labsDone", mine);
     if (sent) return;
     // نتيجة الطالبة داخل الدرس التفاعلي نفسه تُرسل إلى المعلمة بعد تأكيد الاسم (مرة واحدة لكل فتح)
@@ -2031,9 +2092,9 @@ async function viewILesson(id) {
         ${preview ? `<div class="muted" style="font-weight:400">معاينة المعلمة: لن تُرسل النتيجة.</div>` : `
         <div class="grid2">
           <label class="f">الاسم الكامل<input id="ld-name" required maxlength="80" value="${esc(me.name)}" autocomplete="name"></label>
-          <label class="f">الفصل / الشعبة<input id="ld-cls" maxlength="30" value="${esc(me.cls)}" placeholder="مثال: ٢/أ"></label>
+          <label class="f">الصف / الشعبة<input id="ld-cls" maxlength="30" value="${esc(me.cls)}" placeholder="مثال: ٢/أ"></label>
         </div>
-        <div class="row"><button class="btn" type="submit">أرسلي نتيجتك إلى المعلمة</button><span id="ld-note" class="muted" style="font-weight:400"></span></div>`}
+        <div class="row"><button class="btn" type="submit">${who ? "جارٍ إرسال نتيجتك…" : "أرسلي نتيجتك إلى المعلمة"}</button><span id="ld-note" class="muted" style="font-weight:400"></span></div>`}
       </form>
       <div id="ld-award"></div>`;
     $("#lab-done").scrollIntoView({ behavior: motionOK() ? "smooth" : "auto", block: "center" });
@@ -2069,11 +2130,14 @@ async function viewILesson(id) {
           </section>`;
       } catch (err) {
         console.error(err); btn.disabled = false;
+        btn.textContent = "أعيدي إرسال النتيجة";
         $("#ld-note").textContent = "تعذّر الإرسال. تأكدي من الاتصال ثم اضغطي مرة أخرى، أو التقطي صورة للشاشة وأرسليها للمعلمة.";
       }
     });
+    if (who && $("#ld-form .grid2")) { $("#ld-form .grid2").hidden = true; $("#ld-form").requestSubmit(); }
   };
   window.addEventListener("message", labMsgHandler);
+  }
 }
 
 
