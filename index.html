@@ -513,6 +513,7 @@ const state = { user: null, isTeacher: DEMO, authReady: DEMO };
 
 /* ======================= أسماء الطالبات ======================= */
 // تطبيع الأسماء للمطابقة: بلا تشكيل، والهمزات والتاء المربوطة والياء موحّدة، والأرقام لاتينية
+const normCls = s => normName(s).replace(/[\s/._،,]/g, "");
 const normName = s => String(s || "").replace(/[\u064B-\u065F\u0670\u0640]/g, "").replace(/[أإآٱ]/g, "ا").replace(/ى/g, "ي").replace(/ة/g, "ه").replace(/[٠-٩]/g, d => "٠١٢٣٤٥٦٧٨٩".indexOf(d)).replace(/[\\|-]/g, "/").replace(/\s+/g, " ").trim().toLowerCase();
 async function rosterClasses(gid) { if (!gid) return []; try { return await Store.rosterClasses(gid); } catch (e) { console.warn("roster:", e); return []; } }
 // إن أدخلت المعلمة أسماء الفصل تختار الطالبة فصلها ثم اسمها من القائمة، وإلا تكتبهما
@@ -2867,14 +2868,20 @@ async function drawAttendance(results, grades, lessons) {
   if (!classes.includes(attState.cls)) attState.cls = classes[0] || "";
   const items = lessons.filter(l => l.gradeId === attState.grade && l.published).sort(byOrder);
   const names = roster.filter(s => s.cls === attState.cls).map(s => s.name);
-  const nc = normName(attState.cls);
+  const nc = normCls(attState.cls);
   const best = {}; // مفتاح: الاسم المطبّع + الدرس
   const known = new Set(names.map(normName));
   const strays = new Map();
+  // اسم مكتوب جزئيًا (مثل الاسم الأول فقط) يُحسب للطالبة إن طابق بداية اسم طالبة واحدة فقط في الفصل
+  const resolve = typed => {
+    const k = normName(typed); if (known.has(k)) return k;
+    const hits = [...known].filter(n => n === k || n.startsWith(k + " "));
+    return hits.length === 1 ? hits[0] : null;
+  };
   results.forEach(r => {
-    if (normName(r.studentClass) !== nc || (r.gradeId && r.gradeId !== attState.grade)) return;
-    const k = normName(r.studentName);
-    if (!known.has(k)) { if (items.some(i => i.id === r.lessonId)) strays.set(k, r.studentName); return; }
+    if (normCls(r.studentClass) !== nc || (r.gradeId && r.gradeId !== attState.grade)) return;
+    const k = resolve(r.studentName);
+    if (!k) { if (items.some(i => i.id === r.lessonId)) strays.set(normName(r.studentName), r.studentName); return; }
     const key = k + "|" + r.lessonId; best[key] = Math.max(best[key] ?? -1, Number(r.score) || 0);
   });
   const done = (n, it) => best[normName(n) + "|" + it.id];
