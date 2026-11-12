@@ -517,7 +517,7 @@ const normName = s => String(s || "").replace(/[\u064B-\u065F\u0670\u0640]/g, ""
 async function rosterClasses(gid) { if (!gid) return []; try { return await Store.rosterClasses(gid); } catch (e) { console.warn("roster:", e); return []; } }
 // إن أدخلت المعلمة أسماء الفصل تختار الطالبة فصلها ثم اسمها من القائمة، وإلا تكتبهما
 function whoFields(p, me, classes, clsLabel = "الفصل / الشعبة") {
-  if (!classes.length) return `<label class="f">الاسم الكامل<input id="${p}-name" required maxlength="80" value="${esc(me.name)}" autocomplete="name"></label>
+  if (!classes.length) return `<label class="f">اسمك<input id="${p}-name" required maxlength="80" value="${esc(me.name)}" autocomplete="name"></label>
         <label class="f">${clsLabel}<input id="${p}-cls" maxlength="30" value="${esc(me.cls)}" placeholder="مثال: ٢/أ"></label>`;
   return `<label class="f">${clsLabel}<select id="${p}-cls" required><option value="">اختاري فصلك…</option>${classes.map(c => `<option ${c === me.cls ? "selected" : ""}>${esc(c)}</option>`).join("")}</select></label>
         <label class="f">اسمك<select id="${p}-name" required disabled><option value="">اختاري فصلك أولاً</option></select></label>`;
@@ -1544,7 +1544,7 @@ async function viewLab(id) {
         <div>أحسنتِ! أنجزتِ مختبر «${esc(lab.title)}» بنسبة ${pct(score)}.${labQuizQs(lab).length ? " وبعدها أجيبي عن أسئلة المختبر تحته." : ""}</div>
         ${preview ? `<div class="muted" style="font-weight:400">معاينة المعلمة: لن تُرسل النتيجة.</div>` : `
         <div class="grid2">
-          <label class="f">الاسم الكامل<input id="ld-name" required maxlength="80" value="${esc(me.name)}" autocomplete="name" ${me.roster ? "readonly" : ""}></label>
+          <label class="f">اسمك<input id="ld-name" required maxlength="80" value="${esc(me.name)}" autocomplete="name" ${me.roster ? "readonly" : ""}></label>
           <label class="f">الصف / الشعبة<input id="ld-cls" maxlength="30" value="${esc(me.cls)}" placeholder="مثال: ٢/أ" ${me.roster ? "readonly" : ""}></label>
         </div>
         <div class="row"><button class="btn" type="submit">${who ? "جارٍ إرسال نتيجتك…" : "أرسلي نتيجتك إلى المعلمة"}</button><span id="ld-note" class="muted" style="font-weight:400"></span></div>`}
@@ -1606,7 +1606,7 @@ function drawLabQuiz(lab, grade) {
     <form class="panel quiz" id="lq-form" style="margin-top:18px">
       <div><span class="eyebrow">بعد التجربة</span><h2>أسئلة المختبر</h2><p class="muted">${nQs(qs.length)}. ${preview ? "معاينة المعلمة: لن تُحفظ نتيجتك." : "ستصل نتيجتك إلى المعلمة، وتحصلين على شارة إنجاز."}</p></div>
       <div class="grid2">
-        <label class="f">الاسم الكامل<input id="lqs-name" required maxlength="80" value="${esc(me.name)}" autocomplete="name" ${me.roster ? "readonly" : ""}></label>
+        <label class="f">اسمك<input id="lqs-name" required maxlength="80" value="${esc(me.name)}" autocomplete="name" ${me.roster ? "readonly" : ""}></label>
         <label class="f">الفصل / الشعبة<input id="lqs-cls" maxlength="30" value="${esc(me.cls)}" placeholder="مثال: ٢/أ" ${me.roster ? "readonly" : ""}></label>
       </div>
       ${qs.map((x, qi) => `<fieldset class="qq" id="lqq${qi}" style="border:0;padding:0;margin:0"><p>${num(qi + 1)}. ${esc(x.text)}</p>
@@ -2173,7 +2173,7 @@ async function viewILesson(id) {
         <div>أحسنتِ! أنجزتِ الدرس التفاعلي «${esc(lab.title)}» بنسبة ${pct(score)}.${labQuizQs(lab).length ? " وبعدها أجيبي عن أسئلة الدرس التفاعلي تحته." : ""}</div>
         ${preview ? `<div class="muted" style="font-weight:400">معاينة المعلمة: لن تُرسل النتيجة.</div>` : `
         <div class="grid2">
-          <label class="f">الاسم الكامل<input id="ld-name" required maxlength="80" value="${esc(me.name)}" autocomplete="name" ${me.roster ? "readonly" : ""}></label>
+          <label class="f">اسمك<input id="ld-name" required maxlength="80" value="${esc(me.name)}" autocomplete="name" ${me.roster ? "readonly" : ""}></label>
           <label class="f">الصف / الشعبة<input id="ld-cls" maxlength="30" value="${esc(me.cls)}" placeholder="مثال: ٢/أ" ${me.roster ? "readonly" : ""}></label>
         </div>
         <div class="row"><button class="btn" type="submit">${who ? "جارٍ إرسال نتيجتك…" : "أرسلي نتيجتك إلى المعلمة"}</button><span id="ld-note" class="muted" style="font-weight:400"></span></div>`}
@@ -2235,7 +2235,7 @@ function drawILQuiz(lab, grade) {
     <form class="panel quiz" id="lq-form" style="margin-top:18px">
       <div><span class="eyebrow">بعد التجربة</span><h2>أسئلة الدرس التفاعلي</h2><p class="muted">${nQs(qs.length)}. ${preview ? "معاينة المعلمة: لن تُحفظ نتيجتك." : "ستصل نتيجتك إلى المعلمة، وتحصلين على شارة إنجاز."}</p></div>
       <div class="grid2">
-        <label class="f">الاسم الكامل<input id="lqs-name" required maxlength="80" value="${esc(me.name)}" autocomplete="name" ${me.roster ? "readonly" : ""}></label>
+        <label class="f">اسمك<input id="lqs-name" required maxlength="80" value="${esc(me.name)}" autocomplete="name" ${me.roster ? "readonly" : ""}></label>
         <label class="f">الفصل / الشعبة<input id="lqs-cls" maxlength="30" value="${esc(me.cls)}" placeholder="مثال: ٢/أ" ${me.roster ? "readonly" : ""}></label>
       </div>
       ${qs.map((x, qi) => `<fieldset class="qq" id="lqq${qi}" style="border:0;padding:0;margin:0"><p>${num(qi + 1)}. ${esc(x.text)}</p>
