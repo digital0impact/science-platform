@@ -182,6 +182,17 @@ tr:last-child td{border-bottom:0}
 td.num{font-variant-numeric:tabular-nums}
 td .row{flex-wrap:nowrap}
 .stats{display:flex;gap:24px;flex-wrap:wrap}
+.rtabs{display:inline-flex;gap:4px;padding:4px;border:1px solid var(--line);border-radius:999px;background:var(--surface)}
+.rtabs button{border:0;background:none;padding:6px 16px;border-radius:999px;font:inherit;font-weight:600;cursor:pointer;color:var(--muted)}
+.rtabs button[aria-pressed="true"]{background:var(--ink, #263A55);color:#fff}
+.att th.it{min-width:96px;max-width:150px;font-size:.78rem;font-weight:600;white-space:normal;vertical-align:bottom}
+.att td.c{text-align:center}
+.att .yes{display:inline-block;min-width:44px;padding:2px 8px;border-radius:999px;background:var(--bio-soft);color:var(--bio);font-weight:700;font-size:.8rem}
+.att .no{color:var(--bad);opacity:.7;font-weight:700}
+.att tr.low td:first-child b{color:var(--bad)}
+.roster-card{border:1px solid var(--line);border-radius:var(--r);padding:14px;background:var(--surface);display:grid;gap:10px}
+.roster-card textarea{min-height:160px;width:100%}
+.roster-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px}
 .stats div{display:grid}
 .stats b{font-family:var(--f-display);font-size:1.6rem;font-variant-numeric:tabular-nums}
 
@@ -422,7 +433,13 @@ const LocalStore = {
   async labs(all) { const a = this._all("labs"); return all ? a : a.filter(l => l.published); },
   async getLab(id) { return this._all("labs").find(l => l.id === id) || null; },
   async saveLab(l) { return this._upsert("labs", { ...l }); },
-  async deleteLab(id) { this._save("labs", this._all("labs").filter(x => x.id !== id)); }
+  async deleteLab(id) { this._save("labs", this._all("labs").filter(x => x.id !== id)); },
+  // أسماء الطالبات لكل فصل
+  async rosterClasses(g) { return [...new Set(this._all("roster").filter(s => s.gradeId === g).map(s => s.cls))].sort((a, b) => a.localeCompare(b, "ar")); },
+  async rosterNames(g, c) { return this._all("roster").filter(s => s.gradeId === g && s.cls === c).sort((a, b) => a.sort - b.sort).map(s => s.name); },
+  async roster(g) { return this._all("roster").filter(s => s.gradeId === g).sort((a, b) => a.cls.localeCompare(b.cls, "ar") || a.sort - b.sort); },
+  async setClassRoster(g, c, names) { this._save("roster", [...this._all("roster").filter(s => !(s.gradeId === g && s.cls === c)), ...names.map((n, i) => ({ id: uid(), gradeId: g, cls: c, name: n, sort: i }))]); },
+  async deleteRosterClass(g, c) { this._save("roster", this._all("roster").filter(s => !(s.gradeId === g && s.cls === c))); }
 };
 /* Supabase: جدولا lessons و results (انظر ملف supabase.sql) */
 let sb = null;
@@ -479,11 +496,46 @@ const SupaStore = {
     if (id) { ok(await sb.from("labs").update(row).eq("id", id)); return id; }
     return ok(await sb.from("labs").insert(row).select("id").single()).id;
   },
-  async deleteLab(id) { ok(await sb.from("labs").delete().eq("id", id)); }
+  async deleteLab(id) { ok(await sb.from("labs").delete().eq("id", id)); },
+  // أسماء الطالبات (جدول students، انظري supabase-students.sql). الطالبة تقرأ أسماء فصلها فقط عبر دالتين
+  async rosterClasses(g) { return ok(await sb.rpc("roster_classes", { g })) || []; },
+  async rosterNames(g, c) { return ok(await sb.rpc("roster_names", { g, c })) || []; },
+  async roster(g) { return ok(await sb.from("students").select("id,grade_id,class_name,name,sort").eq("grade_id", g).order("class_name").order("sort")).map(r => ({ id: r.id, gradeId: r.grade_id, cls: r.class_name, name: r.name, sort: r.sort })); },
+  async setClassRoster(g, c, names) {
+    ok(await sb.from("students").delete().eq("grade_id", g).eq("class_name", c));
+    if (names.length) ok(await sb.from("students").insert(names.map((n, i) => ({ grade_id: g, class_name: c, name: n, sort: i }))));
+  },
+  async deleteRosterClass(g, c) { ok(await sb.from("students").delete().eq("grade_id", g).eq("class_name", c)); }
 };
 let Store = LocalStore;
 const safeLabs = async all => { try { return await Store.labs(all); } catch (e) { console.warn("labs:", e); return []; } };
 const state = { user: null, isTeacher: DEMO, authReady: DEMO };
+
+/* ======================= أسماء الطالبات ======================= */
+// تطبيع الأسماء للمطابقة: بلا تشكيل، والهمزات والتاء المربوطة والياء موحّدة، والأرقام لاتينية
+const normName = s => String(s || "").replace(/[\u064B-\u065F\u0670\u0640]/g, "").replace(/[أإآٱ]/g, "ا").replace(/ى/g, "ي").replace(/ة/g, "ه").replace(/[٠-٩]/g, d => "٠١٢٣٤٥٦٧٨٩".indexOf(d)).replace(/[\\|-]/g, "/").replace(/\s+/g, " ").trim().toLowerCase();
+async function rosterClasses(gid) { if (!gid) return []; try { return await Store.rosterClasses(gid); } catch (e) { console.warn("roster:", e); return []; } }
+// إن أدخلت المعلمة أسماء الفصل تختار الطالبة فصلها ثم اسمها من القائمة، وإلا تكتبهما
+function whoFields(p, me, classes, clsLabel = "الفصل / الشعبة") {
+  if (!classes.length) return `<label class="f">الاسم الكامل<input id="${p}-name" required maxlength="80" value="${esc(me.name)}" autocomplete="name"></label>
+        <label class="f">${clsLabel}<input id="${p}-cls" maxlength="30" value="${esc(me.cls)}" placeholder="مثال: ٢/أ"></label>`;
+  return `<label class="f">${clsLabel}<select id="${p}-cls" required><option value="">اختاري فصلك…</option>${classes.map(c => `<option ${c === me.cls ? "selected" : ""}>${esc(c)}</option>`).join("")}</select></label>
+        <label class="f">اسمك<select id="${p}-name" required disabled><option value="">اختاري فصلك أولاً</option></select></label>`;
+}
+function bindWho(p, gid, me, classes) {
+  if (!classes.length) return;
+  const cs = $(`#${p}-cls`), ns = $(`#${p}-name`);
+  const load = async () => {
+    const c = cs.value; ns.disabled = true;
+    if (!c) { ns.innerHTML = `<option value="">اختاري فصلك أولاً</option>`; return; }
+    ns.innerHTML = `<option value="">جارٍ التحميل…</option>`;
+    let names = []; try { names = await Store.rosterNames(gid, c); } catch (e) { console.warn(e); }
+    if (cs.value !== c) return;
+    ns.innerHTML = `<option value="">اختاري اسمك…</option>` + names.map(n => `<option ${n === me.name && c === me.cls ? "selected" : ""}>${esc(n)}</option>`).join("");
+    ns.disabled = false;
+  };
+  cs.addEventListener("change", load); if (cs.value) load();
+}
 
 /* ======================= التنقل ======================= */
 function hashParts() {
@@ -498,12 +550,12 @@ const rememberGrade = id => { if (id && !state.isTeacher) ls.set("myGrade", id);
 const crumbRoot = g => state.isTeacher
   ? `<a href="#">الصفوف</a>${g ? ` › <a href="#grade=${encodeURIComponent(g.id)}">${esc(g.name)}</a>` : ""}`
   : (g ? `<a href="#grade=${encodeURIComponent(g.id)}">${esc(g.name)}</a>` : `<a href="#">الرئيسية</a>`);
-const backHome = () => state.isTeacher || !myGrade() ? `${backHome()}` : `<a class="btn ghost" href="#grade=${encodeURIComponent(myGrade())}">العودة إلى دروسي</a>`;
+const backHome = () => state.isTeacher || !myGrade() ? `<a class="btn ghost" href="#">العودة إلى الصفوف</a>` : `<a class="btn ghost" href="#grade=${encodeURIComponent(myGrade())}">العودة إلى دروسي</a>`;
 function renderNav() {
   const { k } = hashParts();
   const stu = ["home", "grade", "lesson", "lab", "ilesson"].includes(k);
   const items = [state.isTeacher || !myGrade() ? ["#", "الصفوف", stu] : ["#grade=" + encodeURIComponent(myGrade()), "دروسي", stu]];
-  if (state.isTeacher) items.push(["#teacher", "الصف المقلوب", ["teacher", "edit"].includes(k)], ["#ilessons", "الدروس التفاعلية", ["ilessons", "iledit"].includes(k)], ["#labs", "المختبرات", ["labs", "labedit"].includes(k)], ["#results", "النتائج", k === "results"]);
+  if (state.isTeacher) items.push(["#teacher", "الصف المقلوب", ["teacher", "edit"].includes(k)], ["#ilessons", "الدروس التفاعلية", ["ilessons", "iledit"].includes(k)], ["#labs", "المختبرات", ["labs", "labedit"].includes(k)], ["#students", "الطالبات", k === "students"], ["#results", "النتائج", k === "results"]);
   let html = items.map(([h, t, on]) => `<a href="${h}" class="${on ? "on" : ""}">${t}</a>`).join("");
   if (!DEMO) html += state.user ? `<button id="signout" type="button">خروج</button>` : `<a href="#teacher" class="${k === "teacher" ? "on" : ""}">دخول المعلمة</a>`;
   $("#nav").innerHTML = html;
@@ -520,12 +572,13 @@ async function route() {
     if (k === "lesson") return await viewLesson(v);
     if (k === "lab") return await viewLab(v);
     if (k === "ilesson") return await viewILesson(v);
-    if (["teacher", "edit", "results", "labs", "labedit", "ilessons", "iledit"].includes(k)) {
+    if (["teacher", "edit", "results", "students", "labs", "labedit", "ilessons", "iledit"].includes(k)) {
       if (!state.authReady) { app.innerHTML = `<p class="loading">جارٍ التحقق من الدخول…</p>`; return; }
       if (!state.isTeacher) return viewLogin();
       if (k === "teacher") return await viewTeacher();
       if (k === "edit") return await viewEditor(v);
       if (k === "results") return await viewResults();
+      if (k === "students") return await viewStudents();
       if (k === "labs") return await viewLabs();
       if (k === "labedit") return await viewLabEditor(v);
       if (k === "ilessons") return await viewILessons();
@@ -674,21 +727,22 @@ async function viewLesson(id) {
     <div id="stage"></div>`;
   if (preview) $("#stage").insertAdjacentHTML("beforebegin", `<p class="demo" style="padding:8px 12px;border-radius:8px">معاينة المعلمة: لن تُحفظ نتيجتك في سجل الطالبات.</p>`);
   const me = ls.get("student", { name: "", cls: "" });
+  const classes = preview ? [] : await rosterClasses(g && g.id);
   $("#stage").innerHTML = `
     <form class="panel start stack" id="startf">
       <h2>قبل أن تبدئي</h2>
-      <p class="muted">اكتبي اسمك كما تريدين أن يظهر على شارة الإنجاز. ستصل نتيجتك إلى المعلمة.</p>
+      <p class="muted">${classes.length ? "اختاري فصلك ثم اسمك من القائمة. ستصل نتيجتك إلى المعلمة." : "اكتبي اسمك كما تريدين أن يظهر على شارة الإنجاز. ستصل نتيجتك إلى المعلمة."}</p>
       <div class="grid2">
-        <label class="f">الاسم الكامل<input id="st-name" required maxlength="80" value="${esc(me.name)}" autocomplete="name"></label>
-        <label class="f">الفصل / الشعبة<input id="st-cls" maxlength="30" value="${esc(me.cls)}" placeholder="مثال: ٢/أ"></label>
+        ${whoFields("st", me, classes)}
       </div>
       <div class="row"><button class="btn" type="submit">ابدئي الدرس</button><span class="muted" style="font-size:.88rem">في نهاية كل جزء يتوقف المقطع حتى تجيبي عن أسئلته.</span></div>
     </form>`;
+  bindWho("st", g && g.id, me, classes);
   $("#startf").addEventListener("submit", e => {
     e.preventDefault();
     const name = $("#st-name").value.trim(), cls = $("#st-cls").value.trim();
     if (!name) return;
-    ls.set("student", { name, cls });
+    ls.set("student", { name, cls, roster: classes.length > 0 });
     startPlayer(lesson, g, { name, cls }, preview);
   });
 }
@@ -1433,23 +1487,24 @@ async function viewLab(id) {
   const preview = !DEMO && state.isTeacher;
   if (!preview) {
     const me = ls.get("student", { name: "", cls: "" });
+    const classes = await rosterClasses(lab.gradeId);
     app.innerHTML = head + `
       <form class="panel start stack" id="lab-gate">
         <h2>قبل أن تبدئي</h2>
-        <p class="muted">اكتبي اسمك وصفّك، لتصل نتيجتك إلى المعلمة باسمك عند إنجاز المختبر.</p>
+        <p class="muted">${classes.length ? "اختاري فصلك ثم اسمك من القائمة، لتصل نتيجتك إلى المعلمة باسمك عند إنجاز المختبر." : "اكتبي اسمك وصفّك، لتصل نتيجتك إلى المعلمة باسمك عند إنجاز المختبر."}</p>
         <div class="grid2">
-          <label class="f">الاسم الكامل<input id="lg-name" required maxlength="80" value="${esc(me.name)}" autocomplete="name"></label>
-          <label class="f">الصف / الشعبة<input id="lg-cls" required maxlength="30" value="${esc(me.cls)}" placeholder="مثال: ٢/أ"></label>
+          ${whoFields("lg", me, classes, "الصف / الشعبة")}
         </div>
         <div class="row"><button class="btn" type="submit">ابدئي المختبر</button></div>
       </form>`;
+    bindWho("lg", lab.gradeId, me, classes);
     $("#lab-gate").addEventListener("submit", e => {
       e.preventDefault();
       const name = $("#lg-name").value.trim(), cls = $("#lg-cls").value.trim();
       if (!name) { $("#lg-name").focus(); return; }
       if (!cls) { $("#lg-cls").focus(); return; }
-      ls.set("student", { name, cls });
-      openLab({ name, cls });
+      ls.set("student", { name, cls, roster: classes.length > 0 });
+      openLab({ name, cls, roster: classes.length > 0 });
     });
     return;
   }
@@ -1489,8 +1544,8 @@ async function viewLab(id) {
         <div>أحسنتِ! أنجزتِ مختبر «${esc(lab.title)}» بنسبة ${pct(score)}.${labQuizQs(lab).length ? " وبعدها أجيبي عن أسئلة المختبر تحته." : ""}</div>
         ${preview ? `<div class="muted" style="font-weight:400">معاينة المعلمة: لن تُرسل النتيجة.</div>` : `
         <div class="grid2">
-          <label class="f">الاسم الكامل<input id="ld-name" required maxlength="80" value="${esc(me.name)}" autocomplete="name"></label>
-          <label class="f">الصف / الشعبة<input id="ld-cls" maxlength="30" value="${esc(me.cls)}" placeholder="مثال: ٢/أ"></label>
+          <label class="f">الاسم الكامل<input id="ld-name" required maxlength="80" value="${esc(me.name)}" autocomplete="name" ${me.roster ? "readonly" : ""}></label>
+          <label class="f">الصف / الشعبة<input id="ld-cls" maxlength="30" value="${esc(me.cls)}" placeholder="مثال: ٢/أ" ${me.roster ? "readonly" : ""}></label>
         </div>
         <div class="row"><button class="btn" type="submit">${who ? "جارٍ إرسال نتيجتك…" : "أرسلي نتيجتك إلى المعلمة"}</button><span id="ld-note" class="muted" style="font-weight:400"></span></div>`}
       </form>
@@ -1551,8 +1606,8 @@ function drawLabQuiz(lab, grade) {
     <form class="panel quiz" id="lq-form" style="margin-top:18px">
       <div><span class="eyebrow">بعد التجربة</span><h2>أسئلة المختبر</h2><p class="muted">${nQs(qs.length)}. ${preview ? "معاينة المعلمة: لن تُحفظ نتيجتك." : "ستصل نتيجتك إلى المعلمة، وتحصلين على شارة إنجاز."}</p></div>
       <div class="grid2">
-        <label class="f">الاسم الكامل<input id="lqs-name" required maxlength="80" value="${esc(me.name)}" autocomplete="name"></label>
-        <label class="f">الفصل / الشعبة<input id="lqs-cls" maxlength="30" value="${esc(me.cls)}" placeholder="مثال: ٢/أ"></label>
+        <label class="f">الاسم الكامل<input id="lqs-name" required maxlength="80" value="${esc(me.name)}" autocomplete="name" ${me.roster ? "readonly" : ""}></label>
+        <label class="f">الفصل / الشعبة<input id="lqs-cls" maxlength="30" value="${esc(me.cls)}" placeholder="مثال: ٢/أ" ${me.roster ? "readonly" : ""}></label>
       </div>
       ${qs.map((x, qi) => `<fieldset class="qq" id="lqq${qi}" style="border:0;padding:0;margin:0"><p>${num(qi + 1)}. ${esc(x.text)}</p>
         ${x.options.map((o, oi) => `<label class="choice"><input type="radio" name="la${qi}" value="${oi}" id="la${qi}_${oi}">${esc(o)}</label>`).join("")}</fieldset>`).join("")}
@@ -2061,23 +2116,24 @@ async function viewILesson(id) {
   const preview = !DEMO && state.isTeacher;
   if (!preview) {
     const me = ls.get("student", { name: "", cls: "" });
+    const classes = await rosterClasses(lab.gradeId);
     app.innerHTML = head + `
       <form class="panel start stack" id="lab-gate">
         <h2>قبل أن تبدئي</h2>
-        <p class="muted">اكتبي اسمك وصفّك، لتصل نتيجتك إلى المعلمة باسمك عند إنجاز الدرس التفاعلي.</p>
+        <p class="muted">${classes.length ? "اختاري فصلك ثم اسمك من القائمة، لتصل نتيجتك إلى المعلمة باسمك عند إنجاز الدرس التفاعلي." : "اكتبي اسمك وصفّك، لتصل نتيجتك إلى المعلمة باسمك عند إنجاز الدرس التفاعلي."}</p>
         <div class="grid2">
-          <label class="f">الاسم الكامل<input id="lg-name" required maxlength="80" value="${esc(me.name)}" autocomplete="name"></label>
-          <label class="f">الصف / الشعبة<input id="lg-cls" required maxlength="30" value="${esc(me.cls)}" placeholder="مثال: ٢/أ"></label>
+          ${whoFields("lg", me, classes, "الصف / الشعبة")}
         </div>
         <div class="row"><button class="btn" type="submit">ابدئي الدرس التفاعلي</button></div>
       </form>`;
+    bindWho("lg", lab.gradeId, me, classes);
     $("#lab-gate").addEventListener("submit", e => {
       e.preventDefault();
       const name = $("#lg-name").value.trim(), cls = $("#lg-cls").value.trim();
       if (!name) { $("#lg-name").focus(); return; }
       if (!cls) { $("#lg-cls").focus(); return; }
-      ls.set("student", { name, cls });
-      openLab({ name, cls });
+      ls.set("student", { name, cls, roster: classes.length > 0 });
+      openLab({ name, cls, roster: classes.length > 0 });
     });
     return;
   }
@@ -2117,8 +2173,8 @@ async function viewILesson(id) {
         <div>أحسنتِ! أنجزتِ الدرس التفاعلي «${esc(lab.title)}» بنسبة ${pct(score)}.${labQuizQs(lab).length ? " وبعدها أجيبي عن أسئلة الدرس التفاعلي تحته." : ""}</div>
         ${preview ? `<div class="muted" style="font-weight:400">معاينة المعلمة: لن تُرسل النتيجة.</div>` : `
         <div class="grid2">
-          <label class="f">الاسم الكامل<input id="ld-name" required maxlength="80" value="${esc(me.name)}" autocomplete="name"></label>
-          <label class="f">الصف / الشعبة<input id="ld-cls" maxlength="30" value="${esc(me.cls)}" placeholder="مثال: ٢/أ"></label>
+          <label class="f">الاسم الكامل<input id="ld-name" required maxlength="80" value="${esc(me.name)}" autocomplete="name" ${me.roster ? "readonly" : ""}></label>
+          <label class="f">الصف / الشعبة<input id="ld-cls" maxlength="30" value="${esc(me.cls)}" placeholder="مثال: ٢/أ" ${me.roster ? "readonly" : ""}></label>
         </div>
         <div class="row"><button class="btn" type="submit">${who ? "جارٍ إرسال نتيجتك…" : "أرسلي نتيجتك إلى المعلمة"}</button><span id="ld-note" class="muted" style="font-weight:400"></span></div>`}
       </form>
@@ -2179,8 +2235,8 @@ function drawILQuiz(lab, grade) {
     <form class="panel quiz" id="lq-form" style="margin-top:18px">
       <div><span class="eyebrow">بعد التجربة</span><h2>أسئلة الدرس التفاعلي</h2><p class="muted">${nQs(qs.length)}. ${preview ? "معاينة المعلمة: لن تُحفظ نتيجتك." : "ستصل نتيجتك إلى المعلمة، وتحصلين على شارة إنجاز."}</p></div>
       <div class="grid2">
-        <label class="f">الاسم الكامل<input id="lqs-name" required maxlength="80" value="${esc(me.name)}" autocomplete="name"></label>
-        <label class="f">الفصل / الشعبة<input id="lqs-cls" maxlength="30" value="${esc(me.cls)}" placeholder="مثال: ٢/أ"></label>
+        <label class="f">الاسم الكامل<input id="lqs-name" required maxlength="80" value="${esc(me.name)}" autocomplete="name" ${me.roster ? "readonly" : ""}></label>
+        <label class="f">الفصل / الشعبة<input id="lqs-cls" maxlength="30" value="${esc(me.cls)}" placeholder="مثال: ٢/أ" ${me.roster ? "readonly" : ""}></label>
       </div>
       ${qs.map((x, qi) => `<fieldset class="qq" id="lqq${qi}" style="border:0;padding:0;margin:0"><p>${num(qi + 1)}. ${esc(x.text)}</p>
         ${x.options.map((o, oi) => `<label class="choice"><input type="radio" name="la${qi}" value="${oi}" id="la${qi}_${oi}">${esc(o)}</label>`).join("")}</fieldset>`).join("")}
@@ -2671,21 +2727,219 @@ async function saveIL(mode) {
 /*</ILESSON-BLOCK>*/
 
 /* ======================= النتائج ======================= */
+/* ======================= أسماء الطالبات (المعلمة) ======================= */
+const nGirls = n => n === 1 ? "طالبة واحدة" : n === 2 ? "طالبتان" : `${num(n)} ${n >= 3 && n <= 10 ? "طالبات" : "طالبة"}`;
+const nClasses = n => n === 1 ? "فصل واحد" : n === 2 ? "فصلين" : `${num(n)} ${n >= 3 && n <= 10 ? "فصول" : "فصلاً"}`;
+let xlsxLib = null;
+function loadXLSX() {
+  if (window.XLSX) return Promise.resolve(window.XLSX);
+  return xlsxLib ||= new Promise((res, rej) => {
+    const s = document.createElement("script");
+    s.src = "https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js";
+    s.onload = () => res(window.XLSX); s.onerror = () => { xlsxLib = null; rej(new Error("تعذّر تحميل قارئ ملفات Excel. تحققي من الاتصال، أو احفظي الملف بصيغة CSV.")); };
+    document.head.appendChild(s);
+  });
+}
+function parseCSV(t) {
+  const sep = (t.split("\n")[0].match(/[;\t]/) || [","])[0];
+  return t.replace(/^\uFEFF/, "").split(/\r?\n/).map(line => {
+    const out = []; let cur = "", q = false;
+    for (let i = 0; i < line.length; i++) {
+      const ch = line[i];
+      if (q) { if (ch === '"' && line[i + 1] === '"') { cur += '"'; i++; } else if (ch === '"') q = false; else cur += ch; }
+      else if (ch === '"') q = true; else if (ch === sep) { out.push(cur); cur = ""; } else cur += ch;
+    }
+    out.push(cur); return out;
+  });
+}
+// يقرأ ملف الأسماء: عمود للاسم وعمود للفصل (أو فصل واحد تكتبه المعلمة للملف كله)
+async function readRosterFile(file, defCls) {
+  let rows;
+  if (/\.csv$|\.txt$/i.test(file.name)) rows = parseCSV(await file.text());
+  else { const X = await loadXLSX(); const wb = X.read(await file.arrayBuffer(), { type: "array" }); rows = X.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { header: 1, defval: "" }); }
+  rows = rows.map(r => r.map(c => String(c ?? "").replace(/\s+/g, " ").trim())).filter(r => r.some(Boolean));
+  let ni = -1, ci = -1, start = 0;
+  (rows[0] || []).forEach((c, i) => { if (ni < 0 && /اسم|name/i.test(c)) ni = i; else if (ci < 0 && /فصل|شعبة|class|section/i.test(c)) ci = i; });
+  if (ni >= 0 || ci >= 0) start = 1;
+  if (ni < 0) ni = ci === 0 ? 1 : 0;
+  const out = {};
+  rows.slice(start).forEach(r => {
+    const n = (r[ni] || "").slice(0, 80), c = ((ci >= 0 ? r[ci] : "") || defCls || "").slice(0, 30);
+    if (!n || !c || /^\d+$/.test(n)) return;
+    (out[c] ||= []); if (!out[c].some(x => normName(x) === normName(n))) out[c].push(n);
+  });
+  return out;
+}
+async function viewStudents() {
+  const grades = await Store.grades();
+  let gid = ls.get("rosterGrade", "") || (grades[0] && grades[0].id) || "";
+  let pending = null;
+  app.innerHTML = `
+    <div class="dash-head"><div><span class="eyebrow">لوحة المعلمة</span><h1>أسماء الطالبات</h1><p class="muted">أدخلي أسماء طالبات كل فصل مرة واحدة. بعدها تختار الطالبة فصلها واسمها من قائمة قبل أن تبدأ أي درس، ويظهر حضور كل طالبة في صفحة «النتائج» ← «الحضور».</p></div></div>
+    <div class="panel stack">
+      <label class="f">الصف<select id="r-grade">${grades.map(g => `<option value="${esc(g.id)}" ${g.id === gid ? "selected" : ""}>${esc(g.name)}</option>`).join("")}</select></label>
+      <div class="grid2">
+        <label class="f">ملف الأسماء (Excel أو CSV)<input type="file" id="r-file" accept=".xlsx,.xls,.csv,.txt"></label>
+        <label class="f">الفصل (إن لم يكن في الملف عمود للفصل)<input id="r-defcls" maxlength="30" placeholder="مثال: ١/أ"></label>
+      </div>
+      <p class="muted" style="font-size:.88rem">الملف: عمود «الاسم» وعمود «الفصل»، وكل طالبة في سطر. يمكن أن يضم الملف فصول الصف كلها. <a href="#" id="r-tpl">تنزيل نموذج فارغ</a></p>
+      <div id="r-preview"></div>
+    </div>
+    <div class="dash-head" style="margin-top:18px"><h2 style="font-size:1.2rem">فصول هذا الصف</h2><button class="btn ghost sm" type="button" id="r-addcls">+ فصل يدوياً</button></div>
+    <div id="r-list"><p class="loading">جارٍ التحميل…</p></div>`;
+  const drawList = async () => {
+    let roster;
+    try { roster = await Store.roster(gid); }
+    catch (e) { $("#r-list").innerHTML = `<div class="empty"><h2>جدول الأسماء غير جاهز</h2><p>شغّلي ملف <b>supabase-students.sql</b> في Supabase ← SQL Editor مرة واحدة، ثم حدّثي الصفحة.</p><p class="muted">${esc(e.message || e)}</p></div>`; return; }
+    const by = {}; roster.forEach(s => (by[s.cls] ||= []).push(s.name));
+    const cls = Object.keys(by).sort((a, b) => a.localeCompare(b, "ar"));
+    $("#r-list").innerHTML = cls.length ? `<div class="roster-grid">${cls.map(c => `
+      <div class="roster-card" data-cls="${esc(c)}">
+        <div class="row" style="justify-content:space-between"><h3>${esc(c)}</h3><span class="chip draft">${nGirls(by[c].length)}</span></div>
+        <textarea aria-label="أسماء طالبات ${esc(c)}">${esc(by[c].join("\n"))}</textarea>
+        <div class="row"><button class="btn sm" type="button" data-act="save">حفظ التعديل</button><button class="btn danger sm" type="button" data-act="del">حذف الفصل</button></div>
+      </div>`).join("")}</div>`
+      : `<div class="empty"><h2>لا توجد أسماء بعد لهذا الصف</h2><p>ارفعي ملف الأسماء في الأعلى. وإلى أن تُدخلي الأسماء، تكتب الطالبات أسماءهن بأنفسهن كما كان.</p></div>`;
+  };
+  const showPreview = () => {
+    if (!pending) { $("#r-preview").innerHTML = ""; return; }
+    const cls = Object.keys(pending);
+    $("#r-preview").innerHTML = cls.length ? `
+      <div class="seg">
+        <b>وُجد في الملف ${nGirls(cls.reduce((a, c) => a + pending[c].length, 0))} في ${nClasses(cls.length)}:</b>
+        ${cls.map(c => `<div><span class="chip bio">${esc(c)}</span> ${nGirls(pending[c].length)}: <span class="muted">${esc(pending[c].slice(0, 4).join("، "))}${pending[c].length > 4 ? "…" : ""}</span></div>`).join("")}
+        <p class="muted" style="font-size:.88rem">الحفظ يستبدل قائمة هذه الفصول فقط في ${esc((grades.find(g => g.id === gid) || {}).name || "")}، ولا يمس الفصول الأخرى ولا النتائج.</p>
+        <div class="row"><button class="btn" type="button" id="r-save">حفظ الأسماء</button><button class="btn ghost" type="button" id="r-cancel">إلغاء</button></div>
+      </div>` : `<div class="verdict no">لم أجد أسماء في الملف. تأكدي أن فيه عمودًا للاسم، وعمودًا للفصل أو اكتبي اسم الفصل في الخانة.</div>`;
+    $("#r-save")?.addEventListener("click", async e => {
+      e.target.disabled = true;
+      try { for (const c of Object.keys(pending)) await Store.setClassRoster(gid, c, pending[c]); toast("حُفظت الأسماء"); pending = null; $("#r-file").value = ""; showPreview(); drawList(); }
+      catch (err) { e.target.disabled = false; toast("تعذّر الحفظ: " + (err.message || err)); }
+    });
+    $("#r-cancel")?.addEventListener("click", () => { pending = null; $("#r-file").value = ""; showPreview(); });
+  };
+  const readFile = async () => {
+    const f = $("#r-file").files[0]; if (!f) return;
+    $("#r-preview").innerHTML = `<p class="loading">جارٍ قراءة الملف…</p>`;
+    try { pending = await readRosterFile(f, $("#r-defcls").value.trim()); } catch (e) { pending = null; $("#r-preview").innerHTML = `<div class="verdict no">${esc(e.message || e)}</div>`; return; }
+    showPreview();
+  };
+  $("#r-grade").addEventListener("change", e => { gid = e.target.value; ls.set("rosterGrade", gid); pending = null; showPreview(); drawList(); });
+  $("#r-file").addEventListener("change", readFile);
+  $("#r-defcls").addEventListener("change", () => { if ($("#r-file").files[0]) readFile(); });
+  $("#r-tpl").addEventListener("click", e => {
+    e.preventDefault();
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob(["\uFEFFالاسم,الفصل\r\nنورة محمد,١/أ\r\nسارة علي,١/ب\r\n"], { type: "text/csv;charset=utf-8" }));
+    a.download = "نموذج-أسماء-الطالبات.csv"; document.body.appendChild(a); a.click(); a.remove();
+  });
+  $("#r-addcls").addEventListener("click", () => {
+    const c = (prompt("اسم الفصل (مثال: ١/أ)") || "").trim().slice(0, 30); if (!c) return;
+    pending = { [c]: [] };
+    $("#r-preview").innerHTML = `<div class="seg"><b>فصل ${esc(c)}</b><label class="f">اكتبي الأسماء، اسم في كل سطر<textarea id="r-manual" style="min-height:160px"></textarea></label><div class="row"><button class="btn" type="button" id="r-msave">حفظ</button><button class="btn ghost" type="button" id="r-mcancel">إلغاء</button></div></div>`;
+    $("#r-msave").addEventListener("click", async () => {
+      const names = [...new Set($("#r-manual").value.split("\n").map(s => s.replace(/\s+/g, " ").trim().slice(0, 80)).filter(Boolean))];
+      if (!names.length) return;
+      try { await Store.setClassRoster(gid, c, names); toast("حُفظت الأسماء"); pending = null; showPreview(); drawList(); } catch (err) { toast("تعذّر الحفظ: " + (err.message || err)); }
+    });
+    $("#r-mcancel").addEventListener("click", () => { pending = null; showPreview(); });
+  });
+  $("#r-list").addEventListener("click", e => {
+    const b = e.target.closest("button[data-act]"); if (!b) return;
+    const card = b.closest(".roster-card"), c = card.dataset.cls;
+    if (b.dataset.act === "save") {
+      const names = [...new Set($("textarea", card).value.split("\n").map(s => s.replace(/\s+/g, " ").trim().slice(0, 80)).filter(Boolean))];
+      Store.setClassRoster(gid, c, names).then(() => { toast("حُفظ التعديل"); drawList(); }).catch(err => toast("تعذّر الحفظ: " + (err.message || err)));
+    } else armDelete(b, async () => { await Store.deleteRosterClass(gid, c); toast("حُذف الفصل"); drawList(); });
+  });
+  drawList();
+}
+
+/* الحضور: كل طالبة في قائمة الفصل × كل درس منشور لصفّها */
+const attState = { grade: "", cls: "" };
+async function drawAttendance(results, grades, lessons) {
+  const box = $("#att-view");
+  if (!attState.grade) attState.grade = ls.get("rosterGrade", "") || (grades[0] && grades[0].id) || "";
+  let roster = [];
+  try { roster = await Store.roster(attState.grade); }
+  catch (e) { box.innerHTML = `<div class="empty"><h2>جدول الأسماء غير جاهز</h2><p>شغّلي ملف <b>supabase-students.sql</b> في Supabase، ثم أدخلي الأسماء من صفحة «الطالبات».</p></div>`; return; }
+  const classes = [...new Set(roster.map(s => s.cls))].sort((a, b) => a.localeCompare(b, "ar"));
+  if (!classes.includes(attState.cls)) attState.cls = classes[0] || "";
+  const items = lessons.filter(l => l.gradeId === attState.grade && l.published).sort(byOrder);
+  const names = roster.filter(s => s.cls === attState.cls).map(s => s.name);
+  const nc = normName(attState.cls);
+  const best = {}; // مفتاح: الاسم المطبّع + الدرس
+  const known = new Set(names.map(normName));
+  const strays = new Map();
+  results.forEach(r => {
+    if (normName(r.studentClass) !== nc || (r.gradeId && r.gradeId !== attState.grade)) return;
+    const k = normName(r.studentName);
+    if (!known.has(k)) { if (items.some(i => i.id === r.lessonId)) strays.set(k, r.studentName); return; }
+    const key = k + "|" + r.lessonId; best[key] = Math.max(best[key] ?? -1, Number(r.score) || 0);
+  });
+  const done = (n, it) => best[normName(n) + "|" + it.id];
+  const kind = it => it._t === "interactive" ? "درس تفاعلي" : it._t === "lab" ? "مختبر" : "صف مقلوب";
+  const short = t => String(t).replace(/^(درس تفاعلي|مختبر): /, "");
+  box.innerHTML = `
+    <div class="panel grid2">
+      <label class="f">الصف<select id="a-grade">${grades.map(g => `<option value="${esc(g.id)}" ${g.id === attState.grade ? "selected" : ""}>${esc(g.name)}</option>`).join("")}</select></label>
+      <label class="f">الفصل<select id="a-cls">${classes.length ? classes.map(c => `<option ${c === attState.cls ? "selected" : ""}>${esc(c)}</option>`).join("") : `<option value="">لا توجد فصول</option>`}</select></label>
+    </div>
+    ${!classes.length ? `<div class="empty"><h2>لم تُدخلي أسماء طالبات هذا الصف بعد</h2><p>أدخليها من صفحة <a href="#students">«الطالبات»</a>، ثم يظهر هنا من أكملت كل درس ومن لم تدخله.</p></div>`
+    : !items.length ? `<div class="empty"><h2>لا توجد دروس منشورة لهذا الصف</h2><p>انشري درسًا أو مختبرًا أو درسًا تفاعليًا لهذا الصف ليظهر هنا.</p></div>`
+    : `
+    <div class="stats" style="margin:12px 0">
+      <div><span class="muted">طالبات الفصل</span><b>${num(names.length)}</b></div>
+      <div><span class="muted">دروس منشورة</span><b>${num(items.length)}</b></div>
+      <div><span class="muted">نسبة الإنجاز</span><b>${pct(names.length * items.length ? 100 * names.reduce((a, n) => a + items.filter(it => done(n, it) !== undefined).length, 0) / (names.length * items.length) : 0)}</b></div>
+      <div class="row" style="align-self:end"><button class="btn ghost sm" type="button" id="a-csv">تنزيل الحضور (CSV)</button></div>
+    </div>
+    <div class="table-wrap"><table class="att">
+      <thead><tr><th>الطالبة</th><th>أنجزت</th>${items.map(it => `<th class="it" title="${esc(it.title)}"><span class="chip ${it._t === "interactive" ? "ilesson" : it._t === "lab" ? "lab" : "draft"}">${kind(it)}</span><br>${esc(short(it.title))}</th>`).join("")}</tr>
+      <tr><th class="muted" style="font-weight:400">عدد من أكملت</th><th></th>${items.map(it => `<th class="c muted" style="font-weight:400">${num(names.filter(n => done(n, it) !== undefined).length)}/${num(names.length)}</th>`).join("")}</tr></thead>
+      <tbody>${names.map(n => { const c = items.filter(it => done(n, it) !== undefined).length; return `<tr class="${c < items.length / 2 ? "low" : ""}"><td><b>${esc(n)}</b></td><td class="c num">${num(c)}/${num(items.length)}</td>${items.map(it => { const s = done(n, it); return `<td class="c">${s !== undefined ? `<span class="yes" title="أفضل درجة">✓ ${pct(s)}</span>` : `<span class="no" title="لم تُكمل الدرس">✗</span>`}</td>`; }).join("")}</tr>`; }).join("")}</tbody>
+    </table></div>
+    <p class="muted" style="font-size:.85rem;margin-top:8px">✓ أكملت الدرس وأُرسلت نتيجتها (مع أفضل درجة)، ✗ لم تُكمله بعد. تُحسب الطالبة من النتائج المرسلة باسمها وفصلها.</p>
+    ${strays.size ? `<div class="seg" style="margin-top:12px"><b>نتائج في هذا الفصل بأسماء ليست في القائمة (${num(strays.size)})</b><p class="muted" style="font-size:.88rem">غالبًا أُرسلت قبل إدخال الأسماء أو بإملاء مختلف. يمكنك إضافة الاسم إلى قائمة الفصل أو تصحيحه من صفحة «الطالبات».</p><div>${[...strays.values()].map(n => `<span class="chip draft" style="margin:2px">${esc(n)}</span>`).join("")}</div></div>` : ""}`}`;
+  $("#a-grade").addEventListener("change", e => { attState.grade = e.target.value; attState.cls = ""; drawAttendance(results, grades, lessons); });
+  $("#a-cls").addEventListener("change", e => { attState.cls = e.target.value; drawAttendance(results, grades, lessons); });
+  $("#a-csv")?.addEventListener("click", () => {
+    const cell = v => `"${String(v ?? "").replace(/"/g, '""')}"`;
+    const head = ["الطالبة", "الفصل", "أنجزت", ...items.map(it => kind(it) + ": " + short(it.title))];
+    const body = names.map(n => [n, attState.cls, items.filter(it => done(n, it) !== undefined).length + "/" + items.length, ...items.map(it => { const s = done(n, it); return s !== undefined ? s + "%" : "لم تُكمل"; })]);
+    const csv = "\uFEFF" + [head, ...body].map(r => r.map(cell).join(",")).join("\r\n");
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }));
+    a.download = `حضور-${attState.cls.replace(/[\\/]/g, "-")}.csv`; document.body.appendChild(a); a.click(); a.remove();
+  });
+}
+
 async function viewResults() {
   app.innerHTML = `<p class="loading">جارٍ التحميل…</p>`;
   const [results, grades, lessonsOnly, labsAll] = await Promise.all([Store.results(), Store.grades(), Store.lessons(true), safeLabs(true)]);
-  const lessons = [...lessonsOnly, ...labsAll.map(l => ({ ...l, title: (l.kind === "interactive" ? "درس تفاعلي: " : "مختبر: ") + l.title }))];
+  const lessons = [...lessonsOnly, ...labsAll.map(l => ({ ...l, _t: l.kind === "interactive" ? "interactive" : "lab", title: (l.kind === "interactive" ? "درس تفاعلي: " : "مختبر: ") + l.title }))];
   results.sort((a, b) => String(b.completedAt).localeCompare(String(a.completedAt)));
   const f = { grade: "", lesson: "", q: "" };
   app.innerHTML = `
-    <div class="dash-head"><div><span class="eyebrow">لوحة المعلمة</span><h1>نتائج الطالبات</h1></div><button class="btn ghost" type="button" id="csv">تنزيل ملف Excel (CSV)</button></div>
+    <div class="dash-head"><div><span class="eyebrow">لوحة المعلمة</span><h1>نتائج الطالبات</h1></div>
+      <div class="rtabs" role="group" aria-label="طريقة العرض"><button type="button" data-tab="res" aria-pressed="true">النتائج</button><button type="button" data-tab="att" aria-pressed="false">الحضور</button></div></div>
+    <div id="att-view" hidden></div>
+    <div id="res-view">
+    <div class="row" style="justify-content:flex-end;margin-bottom:10px"><button class="btn ghost" type="button" id="csv">تنزيل ملف Excel (CSV)</button></div>
     <div class="panel grid2">
       <label class="f">الصف<select id="f-grade"><option value="">كل الصفوف</option>${grades.map(g => `<option value="${esc(g.id)}">${esc(g.name)}</option>`).join("")}</select></label>
       <label class="f">الدرس<select id="f-lesson"></select></label>
       <label class="f">بحث بالاسم أو الفصل<input id="f-q" placeholder="اكتب جزءاً من الاسم"></label>
     </div>
     <div class="stats" id="stats"></div>
-    <div id="rtable"></div>`;
+    <div id="rtable"></div>
+    </div>`;
+  $(".rtabs").addEventListener("click", e => {
+    const b = e.target.closest("[data-tab]"); if (!b) return;
+    $$(".rtabs button").forEach(x => x.setAttribute("aria-pressed", String(x === b)));
+    $("#res-view").hidden = b.dataset.tab !== "res"; $("#att-view").hidden = b.dataset.tab !== "att";
+    if (b.dataset.tab === "att") drawAttendance(results, grades, lessons);
+  });
   const fillLessons = () => {
     const ls_ = lessons.filter(l => !f.grade || l.gradeId === f.grade).sort(byOrder);
     if (f.lesson && !ls_.some(l => l.id === f.lesson)) f.lesson = "";
