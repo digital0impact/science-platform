@@ -1,0 +1,1149 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>مادة الوراثة DNA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600&family=Readex+Pro:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --violet:#7864A8; --violet-2:#62508F; --navy:#263A55; --mint:#A8D8D0; --ivory:#F5F0E9;
+  --surface:#FFFDF9; --soft:#ECE6F2; --mint-soft:#DDF0EC; --line:#E2DACF; --muted:#5D6A80;
+  --good:#2C6E63; --bad:#B4432A; --bad-soft:#F8E4DD; --gold:#C9941A;
+  --male:#C98A12; --female:#2C6E63; --helper:#62508F;
+  --f-display:"Readex Pro","IBM Plex Sans Arabic",Tahoma,sans-serif;
+  --f-body:"IBM Plex Sans Arabic",Tahoma,"Segoe UI",sans-serif;
+  --ease-out:cubic-bezier(.23,1,.32,1);
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:64px}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{margin:0;background:var(--ivory);color:var(--navy);font:16px/1.75 var(--f-body);-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:var(--f-display);line-height:1.3;margin:0;text-wrap:balance}
+p{margin:0}
+button,input,textarea,select{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--violet);outline-offset:2px}
+[hidden]{display:none!important}
+.wrap{max-width:1120px;margin:0 auto;padding-inline:16px}
+
+/* ترويسة الدرس */
+.hero{background:linear-gradient(160deg,#fff 0%,var(--ivory) 70%);border-bottom:1px solid var(--line)}
+.hero .wrap{padding-block:28px 24px;display:grid;gap:10px}
+.lesson-no{font-family:var(--f-display);font-weight:700;color:var(--violet);font-size:.95rem;letter-spacing:.02em}
+.hero h1{font-size:clamp(1.9rem,5vw,2.8rem)}
+.hero h1 bdi{font-family:var(--f-display);font-weight:500;color:var(--muted);font-size:.55em;margin-inline-start:8px}
+.idea{display:flex;gap:10px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px;max-width:760px}
+.idea b{font-family:var(--f-display);color:var(--violet);white-space:nowrap}
+.hook{color:var(--muted);max-width:760px}
+
+/* شريط الأقسام */
+.tabs{position:sticky;top:0;z-index:20;background:rgba(245,240,233,.94);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.tabs .wrap{display:flex;gap:6px;overflow-x:auto;padding-block:8px;scrollbar-width:none}
+.tabs a{flex:none;text-decoration:none;color:var(--muted);font-weight:600;padding:6px 14px;border-radius:999px;transition:background-color 150ms ease,color 150ms ease}
+.tabs a.on{background:var(--violet);color:#fff}
+@media (hover:hover) and (pointer:fine){.tabs a:not(.on):hover{background:var(--soft);color:var(--navy)}}
+
+section.sec{padding-block:34px 10px}
+.sec-head{display:flex;align-items:baseline;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+.sec-head h2{font-size:1.5rem}
+.sec-head .n{width:32px;height:32px;border-radius:50%;background:var(--violet);color:#fff;display:grid;place-items:center;font-family:var(--f-display);font-size:.95rem;flex:none;align-self:center}
+.sec-head p{color:var(--muted);font-size:.95rem;flex-basis:100%}
+
+/* الأهداف */
+.goals{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px}
+.goal{display:flex;gap:12px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px;cursor:pointer;transition:border-color 150ms ease,background-color 150ms ease}
+.goal input{accent-color:var(--violet);width:20px;height:20px;margin-top:4px;flex:none}
+.goal b{color:var(--violet);font-family:var(--f-display)}
+.goal:has(input:checked){border-color:var(--mint);background:var(--mint-soft)}
+.goal .here{display:inline-block;margin-top:6px;font-size:.8rem;font-weight:600;color:var(--good);text-decoration:none}
+
+/* المفردات */
+.review{display:flex;gap:10px;align-items:center;flex-wrap:wrap;background:var(--surface);border:1px dashed var(--violet);border-radius:12px;padding:10px 14px;margin-bottom:14px;font-size:.95rem}
+.review .tag{font-size:.78rem;font-weight:700;color:#fff;background:var(--violet);padding:1px 10px;border-radius:999px}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px}
+.card{display:block;width:100%;perspective:900px;min-height:170px;border:0;background:none;padding:0;cursor:pointer;text-align:start;color:inherit}
+.card .in{display:block;position:relative;width:100%;height:170px;transition:transform 450ms var(--ease-out);transform-style:preserve-3d}
+.card.flip .in{transform:rotateY(180deg)}
+.face{position:absolute;inset:0;border-radius:12px;padding:14px 16px;backface-visibility:hidden;display:flex;flex-direction:column;gap:6px;border:1px solid var(--line)}
+.front{background:var(--surface);justify-content:center;align-items:center;text-align:center}
+.front .t{font-family:var(--f-display);font-weight:700;font-size:1.25rem;line-height:1.35}
+.front .en{direction:ltr;color:var(--muted);font-size:.85rem}
+.front .hint{font-size:.75rem;color:var(--muted);position:absolute;bottom:10px;inset-inline:0;text-align:center}
+.back{background:var(--navy);color:#fff;transform:rotateY(180deg);font-size:.88rem;line-height:1.6;overflow:auto}
+.back b{color:var(--mint);font-family:var(--f-display)}
+@media (prefers-reduced-motion:reduce){.card .in{transition:none}}
+.usage{margin-top:14px;display:grid;gap:4px;background:var(--surface);border:1px dotted var(--muted);border-radius:12px;padding:12px 16px;font-size:.93rem;max-width:620px}
+.usage h3{font-size:1rem;color:var(--good)}
+
+/* جدول التعلّم */
+.kwl-wrap{overflow-x:auto;border-radius:12px;border:1px solid var(--line);background:var(--surface)}
+table.kwl{width:100%;border-collapse:collapse;min-width:640px}
+.kwl th{padding:12px 14px;font-family:var(--f-display);text-align:start;font-size:1rem;color:#fff}
+.kwl th small{display:block;font-family:var(--f-body);font-weight:400;font-size:.8rem;opacity:.9}
+.kwl th:nth-child(1){background:var(--violet)}
+.kwl th:nth-child(2){background:var(--navy)}
+.kwl th:nth-child(3){background:var(--good)}
+.kwl td{vertical-align:top;padding:10px;border-inline-start:1px solid var(--line)}
+.kwl td:first-child{border-inline-start:0}
+.kwl textarea{width:100%;min-height:170px;resize:vertical;border:1px solid var(--line);border-radius:10px;background:var(--ivory);padding:10px 12px;line-height:1.7}
+.kwl textarea:focus{outline:none;border-color:var(--violet);background:#fff}
+.starters{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.starters button{border:1px solid var(--line);background:#fff;border-radius:999px;padding:2px 10px;font-size:.8rem;cursor:pointer;color:var(--muted)}
+.starters button:active{transform:scale(.97)}
+.note{font-size:.85rem;color:var(--muted);margin-top:8px}
+
+/* أجزاء الزهرة */
+  background:radial-gradient(120% 90% at 50% 35%,#ffffff 0%,#EFEAF6 55%,#E3EEEB 100%)}
+  background:rgba(255,253,249,.92);color:var(--navy);box-shadow:0 2px 8px rgba(38,58,85,.15);transform:translate(-50%,-140%);transition:opacity 200ms ease,background-color 150ms ease}
+
+.panel{display:grid;gap:12px}
+.box{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+.groups{display:grid;gap:10px}
+.group h3{font-size:.85rem;color:var(--muted);font-weight:600;margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.group h3 i{width:10px;height:10px;border-radius:50%;display:inline-block}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1px solid var(--line);background:#fff;border-radius:999px;padding:4px 12px;font-size:.88rem;font-weight:600;cursor:pointer;transition:background-color 150ms ease,border-color 150ms ease,transform 160ms var(--ease-out)}
+.chip:active{transform:scale(.97)}
+.chip.sel{background:var(--navy);border-color:var(--navy);color:#fff}
+.detail h3{font-size:1.3rem}
+.detail .en{direction:ltr;text-align:right;color:var(--muted);font-size:.85rem}
+.detail .role{display:inline-block;font-size:.75rem;font-weight:700;padding:1px 10px;border-radius:999px;margin:6px 0;color:#fff}
+.detail p{font-size:.95rem}
+.detail .from{font-size:.8rem;color:var(--muted);margin-top:8px}
+
+.quiz .q{font-family:var(--f-display);font-size:1.15rem;margin:6px 0 4px}
+.quiz .fb{min-height:1.6em;font-weight:600}
+.quiz .fb.ok{color:var(--good)} .quiz .fb.no{color:var(--bad)}
+.dots{display:flex;gap:5px;margin-top:6px}
+.dots span{width:10px;height:10px;border-radius:50%;background:var(--line)}
+.dots span.ok{background:var(--good)} .dots span.no{background:var(--bad)} .dots span.now{background:var(--violet)}
+.btn{border:0;border-radius:10px;padding:8px 16px;font-weight:600;cursor:pointer;background:var(--violet);color:#fff;transition:background-color 150ms ease,transform 160ms var(--ease-out)}
+.btn:hover{background:var(--violet-2)} .btn:active{transform:scale(.97)}
+.btn.ghost{background:#fff;color:var(--navy);border:1px solid var(--line)}
+.done{background:var(--mint-soft);color:var(--good);border-radius:12px;padding:12px 14px;font-weight:600;margin-top:8px}
+@keyframes nudge{0%,100%{transform:none}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+.shake{animation:nudge 240ms cubic-bezier(.77,0,.175,1)}
+@media (prefers-reduced-motion:reduce){.shake{animation:none}}
+
+/* ===== تكيّفات الزهرة ===== */
+.types{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px}
+.type{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px;display:grid;gap:6px;align-content:start}
+.type h3{font-size:1.1rem;display:flex;gap:8px;align-items:baseline;flex-wrap:wrap}
+.type h3 small{font-family:var(--f-body);font-weight:500;color:var(--muted);font-size:.8rem;direction:ltr}
+.type .ex{font-size:.88rem;color:var(--muted)}
+.type .ex b{color:var(--navy)}
+.pair-label{font-size:.78rem;font-weight:700;color:var(--violet);letter-spacing:.02em}
+.activity{margin-top:16px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px}
+.activity h3{font-size:1.1rem;margin-bottom:4px}
+.activity > p{color:var(--muted);font-size:.92rem;margin-bottom:10px}
+.rows{display:grid;gap:8px}
+.arow{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--ivory);transition:border-color 150ms ease,background-color 150ms ease}
+.arow.ok{border-color:var(--good);background:var(--mint-soft)} .arow.no{border-color:var(--bad);background:var(--bad-soft)}
+.arow .why{grid-column:1/-1;font-size:.85rem;color:var(--muted)}
+.opts{display:flex;gap:6px;flex-wrap:wrap}
+.opt{border:1px solid var(--line);background:#fff;border-radius:999px;padding:4px 12px;font-size:.85rem;font-weight:600;cursor:pointer;transition:background-color 150ms ease,border-color 150ms ease,transform 160ms var(--ease-out)}
+.opt:active{transform:scale(.97)}
+.opt.pick{background:var(--navy);border-color:var(--navy);color:#fff}
+select.pick{border:1px solid var(--line);border-radius:10px;padding:6px 10px;background:#fff;font-weight:600;max-width:100%}
+.result{margin-top:10px;font-weight:600;min-height:1.5em}
+.result.ok{color:var(--good)} .result.no{color:var(--bad)}
+.counter{display:grid;grid-template-columns:auto minmax(0,1fr);gap:18px;align-items:center}
+@media (max-width:620px){.counter{grid-template-columns:1fr;justify-items:center;text-align:center}}
+.counter svg{width:170px;height:170px}
+.counter .opts{margin:8px 0}
+.verdict-big{font-family:var(--f-display);font-size:1.25rem}
+.verdict-big.mono{color:var(--violet)} .verdict-big.di{color:var(--good)}
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px}
+.mech{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+.mech h3{font-size:1.1rem;margin-bottom:6px}
+.mech ul{margin:0;padding-inline-start:20px;display:grid;gap:4px;font-size:.93rem}
+.pollinators{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:12px}
+@media (max-width:860px){.pollinators{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:520px){.pollinators{grid-template-columns:1fr}}
+.pol{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px 14px;font-size:.9rem;display:grid;gap:4px;align-content:start}
+.pol b{font-family:var(--f-display);font-size:1rem}
+.pol .ic{font-size:1.5rem;line-height:1}
+.sc{display:grid;grid-template-columns:auto minmax(0,1fr);gap:16px;align-items:center}
+@media (max-width:620px){.sc{grid-template-columns:1fr}}
+.sc svg{width:260px;max-width:100%;height:auto}
+.seg2{display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:3px;background:#fff;gap:3px}
+.seg2 button{border:0;background:none;border-radius:999px;padding:5px 14px;font-weight:600;cursor:pointer;color:var(--muted)}
+.seg2 button[aria-pressed="true"]{background:var(--violet);color:#fff}
+.reveal{margin-top:10px}
+.reveal summary{cursor:pointer;font-weight:600;color:var(--violet)}
+.reveal p{margin-top:6px}
+.callout{background:var(--soft);border-radius:12px;padding:12px 14px;font-size:.93rem;margin-top:12px}
+
+/* ===== الفيديو ===== */
+.video{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:16px;align-items:start}
+@media (max-width:860px){.video{grid-template-columns:1fr}}
+.player{position:relative;aspect-ratio:16/9;border-radius:16px;overflow:hidden;background:var(--navy);border:1px solid var(--line)}
+.player img{width:100%;height:100%;object-fit:cover;display:block;opacity:.85}
+.player iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.play{position:absolute;inset:0;display:grid;place-items:center;border:0;background:linear-gradient(180deg,rgba(38,58,85,0) 40%,rgba(38,58,85,.55));cursor:pointer;color:#fff}
+.play span{display:grid;place-items:center;width:74px;height:74px;border-radius:50%;background:var(--violet);box-shadow:0 8px 24px rgba(38,58,85,.35);transition:transform 160ms var(--ease-out)}
+.play:active span{transform:scale(.96)}
+@media (hover:hover) and (pointer:fine){.play:hover span{transform:scale(1.05)}}
+.play svg{width:30px;height:30px;fill:#fff;margin-inline-start:4px}
+.vlinks{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.vlinks a{text-decoration:none}
+.watch ol{margin:6px 0 0;padding-inline-start:20px;display:grid;gap:6px;font-size:.95rem}
+
+/* ===== دورة الحياة ===== */
+.cycle-grid{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:16px;align-items:start}
+@media (max-width:860px){.cycle-grid{grid-template-columns:1fr}}
+.cycle{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:8px}
+.cycle svg{width:100%;height:auto;display:block}
+.cnode{cursor:pointer}
+.cnode circle{transition:stroke-width 150ms ease,transform 200ms var(--ease-out);transform-box:fill-box;transform-origin:center}
+.cnode.sel circle.dot{stroke:var(--navy);stroke-width:4}
+.cnode:focus-visible{outline:none}
+.cnode:focus-visible circle.dot{stroke:var(--violet);stroke-width:4}
+.cnode text{font-family:var(--f-display);pointer-events:none}
+.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:.82rem;color:var(--muted);padding:6px 8px}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:50%;margin-inline-end:5px;vertical-align:-1px}
+.ploidy{display:inline-block;font-size:.78rem;font-weight:700;padding:1px 10px;border-radius:999px;color:#fff;direction:ltr}
+.p1{background:var(--male)} .p2{background:var(--good)} .p3{background:var(--violet)}
+.steps-nav{display:flex;gap:8px;align-items:center;margin-top:10px;flex-wrap:wrap}
+.steps-nav .count{font-size:.85rem;color:var(--muted);margin-inline-start:auto}
+
+/* ترتيب المراحل */
+.order-pool,.order-line{display:flex;flex-wrap:wrap;gap:8px}
+.order-line{min-height:52px;padding:10px;border:1px dashed var(--line);border-radius:12px;background:var(--ivory);counter-reset:o;margin:10px 0}
+.ocard{border:1px solid var(--line);background:#fff;border-radius:10px;padding:8px 12px;font-weight:600;font-size:.9rem;cursor:pointer;text-align:start;transition:background-color 150ms ease,border-color 150ms ease,transform 160ms var(--ease-out),opacity 150ms ease}
+.ocard:active{transform:scale(.97)}
+.order-line .ocard{counter-increment:o;background:var(--surface)}
+.order-line .ocard::before{content:counter(o, arabic-indic) ". ";color:var(--violet)}
+.order-line .ocard.fixed{cursor:default;background:var(--mint-soft);border-color:var(--mint)}
+.order-line .ocard.ok{border-color:var(--good);background:var(--mint-soft)}
+.order-line .ocard.no{border-color:var(--bad);background:var(--bad-soft)}
+.order-pool .ocard[disabled]{opacity:.3;cursor:default}
+
+/* الطور المشيجي الأنثوي */
+.gam{display:grid;grid-template-columns:auto minmax(0,1fr);gap:18px;align-items:center}
+@media (max-width:620px){.gam{grid-template-columns:1fr;justify-items:center}}
+.gam svg{width:190px;height:auto}
+.gam svg circle,.gam svg ellipse{transition:cx 450ms var(--ease-out),cy 450ms var(--ease-out),r 300ms var(--ease-out),opacity 300ms ease,fill 300ms ease}
+@media (prefers-reduced-motion:reduce){.gam svg circle,.gam svg ellipse{transition:none}}
+.stepdots{display:flex;gap:5px;margin:8px 0}
+.stepdots span{width:22px;height:6px;border-radius:3px;background:var(--line)}
+.stepdots span.on{background:var(--violet)}
+
+/* التلقيح والإخصاب */
+.fert{display:grid;grid-template-columns:auto minmax(0,1fr);gap:18px;align-items:start}
+@media (max-width:620px){.fert{grid-template-columns:1fr;justify-items:center}}
+.fert svg{width:230px;height:auto}
+#tube{transition:stroke-dashoffset 1100ms var(--ease-out)}
+.mover{transition:transform 900ms var(--ease-out),opacity 300ms ease}
+@media (prefers-reduced-motion:reduce){#tube,.mover{transition:none}}
+.fert .stxt h3{font-size:1.1rem;margin-bottom:4px}
+.eq{display:grid;gap:6px;margin-top:10px}
+.eq div{background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 12px;font-size:.93rem}
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px;margin-top:14px}
+
+/* البذور */
+.seeds{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
+.seed{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 14px;display:grid;gap:6px;justify-items:center;text-align:center}
+.seed h3{font-size:1.05rem}
+.seed svg{width:220px;max-width:100%;height:auto}
+.seed svg text{font-family:var(--f-body);font-size:11px;fill:var(--navy)}
+.fruits{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-top:14px}
+
+/* الإنبات */
+.germ{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;align-items:start}
+@media (max-width:760px){.germ{grid-template-columns:1fr}}
+.pot{background:linear-gradient(#EAF4FB 0 58%,#B9926A 58% 100%);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.pot svg{width:100%;height:auto;display:block}
+.pot svg .g{transition:opacity 400ms ease,transform 600ms var(--ease-out);transform-box:fill-box}
+.conds{display:grid;gap:8px}
+.cond{display:flex;gap:10px;align-items:center;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 12px;cursor:pointer;font-weight:600}
+.cond input{accent-color:var(--violet);width:20px;height:20px}
+.cond:has(input:checked){border-color:var(--mint);background:var(--mint-soft)}
+.gstate{font-weight:600;margin-top:8px;min-height:3em}
+
+/* مختبر تحليل البيانات */
+.chart{background:#fff;border:1px solid var(--line);border-radius:12px;padding:8px}
+.chart svg{width:100%;height:auto;display:block}
+.chart text{font-family:var(--f-body);font-size:11px;fill:var(--muted)}
+.mcq{display:grid;gap:6px;margin-top:10px}
+.mcq .q{font-weight:600}
+.mcq .opts{display:grid;gap:6px}
+.mcq .opt{text-align:start;border-radius:10px}
+.mcq .opt.ok{border-color:var(--good);background:var(--mint-soft);color:var(--good)}
+.mcq .opt.no{border-color:var(--bad);background:var(--bad-soft);color:var(--bad)}
+
+/* التقويم */
+.qitem{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px;display:grid;gap:8px}
+.qitem.ok{border-color:var(--good)} .qitem.no{border-color:var(--bad)}
+.qitem .qn{font-family:var(--f-display);font-weight:600}
+.qitem .opts{display:grid;gap:6px}
+.qitem label{display:flex;gap:8px;align-items:flex-start;border:1px solid var(--line);background:#fff;border-radius:10px;padding:7px 12px;cursor:pointer;font-size:.93rem}
+.qitem label:has(input:checked){border-color:var(--violet);background:var(--soft)}
+.qitem input{accent-color:var(--violet);margin-top:5px}
+.qitem .exp{font-size:.88rem;color:var(--muted)}
+.qitem.ok .exp b{color:var(--good)} .qitem.no .exp b{color:var(--bad)}
+.summary-list{margin:0;padding-inline-start:20px;display:grid;gap:4px;font-size:.95rem}
+footer{padding-block:30px;color:var(--muted);font-size:.85rem;text-align:center}
+svg{direction:ltr}
+
+/* ===== ألوان القواعد ===== */
+:root{--A:#D9534F;--T:#3B7DD8;--G:#3FA86B;--C:#E0A91B;--U:#1BA7A0;--sugar:#9C7BD1;--phos:#F2A65A}
+.b{display:inline-grid;place-items:center;min-width:28px;height:28px;padding:0 4px;border-radius:7px;color:#fff;font-weight:700;font-family:var(--f-display);direction:ltr}
+.bA{background:var(--A)} .bT{background:var(--T)} .bG{background:var(--G)} .bC{background:var(--C)} .bU{background:var(--U)}
+
+/* ===== الخط الزمني ===== */
+.timeline{list-style:none;padding:0;margin:14px 0 0;display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:0}
+.timeline li{padding:12px 14px;border-top:3px solid var(--line);font-size:.93rem}
+.timeline li:last-child{border-top-color:var(--violet)}
+.timeline b{display:block;font-family:var(--f-display);color:var(--violet);font-size:1.05rem}
+
+/* ===== النموذج ثلاثي الأبعاد ===== */
+.dna-grid{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:16px;align-items:start}
+@media (max-width:860px){.dna-grid{grid-template-columns:minmax(0,1fr)}.stage3d{aspect-ratio:1}}
+.stage3d{position:relative;aspect-ratio:4/3;width:100%;border-radius:16px;overflow:hidden;background:radial-gradient(120% 90% at 50% 40%,#fff 0%,#EEF2F7 60%,#E2E8F1 100%);border:1px solid var(--line);touch-action:pan-y}
+.stage3d canvas{width:100%;height:100%;display:block;cursor:grab}
+.stage3d canvas:active{cursor:grabbing}
+.tags{position:absolute;inset:0;pointer-events:none}
+.tags span{position:absolute;transform:translate(-50%,-50%);font:700 11px/1 var(--f-display);color:#fff;padding:3px 5px;border-radius:5px;transition:opacity 150ms ease;direction:ltr}
+.stage-hint{position:absolute;inset-inline-start:10px;bottom:8px;font-size:.78rem;color:var(--muted);background:rgba(255,255,255,.85);padding:2px 8px;border-radius:6px}
+.err3d{position:absolute;inset:0;display:grid;place-items:center;padding:20px;text-align:center;color:var(--muted)}
+.tools3d{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.tools3d .btn[aria-pressed="true"]{background:var(--navy);color:#fff}
+.dkey{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:10px;font-size:.85rem}
+.dkey span{display:inline-flex;align-items:center;gap:6px}
+.dkey i{width:14px;height:14px;border-radius:4px;display:inline-block}
+.pairs{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px}
+.pairs div{display:flex;align-items:center;gap:4px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:6px 10px;font-weight:600}
+
+/* ===== التضاعف ===== */
+.rep svg{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--line);border-radius:14px;direction:ltr}
+.rep .mol{transition:transform 900ms var(--ease-out),opacity 400ms ease}
+.rep .nb{transition:opacity 400ms ease,transform 600ms var(--ease-out)}
+@media (prefers-reduced-motion:reduce){.rep .mol,.rep .nb{transition:none}}
+.builder{display:grid;gap:10px}
+.strand{display:flex;gap:4px;flex-wrap:wrap;direction:ltr;justify-content:center}
+.strand .slot{width:34px;height:34px;border-radius:8px;border:1.5px dashed var(--line);display:grid;place-items:center;font-weight:700;font-family:var(--f-display);background:#fff;color:#fff}
+.strand .slot.cur{border-color:var(--violet);border-style:solid;box-shadow:0 0 0 3px var(--soft)}
+.strand .slot.fill{border-style:solid;border-color:transparent}
+.strand .slot.wrong{outline:3px solid var(--bad);outline-offset:1px}
+.strand .slot.ok{outline:3px solid var(--good);outline-offset:1px}
+.links{display:flex;gap:4px;direction:ltr;justify-content:center;flex-wrap:wrap}
+.links i{width:34px;height:8px;display:flex;justify-content:center}
+.links i::before{content:"";width:2px;height:8px;background:var(--line)}
+.keys{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.keys button{width:48px;height:44px;border:0;border-radius:10px;color:#fff;font:700 1.1rem var(--f-display);cursor:pointer;transition:transform 140ms var(--ease-out)}
+.keys button:active{transform:scale(.94)}
+.keys .del{background:#fff;color:var(--navy);border:1px solid var(--line);width:auto;padding:0 12px;font-size:.9rem}
+
+/* ===== الكروموسوم ===== */
+.chromo{display:grid;grid-template-columns:auto minmax(0,1fr);gap:18px;align-items:center}
+@media (max-width:620px){.chromo{grid-template-columns:1fr;justify-items:center}}
+.chromo svg{width:220px;height:auto;direction:ltr}
+.gene{cursor:pointer}
+.gene rect{transition:fill 150ms ease}
+.gene.sel rect.mark{fill:var(--violet)}
+.gene text{font-family:var(--f-body);font-size:11px;font-weight:600;fill:var(--navy)}
+.gene:focus-visible{outline:none}
+.gene:focus-visible rect.mark{stroke:var(--violet);stroke-width:3}
+
+/* ===== تصنيع البروتين ===== */
+.synth svg{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--line);border-radius:14px;direction:ltr}
+.synth .mv{transition:transform 1000ms var(--ease-out),opacity 400ms ease}
+@media (prefers-reduced-motion:reduce){.synth .mv{transition:none}}
+.cmp{width:100%;border-collapse:separate;border-spacing:0;background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden;font-size:.95rem}
+.cmp th,.cmp td{padding:10px 12px;border-bottom:1px solid var(--line);text-align:start;vertical-align:top}
+.cmp thead th{background:var(--navy);color:#fff;font-family:var(--f-display)}
+.cmp tr:last-child td{border-bottom:0}
+.cmp td:first-child{font-weight:600;color:var(--muted)}
+.rna-types{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-top:14px}
+
+/* ===== الجينات المتحكمة ===== */
+.cellpick{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+.cellpick button{border:1px solid var(--line);background:#fff;border-radius:999px;padding:6px 14px;font-weight:600;cursor:pointer}
+.cellpick button[aria-pressed="true"]{background:var(--navy);color:#fff;border-color:var(--navy)}
+.switches{display:grid;gap:8px}
+.sw{display:flex;align-items:center;justify-content:space-between;gap:10px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 12px;font-weight:600}
+.sw input{appearance:none;width:46px;height:26px;border-radius:13px;background:#cfd6e0;position:relative;cursor:pointer;transition:background-color 150ms ease;flex:none}
+.sw input::after{content:"";position:absolute;top:3px;inset-inline-start:3px;width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.2);transition:inset-inline-start 180ms var(--ease-out)}
+.sw input:checked{background:var(--good)}
+.sw input:checked::after{inset-inline-start:23px}
+
+/* ===== الطفرة ===== */
+.mut{display:grid;gap:10px}
+.mut .row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.mut .row > b{min-width:110px}
+.mut .seq{display:flex;gap:4px;direction:ltr;flex-wrap:wrap}
+.mut .seq .b{min-width:30px;height:30px}
+.mut .seq .b.changed{outline:3px solid var(--navy);outline-offset:2px;animation:pop 400ms var(--ease-out)}
+@keyframes pop{from{transform:scale(.6)}to{transform:scale(1)}}
+@media (prefers-reduced-motion:reduce){.mut .seq .b.changed{animation:none}}
+.protein{display:flex;gap:3px;direction:ltr;align-items:center;flex-wrap:wrap}
+.protein i{width:22px;height:22px;border-radius:50%;display:inline-block;border:2px solid rgba(0,0,0,.12)}
+.causes{display:flex;gap:8px;flex-wrap:wrap}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <span class="lesson-no">الدرس 1 · صفحات الكتاب 122–127</span>
+    <h1>مادة الوراثة <bdi lang="en" dir="ltr">DNA</bdi></h1>
+    <div class="idea"><b>الأهمية</b><span>يساعد DNA على تحديد معظم خصائص الجسم.</span></div>
+    <p class="hook"><b>تذكّري:</b> لماذا كانت حروف الهجاء من أهم الأشياء التي يجب أن تتعلّميها عند دخولك المدرسة؟ تساعد معرفة الحروف على تعلّم القراءة؛ فهي الشفرة التي تفك أسرار اللغة. وكذلك تستعمل الخلية الشفرات المختزنة في مادتها الوراثية، والتي تكون على صورة مركب كيميائي يُسمّى <b>DNA</b>.</p>
+  </div>
+</header>
+
+<nav class="tabs" aria-label="أقسام الدرس">
+  <div class="wrap">
+    <a href="#goals" class="on">الأهداف</a>
+    <a href="#vocab">المفردات</a>
+    <a href="#kwl">جدول التعلّم</a>
+    <a href="#what">ما مادة الوراثة؟</a>
+    <a href="#structure">تركيب DNA</a>
+    <a href="#copy">تضاعف DNA</a>
+    <a href="#genes">الجينات</a>
+    <a href="#protein">تصنيع البروتينات</a>
+    <a href="#control">الجينات المتحكّمة</a>
+    <a href="#mutation">الطفرة</a>
+    <a href="#review">التقويم</a>
+  </div>
+</nav>
+
+<main>
+  <!-- ١ الأهداف -->
+  <section class="sec wrap" id="goals">
+    <div class="sec-head"><span class="n">١</span><h2>الأهداف</h2><p>اقرئي أهداف الدرس، وعلّمي كل هدف تشعرين أنك حقّقتِه.</p></div>
+    <div class="goals">
+      <label class="goal"><input type="checkbox"><span><b>تتعرّف</b> أجزاء جزيء DNA وتركيبه.<br><a class="here" href="#structure">في قسم «تركيب DNA» ←</a></span></label>
+      <label class="goal"><input type="checkbox"><span><b>توضّح</b> كيف يتضاعف DNA.<br><a class="here" href="#copy">في قسم «تضاعف DNA» ←</a></span></label>
+      <label class="goal"><input type="checkbox"><span><b>تصف</b> تركيب RNA.<br><a class="here" href="#protein">في قسم «تصنيع البروتينات» ←</a></span></label>
+      <label class="goal"><input type="checkbox"><span><b>تحدّد</b> وظائف أنواع RNA المختلفة.<br><a class="here" href="#protein">في قسم «تصنيع البروتينات» ←</a></span></label>
+    </div>
+  </section>
+
+  <!-- ٢ المفردات -->
+  <section class="sec wrap" id="vocab">
+    <div class="sec-head"><span class="n">٢</span><h2>المفردات</h2><p>اضغطي على البطاقة لقلبها ومعرفة معنى المصطلح.</p></div>
+    <div class="review"><span class="tag">مراجعة المفردات</span><span><b>البروتين:</b> مركب عضوي ضخم الحجم يتكوّن من الأحماض الأمينية.</span></div>
+    <div class="cards" id="cards"></div>
+  </section>
+
+  <!-- ٣ جدول التعلّم -->
+  <section class="sec wrap" id="kwl">
+    <div class="sec-head"><span class="n">٣</span><h2>جدول التعلّم</h2><p>املئي العمودين الأول والثاني قبل أن تبدئي الدرس، ثم عودي في النهاية واملئي «ماذا تعلّمت؟».</p></div>
+    <div class="kwl-wrap">
+      <table class="kwl">
+        <thead><tr>
+          <th scope="col">ماذا أعرف؟<small>ما أعرفه عن الوراثة و DNA</small></th>
+          <th scope="col">ماذا أريد أن أعرف؟<small>أسئلة أبحث عن إجاباتها</small></th>
+          <th scope="col">ماذا تعلّمت؟<small>بعد دراسة الدرس</small></th>
+        </tr></thead>
+        <tbody><tr>
+          <td><textarea id="k1" aria-label="ماذا أعرف"></textarea><div class="starters" data-for="k1"><button type="button">نرث صفاتنا من…</button><button type="button">الكروموسومات توجد في…</button></div></td>
+          <td><textarea id="k2" aria-label="ماذا أريد أن أعرف"></textarea><div class="starters" data-for="k2"><button type="button">ما شكل DNA؟</button><button type="button">كيف تُصنع البروتينات؟</button><button type="button">لماذا…؟</button></div></td>
+          <td><textarea id="k3" aria-label="ماذا تعلّمت"></textarea><div class="starters" data-for="k3"><button type="button">يرتبط الأدنين مع…</button><button type="button">الطفرة هي…</button></div></td>
+        </tr></tbody>
+      </table>
+    </div>
+    <p class="note">ما تكتبينه يبقى ما دامت الصفحة مفتوحة. إن طلبت المعلمة الجدول، التقطي صورة له قبل الخروج.</p>
+  </section>
+
+  <!-- ٤ ما مادة الوراثة -->
+  <section class="sec wrap" id="what">
+    <div class="sec-head"><span class="n">٤</span><h2>ما مادة الوراثة DNA؟</h2><p>يحتوي <b>DNA</b> (الحمض النووي الرايبوزي منقوص الأكسجين) على معلومات خاصة بنمو ونشاط المخلوقات الحية.</p></div>
+    <div class="two">
+      <div class="box">
+        <p>انظري إلى <b>الشكل 1</b> في كتابك الذي يوضّح كيفية تخزين DNA في الخلايا التي تحتوي على نواة: يتكوّن كل كروموسوم من سلسلة طويلة من DNA ملفوفة حول بروتينات، كالخيط الملفوف حول بكرة.</p>
+        <p>عندما تنقسم الخلية يتضاعف DNA، وينتقل إلى الخلايا الجديدة. وبهذه الطريقة تحصل كل خلية جديدة على المعلومات نفسها الموجودة في الخلية الأصلية. لذلك تذكّري دائمًا أن كل خلية تكوّنت في جسمك أو في جسم أي مخلوق حي آخر تحتوي على DNA.</p>
+      </div>
+      <div class="box">
+        <h3 style="font-size:1.05rem">من الخلية إلى DNA</h3>
+        <ol class="summary-list" style="margin-top:6px">
+          <li><b>الخلية</b> تحتوي على نواة.</li>
+          <li><b>النواة</b> فيها الكروموسومات.</li>
+          <li><b>الكروموسوم</b> سلسلة طويلة من DNA ملفوفة حول بروتينات.</li>
+          <li><b>DNA</b> يحمل الشفرة الوراثية.</li>
+        </ol>
+      </div>
+    </div>
+    <h3 style="font-size:1.1rem;margin-top:18px">الربط مع الكيمياء: اكتشاف DNA</h3>
+    <ol class="timeline">
+      <li><b>منتصف 1800م</b>اكتشف العلماء أن نواة الخلية تحتوي على جزيئات كبيرة أُطلق عليها اسم الأحماض النووية.</li>
+      <li><b>عام 1950م</b>تمكّن الكيميائيون من معرفة مكوّنات الحمض النووي DNA، لكنهم لم يستطيعوا بناء نموذج يصف ترتيب هذه المكوّنات.</li>
+      <li><b>عام 1952م</b>توصّلت الدكتورة روزاليند فرانكلين بالاعتماد على الأشعة السينية إلى أن شكل DNA يشبه السلم الحلزوني.</li>
+      <li><b>عام 1953م</b>بناءً على ما توصّلت إليه فرانكلين وغيرها، استطاع العالمان جيمس واطسون وفرانسيس كريك بناء نموذج لجزيء DNA.</li>
+    </ol>
+  </section>
+
+  <!-- ٥ تركيب DNA -->
+  <section class="sec wrap" id="structure">
+    <div class="sec-head"><span class="n">٥</span><h2>تركيب DNA ونموذجه</h2><p>بناءً على نموذج واطسون وكريك يتكوّن جانبا السلم الحلزوني من تعاقب <b>السكر</b> (وهو السكر الخماسي منقوص الأكسجين) و<b>مجموعة الفوسفات</b>، في حين تتكوّن درجات السلم من جزيئات تُسمّى <b>القواعد النيتروجينية</b>. دوّري النموذج، واضغطي على أي جزء منه.</p></div>
+    <div class="dna-grid">
+      <div>
+        <div class="stage3d" id="stage"><canvas id="gl" aria-label="نموذج ثلاثي الأبعاد لجزيء DNA"></canvas><div class="tags" id="tags"></div><span class="stage-hint">اسحبي لتدوير النموذج</span></div>
+        <div class="tools3d">
+          <button class="btn ghost" type="button" id="t-letters" aria-pressed="true">رموز القواعد</button>
+          <button class="btn ghost" type="button" id="t-spin" aria-pressed="true">الدوران</button>
+          <button class="btn ghost" type="button" id="t-home">العرض الأصلي</button>
+        </div>
+        <div class="dkey">
+          <span><i style="background:var(--A)"></i>أدنين A</span><span><i style="background:var(--T)"></i>ثايمين T</span>
+          <span><i style="background:var(--G)"></i>جوانين G</span><span><i style="background:var(--C)"></i>سايتوسين C</span>
+          <span><i style="background:var(--sugar)"></i>سكر (منقوص الأكسجين)</span><span><i style="background:var(--phos)"></i>فوسفات</span>
+        </div>
+      </div>
+      <div class="box detail" id="dna-detail" aria-live="polite"></div>
+    </div>
+    <div class="callout" style="margin-top:14px">لاحظ العلماء أن كمية السايتوسين في الخلية تساوي دائمًا كمية الجوانين، وكمية الأدنين مساوية لكمية الثايمين؛ مما جعلهم يفترضون أن القواعد النيتروجينية تكون مرتبطة في أزواج (كل قاعدتين معًا)، وتكوّن أزواج القواعد النيتروجينية متداخلة كما في ألعاب قطع التركيب.</div>
+    <details class="reveal"><summary>ماذا قرأتِ؟ ما أزواج القواعد النيتروجينية الموجودة في جزيء DNA؟</summary>
+      <div class="pairs"><div><span class="b bA">A</span> مع <span class="b bT">T</span> أدنين مع ثايمين</div><div><span class="b bG">G</span> مع <span class="b bC">C</span> جوانين مع سايتوسين</div></div>
+    </details>
+  </section>
+
+  <!-- ٦ تضاعف DNA -->
+  <section class="sec wrap" id="copy">
+    <div class="sec-head"><span class="n">٦</span><h2>نسخ (تضاعف) DNA</h2><p>عندما تتضاعف الكروموسومات قبل الانقسام المنصّف أو المتساوي تتضاعف كمية DNA داخل النواة. تابعي الخطوات كما في الشكل 2.</p></div>
+    <div class="activity rep" style="margin-top:0">
+      <svg viewBox="0 0 640 300" id="rep-svg" role="img" aria-label="رسم متحرك لخطوات تضاعف DNA"></svg>
+      <div class="stepdots" id="r-dots"></div>
+      <h3 id="r-t" style="font-size:1.05rem"></h3>
+      <p id="r-p"></p>
+      <div class="steps-nav"><button class="btn ghost" type="button" id="r-prev">السابق</button><button class="btn" type="button" id="r-next">التالي</button><span class="count" id="r-c"></span></div>
+      <p class="note">اللون الداكن للسلسلة الأصلية، والفاتح للقواعد الجديدة. رسم تعليمي مبسّط.</p>
+    </div>
+
+    <div class="activity" id="model">
+      <h3>تجربة: نمذجة تضاعف DNA</h3>
+      <p>لديك قطعة من DNA تتكوّن من 12 قاعدة نيتروجينية (السلسلة العليا). ابني السلسلة المقابلة بالضغط على الأزرار، وتذكّري أن <span class="b bA">A</span> يتحد دائمًا مع <span class="b bT">T</span>، و<span class="b bG">G</span> يتحد مع <span class="b bC">C</span>.</p>
+      <div class="builder">
+        <div class="strand" id="m-top"></div>
+        <div class="links" id="m-links"></div>
+        <div class="strand" id="m-bot"></div>
+        <div class="keys" id="m-keys">
+          <button type="button" data-k="A" style="background:var(--A)">A</button><button type="button" data-k="T" style="background:var(--T)">T</button>
+          <button type="button" data-k="G" style="background:var(--G)">G</button><button type="button" data-k="C" style="background:var(--C)">C</button>
+          <button type="button" class="del" data-k="del">حذف ←</button>
+        </div>
+      </div>
+      <div class="steps-nav"><button class="btn" type="button" id="m-check">تحقّقي</button><button class="btn ghost" type="button" id="m-new">قطعة جديدة</button></div>
+      <div class="result" id="m-result" aria-live="polite"></div>
+      <details class="reveal"><summary>التحليل: قارني بين ترتيب القواعد في جزيئات DNA الأصلية وجزيئات DNA الجديدة.</summary><p>ترتيب القواعد النيتروجينية في كل جزيء جديد هو نفسه في الجزيء الأصلي؛ لأن كل سلسلة أصلية تعمل نموذجًا ترتبط به قواعد جديدة مقابلة لها (A مع T، وG مع C)، فينتج جزيئان متطابقان.</p></details>
+    </div>
+  </section>
+
+  <!-- ٧ الجينات -->
+  <section class="sec wrap" id="genes">
+    <div class="sec-head"><span class="n">٧</span><h2>الجينات</h2><p>تعتمد معظم صفات الإنسان، مثل لون الشعر والطول، على البروتينات التي تصنعها الخلايا. ويُسمّى الجزء من DNA المحمول على الكروموسوم والمسؤول عن تصنيع بروتين <b>الجين</b> <bdi dir="ltr">Gene</bdi>.</p></div>
+    <div class="activity" style="margin-top:0">
+      <div class="chromo">
+        <svg viewBox="0 0 220 380" id="chromo" role="group" aria-label="الكروموسوم 7 وبعض الجينات التي حُدّدت عليه"></svg>
+        <div>
+          <div class="box detail" id="gene-detail" aria-live="polite"></div>
+          <p class="note">يحتوي الكروموسوم الواحد على مئات الجينات. المواقع في الرسم تقريبية كما في الشكل 3، والكتابة بالخط العريض هي الأسماء التي أُعطيت لهذه الجينات.</p>
+        </div>
+      </div>
+    </div>
+    <div class="types">
+      <div class="type"><span class="pair-label">البروتينات</span><h3>لماذا هي مهمة؟</h3><p>تدخل البروتينات في بناء الخلايا والأنسجة، أو تعمل كإنزيمات.</p></div>
+      <div class="type"><span class="pair-label">الأحماض الأمينية</span><h3>مم تتكوّن؟</h3><p>تتكوّن البروتينات من سلسلة من مئات أو آلاف الأحماض الأمينية.</p></div>
+      <div class="type"><span class="pair-label">الجين</span><h3>ماذا يحدّد؟</h3><p>يحدّد الجين ترتيب الأحماض الأمينية المكوّنة للبروتين، فإذا تغيّر ترتيبها تغيّر البروتين.</p></div>
+    </div>
+  </section>
+
+  <!-- ٨ تصنيع البروتينات -->
+  <section class="sec wrap" id="protein">
+    <div class="sec-head"><span class="n">٨</span><h2>تصنيع البروتينات و RNA</h2><p>توجد الجينات في النواة، إلا أن عملية تصنيع البروتينات تحدث في <b>الرايبوسومات</b> الموجودة في السيتوبلازم. لذا تتم عملية نقل شفرة تصنيع البروتينات من النواة إلى الرايبوسومات عبر نوع آخر من الأحماض النووية هو الحمض النووي الرايبوزي أو <b>RNA</b>.</p></div>
+
+    <h3 style="font-size:1.1rem">قارني: DNA و RNA</h3>
+    <div class="kwl-wrap" style="margin-top:8px">
+      <table class="cmp">
+        <thead><tr><th scope="col">وجه المقارنة</th><th scope="col">DNA</th><th scope="col">RNA</th></tr></thead>
+        <tbody>
+          <tr><td>عدد السلاسل</td><td>سلسلتان</td><td>سلسلة واحدة</td></tr>
+          <tr><td>القواعد النيتروجينية</td><td><span class="b bA">A</span> <span class="b bG">G</span> <span class="b bC">C</span> <span class="b bT">T</span></td><td><span class="b bA">A</span> <span class="b bG">G</span> <span class="b bC">C</span> <span class="b bU">U</span> اليوراسيل يحل محل الثايمين</td></tr>
+          <tr><td>السكر</td><td>سكر خماسي رايبوزي منقوص ذرة أكسجين</td><td>سكر خماسي الكربون</td></tr>
+          <tr><td>أين يوجد؟</td><td>في النواة</td><td>يُصنع في النواة، وينتقل إلى السيتوبلازم</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="rna-types">
+      <div class="type"><span class="pair-label">mRNA</span><h3>الرسول</h3><p>يحمل الشفرة الوراثية من النواة إلى الرايبوسوم، وتحدّد شفرته ترتيب ارتباط الأحماض الأمينية.</p></div>
+      <div class="type"><span class="pair-label">tRNA</span><h3>الناقل</h3><p>يحمل الأحماض الأمينية إلى الرايبوسوم، وبعد أن يفقد الحمض الأميني يصبح حرًّا في السيتوبلازم ليحمل أحماضًا أمينية مجددًا.</p></div>
+      <div class="type"><span class="pair-label">rRNA</span><h3>الرايبوسومي</h3><p>توجد في الرايبوسومات المنتشرة في سيتوبلازم الخلية، والتي يرتبط بها mRNA.</p></div>
+    </div>
+
+    <div class="activity synth">
+      <h3>كيف تصنع الخلية البروتين؟ (الشكل 4)</h3>
+      <svg viewBox="0 0 640 300" id="syn-svg" role="img" aria-label="رسم متحرك لخطوات تصنيع البروتين"></svg>
+      <div class="stepdots" id="s-dots"></div>
+      <h3 id="s-t" style="font-size:1.05rem"></h3>
+      <p id="s-p"></p>
+      <div class="steps-nav"><button class="btn ghost" type="button" id="s-prev">السابق</button><button class="btn" type="button" id="s-next">التالي</button><span class="count" id="s-c"></span></div>
+    </div>
+
+    <div class="activity">
+      <h3>نشاط: DNA أم RNA أم كلاهما؟</h3>
+      <p>اختاري الإجابة المناسبة لكل عبارة، ثم اضغطي «تحقّقي».</p>
+      <div class="rows" id="dr-rows"></div>
+      <button class="btn" type="button" id="dr-check" style="margin-top:10px">تحقّقي</button>
+      <div class="result" id="dr-result" aria-live="polite"></div>
+    </div>
+  </section>
+
+  <!-- ٩ الجينات المتحكمة -->
+  <section class="sec wrap" id="control">
+    <div class="sec-head"><span class="n">٩</span><h2>الجينات المسيطرة (المتحكّمة)</h2><p>ربما تعتقدين أن جميع الخلايا في جسم المخلوق الحي تصنع البروتينات نفسها لأنها تحتوي على الكروموسومات والجينات نفسها، غير أن هذا لا يحدث. فكل خلية تستعمل فقط الجينات التي تصنع البروتينات اللازمة للقيام بأنشطتها (الشكل 5).</p></div>
+    <div class="activity" style="margin-top:0">
+      <h3>نشاط: شغّلي الجينات المناسبة</h3>
+      <p>اختاري الخلية، ثم شغّلي الجين الذي تحتاجه وأوقفي الجينين الآخرين، واضغطي «تحقّقي».</p>
+      <div class="cellpick" id="cellpick" role="group" aria-label="اختاري الخلية"></div>
+      <div class="two">
+        <div class="switches" id="switches"></div>
+        <div class="box" id="cellinfo"></div>
+      </div>
+      <button class="btn" type="button" id="c-check" style="margin-top:10px">تحقّقي</button>
+      <div class="result" id="c-result" aria-live="polite"></div>
+    </div>
+    <div class="callout">يجب أن تكون الخلايا قادرة على تثبيط بعض الجينات وتنشيط أخرى؛ فأحيانًا يكون DNA ملتفًّا بعضه حول بعض، ولذلك يصعب بناء RNA، أو قد ترتبط به بعض المواد الكيميائية، ومن ثم لا يمكن استعماله. كما أنه إذا أُنتج البروتين غير المناسب لم يستطع المخلوق الحي القيام بوظائفه.</div>
+    <details class="reveal"><summary>التفكير الناقد: قارني بين DNA في خلايا الدماغ و DNA في خلايا القلب.</summary><p>DNA متماثل في خلايا الدماغ وخلايا القلب؛ لأن جميع خلايا الجسم تحتوي على الكروموسومات والجينات نفسها. لكن الجينات المستعملة تختلف؛ فكل خلية تنشّط الجينات التي تصنع البروتينات اللازمة لوظيفتها فقط، وتثبّط الجينات الأخرى.</p></details>
+  </section>
+
+  <!-- ١٠ الطفرة -->
+  <section class="sec wrap" id="mutation">
+    <div class="sec-head"><span class="n">١٠</span><h2>الطفرة <bdi lang="en" dir="ltr" style="font-size:.6em;color:var(--muted)">Mutation</bdi></h2><p>تحدث أحيانًا بعض الانحرافات أثناء عملية نسخ DNA، مما قد يؤدي إلى تصنيع بروتينات غير متطابقة، وتُسمّى هذه الانحرافات <b>الطفرات</b>. فالطفرة أي تغيير دائم في سلسلة DNA المكوّنة للجين أو الكروموسوم في الخلية، وتتضمن بعض الطفرات زيادة أو نقصًا في عدد الكروموسومات.</p></div>
+    <div class="activity" style="margin-top:0">
+      <h3>محاكاة: ماذا يحدث عند حدوث طفرة؟</h3>
+      <p>اختاري عاملًا من العوامل التي تسبّب الطفرات، ثم انسخي الجين، ولاحظي أثر ذلك في البروتين الناتج.</p>
+      <div class="causes" id="causes">
+        <button class="btn ghost" type="button" data-c="none" aria-pressed="true">نسخ سليم</button>
+        <button class="btn ghost" type="button" data-c="x" aria-pressed="false">الأشعة السينية</button>
+        <button class="btn ghost" type="button" data-c="sun" aria-pressed="false">ضوء الشمس</button>
+        <button class="btn ghost" type="button" data-c="chem" aria-pressed="false">بعض المواد الكيميائية</button>
+      </div>
+      <div class="mut" style="margin-top:12px">
+        <div class="row"><b>الجين الأصلي</b><div class="seq" id="mu-orig"></div></div>
+        <div class="row"><b>البروتين الأصلي</b><div class="protein" id="mu-p0"></div></div>
+        <div class="row"><b>النسخة الجديدة</b><div class="seq" id="mu-copy"></div></div>
+        <div class="row"><b>البروتين الناتج</b><div class="protein" id="mu-p1"></div></div>
+      </div>
+      <div class="steps-nav"><button class="btn" type="button" id="mu-go">انسخي الجين</button></div>
+      <div class="result" id="mu-result" aria-live="polite"></div>
+      <p class="note">نموذج مبسّط: كل ثلاث قواعد في الرسم تحدّد حمضًا أمينيًّا واحدًا (دائرة ملوّنة)، فإذا تغيّرت قاعدة قد يتغيّر الحمض الأميني فيتغيّر البروتين.</p>
+    </div>
+
+    <div class="types">
+      <div class="type"><span class="pair-label">في الخلايا الجسمية</span><h3>لا تنتقل إلى الأبناء</h3><p>عندما تحدث الطفرة في الخلايا الجسمية للمخلوق الحي فقط فإنه لا يتأثر.</p></div>
+      <div class="type"><span class="pair-label">في الخلايا الجنسية</span><h3>تنتقل إلى الأبناء</h3><p>إذا حدثت الطفرة في الخلايا الجنسية فإن الخلايا الناتجة كلها يحدث لها هذه الطفرة، ومن ثم تضيف تنوّعًا إلى المخلوقات الحية.</p></div>
+      <div class="type"><span class="pair-label">ضارة أو مفيدة</span><h3>نتائج الطفرة</h3><p>الكثير من الطفرات مضرّة بالمخلوق الحي، وتسبّب موته غالبًا. ومع ذلك فإن بعضها مفيد؛ فقد تؤدي بعض الطفرات في النبات إلى قدرته على تكوين مواد كيميائية تنفّر بعض الحشرات التي تتغذى عليه، فيحافظ على بقائه.</p></div>
+    </div>
+
+    <div class="activity">
+      <h3>نشاط: هل تنتقل الطفرة إلى الأبناء؟</h3>
+      <div class="rows" id="mx-rows"></div>
+      <button class="btn" type="button" id="mx-check" style="margin-top:10px">تحقّقي</button>
+      <div class="result" id="mx-result" aria-live="polite"></div>
+      <details class="reveal"><summary>الشكل 6: تُصاب ذبابة الفاكهة بسبب خلل في الكروموسوم 2 بطفرة ينتج عنها تكوّن أجنحة قصيرة لا تمكّنها من الطيران. توقّعي: هل تنتقل هذه الطفرة إلى الأبناء؟</summary><p>إذا كانت الطفرة موجودة في الخلايا الجنسية للذبابة فإنها تنتقل إلى الأبناء؛ لأن الأبناء يرثون الكروموسومات من الخلايا الجنسية للوالدين، فتظهر عليهم صفة الأجنحة القصيرة. أما إذا حدثت في خلايا جسمية فقط فلا تنتقل.</p></details>
+    </div>
+  </section>
+
+  <!-- ١١ التقويم -->
+  <section class="sec wrap" id="review">
+    <div class="sec-head"><span class="n">١١</span><h2>مراجعة الدرس</h2><p>أجيبي عن الأسئلة كلها ثم اضغطي «أرسلي إجاباتي». تُحسب درجتك من المحاولة الأولى، وتصل نتيجتك إلى المعلمة.</p></div>
+    <div class="box" style="margin-bottom:12px">
+      <h3 style="font-size:1.05rem;margin-bottom:6px">الخلاصة</h3>
+      <ul class="summary-list">
+        <li>يتكوّن جانبا السلم المكوّن لـ DNA من جزيئات السكر والفوسفات، أما الدرجات فتتكوّن من القواعد النيتروجينية.</li>
+        <li>عندما يتضاعف DNA تكون النسخة الجديدة مماثلة للنسخة الأصلية.</li>
+        <li>تحمل الجينات داخل نواة الخلية طريقة تصنيع البروتينات حسب نوعها، حيث تُصنع البروتينات في الرايبوسومات الموجودة في السيتوبلازم.</li>
+        <li>هناك ثلاثة أنواع من RNA، هي: mRNA و tRNA و rRNA.</li>
+        <li>إذا لم ينسخ DNA كما هو بالأصل تنتج الطفرة التي تؤدي إلى تصنيع بروتين بطريقة غير سليمة.</li>
+      </ul>
+    </div>
+    <div class="rows" id="quiz" style="gap:12px"></div>
+    <div class="steps-nav"><button class="btn" type="button" id="qz-send">أرسلي إجاباتي</button></div>
+    <div class="result" id="qz-result" aria-live="polite"></div>
+    <div class="activity" style="text-align:center" id="qz-end" hidden>
+      <h3>انتهيتِ من الدرس</h3>
+      <p>عودي إلى جدول التعلّم واكتبي في عمود «ماذا تعلّمت؟» ثلاث أفكار من الدرس.</p>
+      <a class="btn" href="#kwl" style="display:inline-block;text-decoration:none">العودة إلى جدول التعلّم</a>
+    </div>
+  </section>
+</main>
+<footer>لبيبة · فكّري بذكاء، تعلّمي بعمق. · المحتوى من كتاب العلوم، الدرس 1 مادة الوراثة DNA.</footer>
+
+<!-- three.js: نسخة محفوظة مع موقع لبيبة أولاً، ثم من CDN احتياطاً -->
+<script>
+(function () {
+  var LOCALS = ["labs/vendor/three-0.169.0/", "vendor/three-0.169.0/"], CDN = "https://cdn.jsdelivr.net/npm/three@0.169.0/", base = CDN;
+  for (var i = 0; i < LOCALS.length && base === CDN; i++) {
+    try {
+      var x = new XMLHttpRequest(); x.open("HEAD", LOCALS[i] + "build/three.module.js", false); x.send();
+      if (x.status >= 200 && x.status < 300) base = new URL(LOCALS[i], document.baseURI).href;
+    } catch (e) {}
+  }
+  var m = document.createElement("script"); m.type = "importmap";
+  m.textContent = JSON.stringify({ imports: { "three": base + "build/three.module.js", "three/addons/": base + "examples/jsm/" } });
+  document.currentScript.after(m);
+})();
+</script>
+<script>
+/* ===== عام ===== */
+const $ = id => document.getElementById(id);
+const AR = n => Number(n).toLocaleString("ar-SA");
+const PAIR = { A: "T", T: "A", G: "C", C: "G" };
+const BCOL = { A: "#D9534F", T: "#3B7DD8", G: "#3FA86B", C: "#E0A91B", U: "#1BA7A0" };
+const BNAME = { A: "الأدنين", T: "الثايمين", G: "الجوانين", C: "السايتوسين", U: "اليوراسيل" };
+const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+function stepper(prefix, steps, draw) {
+  let s = 0;
+  $(prefix + "-dots").innerHTML = steps.map(() => "<span></span>").join("");
+  const go = () => {
+    $(prefix + "-t").textContent = steps[s][0]; $(prefix + "-p").innerHTML = steps[s][1];
+    $(prefix + "-c").textContent = `${AR(s + 1)} / ${AR(steps.length)}`;
+    [...$(prefix + "-dots").children].forEach((d, i) => d.classList.toggle("on", i <= s));
+    $(prefix + "-prev").disabled = s === 0; $(prefix + "-next").textContent = s === steps.length - 1 ? "من البداية" : "التالي";
+    draw(s);
+  };
+  $(prefix + "-prev").addEventListener("click", () => { if (s > 0) { s--; go(); } });
+  $(prefix + "-next").addEventListener("click", () => { s = s < steps.length - 1 ? s + 1 : 0; go(); });
+  go();
+}
+
+/* ===== المفردات ===== */
+const VOCAB = [
+  ["DNA", "Deoxyribonucleic acid", "الحمض النووي الرايبوزي منقوص الأكسجين: المادة الوراثية التي تحتوي على معلومات خاصة بنمو ونشاط المخلوقات الحية، وشكله يشبه السلم الحلزوني."],
+  ["الجين", "Gene", "الجزء من DNA المحمول على الكروموسوم والمسؤول عن تصنيع بروتين، ويحدّد ترتيب الأحماض الأمينية المكوّنة له."],
+  ["RNA", "Ribonucleic acid", "الحمض النووي الرايبوزي: يُصنع في النواة، ويتكوّن من سلسلة واحدة، ويحل فيه اليوراسيل (U) محل الثايمين، وينقل شفرة تصنيع البروتينات إلى الرايبوسومات."],
+  ["الطفرة", "Mutation", "أي تغيير دائم في سلسلة DNA المكوّنة للجين أو الكروموسوم في الخلية، وقد تؤدي إلى تصنيع بروتينات غير متطابقة."]
+];
+$("cards").innerHTML = VOCAB.map(([t, en, d]) => `
+  <button class="card" type="button" aria-label="${t}: اقلبي البطاقة">
+    <span class="in">
+      <span class="face front"><span class="t">${t}</span><span class="en">${en}</span><span class="hint">اضغطي لقلب البطاقة</span></span>
+      <span class="face back"><b>${t}</b>${d}</span>
+    </span>
+  </button>`).join("");
+$("cards").addEventListener("click", e => { const c = e.target.closest(".card"); if (c) c.classList.toggle("flip"); });
+document.querySelectorAll(".starters").forEach(box => box.addEventListener("click", e => {
+  const b = e.target.closest("button"); if (!b) return;
+  const ta = $(box.dataset.for); const txt = b.textContent.replace(/…/g, "");
+  ta.value = (ta.value.trim() ? ta.value.replace(/\s*$/, "\n") : "") + "• " + txt; ta.focus();
+}));
+const navLinks = [...document.querySelectorAll(".tabs a")];
+const io = new IntersectionObserver(es => es.forEach(en => {
+  if (en.isIntersecting) navLinks.forEach(a => a.classList.toggle("on", a.getAttribute("href") === "#" + en.target.id));
+}), { rootMargin: "-45% 0px -50% 0px" });
+document.querySelectorAll("section.sec").forEach(s => io.observe(s));
+
+/* ===== تفاصيل النموذج ثلاثي الأبعاد (يستدعيها كود three.js) ===== */
+window.showDnaPart = function (kind, base) {
+  const d = $("dna-detail");
+  if (kind === "base") {
+    const p = PAIR[base];
+    d.innerHTML = `<span class="pair-label">قاعدة نيتروجينية · درجة في السلم</span><h3>${BNAME[base]} <span class="b b${base}">${base}</span></h3>
+      <p>يرتبط ${BNAME[base]} دائمًا مع <b>${BNAME[p]}</b> <span class="b b${p}">${p}</span> في السلسلة المقابلة، وتكوّن القاعدتان معًا درجة واحدة من درجات السلم.</p>
+      <div class="pairs"><div><span class="b bA">A</span> ↔ <span class="b bT">T</span></div><div><span class="b bG">G</span> ↔ <span class="b bC">C</span></div></div>`;
+  } else if (kind === "sugar") {
+    d.innerHTML = `<span class="pair-label">جانب السلم</span><h3>السكر</h3><p>سكر خماسي رايبوزي <b>منقوص ذرة أكسجين</b>؛ لذلك سُمّي DNA بالحمض النووي الرايبوزي منقوص الأكسجين. يتعاقب السكر مع مجموعة الفوسفات لتكوين جانبي السلم الحلزوني، وترتبط به القاعدة النيتروجينية.</p>`;
+  } else if (kind === "phos") {
+    d.innerHTML = `<span class="pair-label">جانب السلم</span><h3>مجموعة الفوسفات</h3><p>تتعاقب مع السكر لتكوين جانبي السلم الحلزوني في DNA.</p>`;
+  } else {
+    d.innerHTML = `<span class="pair-label">نموذج واطسون وكريك</span><h3>السلم الحلزوني</h3><p>يتركّب DNA من سلسلتين من الجزيئات لهما شكل لولبي (حلزوني). <b>جانبا السلم</b>: سكر وفوسفات متعاقبان. <b>درجات السلم</b>: أزواج من القواعد النيتروجينية.</p><p>اضغطي على درجة أو على جانب من النموذج لتتعرّفي عليه.</p>`;
+  }
+};
+showDnaPart("intro");
+
+/* ===== تضاعف DNA (الشكل 2) ===== */
+(function () {
+  const S = "ATGCGTACGA".split(""), x = i => 70 + i * 52;
+  const box = (b, y, light) => `<rect x="${0}" y="${y}" width="40" height="26" rx="5" fill="${light ? "#fff" : BCOL[b]}" stroke="${BCOL[b]}" stroke-width="${light ? 2.5 : 0}"/><text x="20" y="${y + 18}" text-anchor="middle" font-size="14" font-weight="700" fill="${light ? BCOL[b] : "#fff"}" font-family="Readex Pro,Tahoma">${b}</text>`;
+  const strand = (seq, y, light, bbY) => `<line x1="${x(0) - 6}" x2="${x(seq.length - 1) + 46}" y1="${bbY}" y2="${bbY}" stroke="${light ? "#C9B6E8" : "#7E57C2"}" stroke-width="6" stroke-linecap="round" class="bb"/>` + seq.map((b, i) => `<g transform="translate(${x(i)},0)">${box(b, y, light)}</g>`).join("");
+  const C = S.map(b => PAIR[b]);
+  $("rep-svg").innerHTML = `
+    <g id="oT" class="mol">${strand(S, 100, false, 96)}</g>
+    <g id="oB" class="mol">${strand(C, 128, false, 158)}</g>
+    <g id="nT" class="nb">${strand(C, 128, true, 158)}</g>
+    <g id="nB" class="nb">${strand(S, 100, true, 96)}</g>
+    <g id="enz" class="mol"><ellipse cx="38" cy="127" rx="26" ry="34" fill="#9ED3E6" stroke="#2C7FA0" stroke-width="2"/><text x="38" y="131" text-anchor="middle" font-size="12" font-weight="700" fill="#18556b" font-family="IBM Plex Sans Arabic,Tahoma">إنزيم</text></g>
+    <g id="lab" font-size="13" font-weight="700" fill="#263A55" font-family="IBM Plex Sans Arabic,Tahoma" style="transition:opacity 400ms ease">
+      <text x="320" y="24" text-anchor="middle">الجزيء الجديد الأول</text><text x="320" y="292" text-anchor="middle">الجزيء الجديد الثاني</text></g>`;
+  const T = (id, y, op) => { const e = $(id); e.style.transform = `translateY(${y}px)`; if (op !== undefined) e.style.opacity = op; };
+  const bbs = op => ["nT", "nB"].forEach(id => $(id).querySelector(".bb").style.opacity = op);
+  stepper("r", [
+    ["جزيء DNA الأصلي", "سلسلتان مرتبطتان: كل قاعدة نيتروجينية مرتبطة بالقاعدة المقابلة لها (A مع T، وG مع C)."],
+    ["الخطوة 1: انفصال السلسلتين", "يفصل <b>إنزيم معيّن</b> السلسلتين في DNA إحداهما عن الأخرى عند حدوث عملية التضاعف."],
+    ["الخطوة 2: ارتباط قواعد جديدة", "ترتبط <b>قواعد نيتروجينية جديدة</b> بالقواعد النيتروجينية الأصلية في كل سلسلة، وفق قاعدة الأزواج نفسها."],
+    ["الخطوة 3: جزيئان متطابقان", "ينتج <b>جزيئان جديدان متطابقان</b> من DNA، يحمل كل منهما ترتيب القواعد النيتروجينية نفسه في DNA الأصلي."]
+  ], s => {
+    T("oT", s === 0 ? 0 : s === 3 ? -62 : -50); T("oB", s === 0 ? 0 : s === 3 ? 62 : 50);
+    T("nT", s === 3 ? -62 : -50, s >= 2 ? 1 : 0); T("nB", s === 3 ? 62 : 50, s >= 2 ? 1 : 0);
+    bbs(s === 3 ? 1 : 0);
+    $("enz").style.opacity = s === 1 || s === 2 ? 1 : 0;
+    $("enz").style.transform = `translateX(${s === 2 ? 540 : 0}px)`;
+    $("lab").style.opacity = s === 3 ? 1 : 0;
+  });
+})();
+
+/* ===== تجربة: نمذجة تضاعف DNA ===== */
+(function () {
+  let top = [], bot = [], checked = false;
+  const slot = (b, cls = "") => `<span class="slot ${b ? "fill" : ""} ${cls}" style="${b ? `background:${BCOL[b]}` : ""}">${b || ""}</span>`;
+  function draw() {
+    $("m-top").innerHTML = top.map(b => slot(b)).join("");
+    $("m-links").innerHTML = top.map(() => "<i></i>").join("");
+    $("m-bot").innerHTML = top.map((t, i) => slot(bot[i], (i === bot.length ? "cur" : "") + (checked && bot[i] ? (bot[i] === PAIR[t] ? " ok" : " wrong") : ""))).join("");
+  }
+  function fresh() { top = Array.from({ length: 12 }, () => "ATGC"[Math.floor(Math.random() * 4)]); bot = []; checked = false; $("m-result").textContent = ""; draw(); }
+  $("m-keys").addEventListener("click", e => {
+    const k = e.target.closest("[data-k]")?.dataset.k; if (!k) return;
+    checked = false; $("m-result").textContent = "";
+    if (k === "del") bot.pop(); else if (bot.length < top.length) bot.push(k);
+    draw();
+  });
+  $("m-check").addEventListener("click", () => {
+    const r = $("m-result");
+    if (bot.length < top.length) { r.className = "result no"; r.textContent = `أكملي السلسلة أولًا (بقي ${AR(top.length - bot.length)}).`; return; }
+    checked = true; draw();
+    const ok = bot.filter((b, i) => b === PAIR[top[i]]).length;
+    r.className = "result " + (ok === top.length ? "ok" : "no");
+    r.textContent = ok === top.length ? "أحسنتِ! بنيتِ السلسلة المقابلة صحيحًا، وأصبح لديك جزيء DNA مطابق للجزيء الأصلي." : `${AR(ok)} من ${AR(top.length)} صحيحة. المربعات ذات الإطار الأحمر غير صحيحة؛ احذفي حتى تصلي إليها ثم أعيدي بناءها.`;
+  });
+  $("m-new").addEventListener("click", fresh);
+  fresh();
+})();
+
+/* ===== الكروموسوم 7 (الشكل 3) ===== */
+(function () {
+  const GENES = [
+    ["سكري", 62, "اسم أُعطي لجين حُدّد موقعه على الكروموسوم 7، ويرتبط بمرض السكري."],
+    ["متلازمة وليم برين", 168, "اسم أُعطي لجين على الكروموسوم 7، ويرتبط بخلل في النمو العقلي والجسمي."],
+    ["التليف الكيسي", 240, "اسم أُعطي لجين حُدّد موقعه على الكروموسوم 7، ويرتبط بالتليف الكيسي."],
+    ["متلازمة بيندريد", 286, "اسم أُعطي لجين على الكروموسوم 7، ويرتبط بشكل من أشكال الصمم."],
+    ["السمنة", 330, "اسم أُعطي لجين حُدّد موقعه على الكروموسوم 7، ويرتبط بالسمنة."]
+  ];
+  const bands = [[30, 8], [52, 10], [78, 9], [100, 8], [140, 12], [182, 9], [205, 14], [258, 10], [300, 12], [342, 9]];
+  let g = `<text x="62" y="14" text-anchor="middle" font-size="12" font-weight="700" fill="#62508F" font-family="Readex Pro,Tahoma">كروموسوم 7</text>
+    <rect x="40" y="20" width="44" height="100" rx="22" fill="#B9D9F0" stroke="#5b8db5" stroke-width="2"/>
+    <rect x="40" y="114" width="44" height="250" rx="22" fill="#B9D9F0" stroke="#5b8db5" stroke-width="2"/>
+    <rect x="46" y="112" width="32" height="10" fill="#8fb8d9"/>`;
+  bands.forEach(([y, h]) => g += `<rect x="42" y="${y}" width="40" height="${h}" fill="#5b8db5" opacity=".45"/>`);
+  GENES.forEach(([n, y], i) => g += `<g class="gene" data-i="${i}" tabindex="0" role="button" aria-label="${n}">
+      <rect class="mark" x="36" y="${y - 4}" width="52" height="8" rx="3" fill="#E0A91B"/>
+      <line x1="88" x2="104" y1="${y}" y2="${y}" stroke="#263A55"/>
+      <rect x="104" y="${y - 12}" width="114" height="24" fill="transparent"/>
+      <text x="108" y="${y + 4}">${n}</text></g>`);
+  const svg = $("chromo"); svg.innerHTML = g;
+  const show = i => {
+    svg.querySelectorAll(".gene").forEach(e => e.classList.toggle("sel", +e.dataset.i === i));
+    $("gene-detail").innerHTML = `<span class="pair-label">جين على الكروموسوم 7</span><h3>${GENES[i][0]}</h3><p>${GENES[i][2]}</p><p>لكل جين موقع محدّد على الكروموسوم، ويحمل المعلومات اللازمة لتصنيع بروتين معيّن. ماذا يحدث لخلايا الجسم عندما لا يُصنع بروتين ما، أو يحدث خلل في تصنيعه؟</p>`;
+  };
+  svg.addEventListener("click", e => { const n = e.target.closest(".gene"); if (n) show(+n.dataset.i); });
+  svg.addEventListener("keydown", e => { const n = e.target.closest(".gene"); if (n && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); show(+n.dataset.i); } });
+  $("gene-detail").innerHTML = `<span class="pair-label">الشكل 3</span><h3>جينات على الكروموسوم 7</h3><p>اضغطي على أي جين في الرسم لتعرفي اسمه وما يرتبط به.</p>`;
+})();
+
+/* ===== تصنيع البروتين (الشكل 4) ===== */
+(function () {
+  const M = "AUGGCUUAC".split(""), ANTI = { A: "U", U: "A", G: "C", C: "G" };
+  const AA = ["#F28E2B", "#59A14F", "#E15759"];
+  const mx = i => i * 14;
+  const mrna = `<g>${M.map((b, i) => `<rect x="${mx(i)}" y="0" width="12" height="18" rx="2" fill="${BCOL[b]}"/><text x="${mx(i) + 6}" y="13" text-anchor="middle" font-size="9" font-weight="700" fill="#fff">${b}</text>`).join("")}<line x1="-2" x2="${mx(9)}" y1="20" y2="20" stroke="#7E57C2" stroke-width="3"/><text x="${mx(4.5)}" y="34" text-anchor="middle" font-size="11" font-weight="700" fill="#263A55" font-family="IBM Plex Sans Arabic,Tahoma">mRNA</text></g>`;
+  const trna = k => { const cod = M.slice(k * 3, k * 3 + 3).map(b => ANTI[b]);
+    return `<path d="M0 0 L42 0 L42 -14 L28 -14 L28 -40 L14 -40 L14 -14 L0 -14 Z" fill="#CDE7F7" stroke="#3B7DD8" stroke-width="1.5"/>${cod.map((b, i) => `<rect x="${i * 14}" y="-2" width="12" height="16" rx="2" fill="${BCOL[b]}" transform="translate(0,-14)"/><text x="${i * 14 + 6}" y="-3" text-anchor="middle" font-size="9" font-weight="700" fill="#fff">${b}</text>`).join("")}`; };
+  let g = `<rect x="0" y="0" width="640" height="300" fill="#FBF8F1"/>
+    <text x="16" y="24" font-size="13" font-weight="700" fill="#5D6A80" font-family="IBM Plex Sans Arabic,Tahoma">السيتوبلازم</text>
+    <ellipse cx="505" cy="150" rx="122" ry="115" fill="#ECE6F2" stroke="#62508F" stroke-width="2.5" stroke-dasharray="0"/>
+    <rect x="378" y="186" width="10" height="30" fill="#FBF8F1"/>
+    <text x="545" y="60" text-anchor="middle" font-size="13" font-weight="700" fill="#62508F" font-family="IBM Plex Sans Arabic,Tahoma">النواة</text>
+    <path d="M440 110 C 470 90, 500 130, 530 110 S 590 130, 610 110" fill="none" stroke="#7E57C2" stroke-width="4"/>
+    <path d="M440 132 C 470 112, 500 152, 530 132 S 590 152, 610 132" fill="none" stroke="#7E57C2" stroke-width="4"/>
+    ${[0, 1, 2, 3, 4, 5, 6].map(i => `<line x1="${452 + i * 22}" x2="${452 + i * 22}" y1="${108 + (i % 2 ? 6 : -2)}" y2="${130 + (i % 2 ? 6 : -2)}" stroke="${Object.values(BCOL)[i % 4]}" stroke-width="3"/>`).join("")}
+    <text x="525" y="160" text-anchor="middle" font-size="12" font-weight="700" fill="#263A55" font-family="Readex Pro,Tahoma">DNA</text>
+    <ellipse cx="160" cy="232" rx="82" ry="34" fill="#D9CBEF" stroke="#7E57C2" stroke-width="1.5"/>
+    <ellipse cx="160" cy="196" rx="62" ry="22" fill="#E6DBF5" stroke="#7E57C2" stroke-width="1.5"/>
+    <text x="160" y="276" text-anchor="middle" font-size="12" font-weight="700" fill="#62508F" font-family="IBM Plex Sans Arabic,Tahoma" direction="rtl" unicode-bidi="embed">رايبوسوم (يحتوي rRNA)</text>
+    <g id="sy-m" class="mv">${mrna}</g>`;
+  [0, 1, 2].forEach(k => g += `<g id="sy-t${k}" class="mv">${trna(k)}</g>`);
+  g += `<g id="sy-bonds" style="opacity:0;transition:opacity 400ms ease 500ms"><line x1="118" x2="202" y1="166" y2="166" stroke="#263A55" stroke-width="3"/><text x="160" y="142" text-anchor="middle" font-size="12" font-weight="700" fill="#263A55" font-family="IBM Plex Sans Arabic,Tahoma">سلسلة بروتين: أحماض أمينية ترتبط برابطة كيميائية</text></g>`;
+  [0, 1, 2].forEach(k => g += `<g id="sy-a${k}" class="mv"><circle cx="0" cy="0" r="11" fill="${AA[k]}" stroke="#fff" stroke-width="2"/></g>`);
+  $("syn-svg").innerHTML = g;
+  const tr = (id, x, y, op = 1) => { const e = $(id); e.style.transform = `translate(${x}px,${y}px)`; e.style.opacity = op; };
+  const MX = 97, MY = 222; // mRNA على الرايبوسوم
+  stepper("s", [
+    ["في النواة: نسخ الشفرة", "يُستعمل DNA الموجود داخل النواة لتصنيع RNA؛ فيُصنع <b>mRNA</b> نسخةً عن الجزء المطلوب من DNA."],
+    ["انتقال mRNA إلى الرايبوسوم", "يحمل RNA الشفرة الوراثية من النواة إلى السيتوبلازم، ثم يرتبط مع <b>الرايبوسومات</b> التي تحتوي على <b>rRNA</b>."],
+    ["tRNA يحمل الأحماض الأمينية", "بعد الارتباط مع الرايبوسوم تبدأ عملية ارتباط الأحماض الأمينية داخله، وترتبط كل قاعدة نيتروجينية من <b>mRNA</b> مع ما يقابلها في <b>tRNA</b> الذي يحمل حمضًا أمينيًّا."],
+    ["تكوّن سلسلة البروتين", "ترتبط الأحماض الأمينية على tRNA فيما بينها برابطة كيميائية لتكوّن سلسلة طويلة، وهذا ما يشكّل بداية <b>سلسلة البروتين</b>. وتحدّد الشفرة التي يحملها mRNA ترتيب ارتباط الأحماض الأمينية، وبعد أن يفقد tRNA الحمض الأميني يصبح حرًّا في السيتوبلازم."]
+  ], s => {
+    if (s === 0) tr("sy-m", 452, 182); else tr("sy-m", MX, MY);
+    [0, 1, 2].forEach(k => {
+      const at = [MX + k * 42, MY - 4];
+      if (s < 2) { tr("sy-t" + k, 40 + k * 60, 70, 0); tr("sy-a" + k, 61 + k * 60, 18, 0); }
+      else {
+        tr("sy-a" + k, at[0] + 21, at[1] - 52);
+        if (s === 3 && k === 0) tr("sy-t0", 20, 60, 1); else tr("sy-t" + k, at[0], at[1]);
+      }
+    });
+    $("sy-bonds").style.opacity = s === 3 ? 1 : 0;
+  });
+})();
+
+/* ===== أنشطة الاختيار ===== */
+function selectActivity(rowsId, checkId, resultId, OPTS, ROWS, okMsg) {
+  const box = $(rowsId);
+  box.innerHTML = ROWS.map(([q], i) => `<div class="arow" id="${rowsId}${i}"><span>${q}</span><select class="pick" id="${rowsId}s${i}" aria-label="${q}"><option value="">اختاري…</option>${OPTS.map((o, j) => `<option value="${j}">${o}</option>`).join("")}</select><span class="why" hidden></span></div>`).join("");
+  box.addEventListener("change", e => { const r = e.target.closest(".arow"); if (r) { r.classList.remove("ok", "no"); r.querySelector(".why").hidden = true; } });
+  $(checkId).addEventListener("click", () => {
+    const res = $(resultId), vals = ROWS.map((_, i) => $(rowsId + "s" + i).value);
+    if (vals.some(v => v === "")) { res.className = "result no"; res.textContent = "اختاري إجابة لكل سطر أولًا."; return; }
+    let ok = 0;
+    ROWS.forEach((r, i) => { const good = +vals[i] === r[1]; if (good) ok++; const el = $(rowsId + i); el.classList.add(good ? "ok" : "no"); const w = el.querySelector(".why"); w.hidden = false; w.textContent = (good ? "✓ " : "✗ الإجابة: " + OPTS[r[1]] + ". ") + r[2]; });
+    res.className = "result " + (ok === ROWS.length ? "ok" : "no");
+    res.textContent = ok === ROWS.length ? okMsg : `${AR(ok)} من ${AR(ROWS.length)} صحيحة. راجعي التي باللون الأحمر.`;
+  });
+}
+selectActivity("dr-rows", "dr-check", "dr-result", ["DNA", "RNA", "كلاهما"], [
+  ["يتكوّن من سلسلتين", 0, "DNA سلم حلزوني له جانبان."],
+  ["يتكوّن من سلسلة واحدة", 1, "RNA مكوّن من سلسلة واحدة."],
+  ["يحتوي على الثايمين (T)", 0, "في RNA يحل اليوراسيل محل الثايمين."],
+  ["يحتوي على اليوراسيل (U)", 1, "اليوراسيل يحل محل الثايمين في RNA."],
+  ["يحتوي على سكر خماسي رايبوزي منقوص ذرة أكسجين", 0, "لذلك سُمّي الحمض النووي الرايبوزي منقوص الأكسجين."],
+  ["يحتوي على الأدنين والجوانين والسايتوسين", 2, "القواعد الثلاث موجودة في الحمضين."],
+  ["له ثلاثة أنواع: الرسول والناقل والرايبوسومي", 1, "mRNA و tRNA و rRNA."],
+  ["حمض نووي يدخل في تصنيع البروتينات", 2, "DNA يحمل الجينات، و RNA ينقل الشفرة ويبني البروتين على الرايبوسوم."]
+], "أحسنتِ! ميّزتِ بين DNA و RNA صحيحًا.");
+
+selectActivity("mx-rows", "mx-check", "mx-result", ["تنتقل إلى الأبناء", "لا تنتقل إلى الأبناء"], [
+  ["طفرة في خلية من خلايا الجلد بسبب ضوء الشمس", 1, "حدثت في خلية جسمية فقط."],
+  ["طفرة في خلية جنسية (بويضة)", 0, "الخلايا الجنسية تنقل الكروموسومات إلى الأبناء."],
+  ["طفرة في خلية عضلية بسبب مادة كيميائية", 1, "حدثت في خلية جسمية فقط."],
+  ["طفرة في الخلايا الجنسية لنبات تجعله يكوّن مواد تنفّر الحشرات", 0, "تنتقل إلى النسل، وهي طفرة مفيدة تساعد النبات على البقاء."]
+], "أحسنتِ! الطفرة تنتقل إلى الأبناء فقط عندما تحدث في الخلايا الجنسية.");
+
+/* ===== الجينات المتحكّمة (الشكل 5) ===== */
+(function () {
+  const GENES = ["جين بروتينات تلوين العين", "جين بروتينات حركة العضلات", "جين بروتينات هضم الطعام"];
+  const CELLS = [
+    ["خلية في قزحية العين", 0, "تصنع الخلايا في قزحية العينين البروتينات اللازمة لتلوين العين."],
+    ["خلية عضلية", 1, "تنتج الخلايا العضلية البروتينات التي تساعد العضلات على الحركة."],
+    ["خلية في المعدة", 2, "تصنع الخلايا في المعدة البروتينات اللازمة لهضم الطعام."]
+  ];
+  let cur = 0; const done = new Set(); const state = CELLS.map(() => [false, false, false]);
+  $("cellpick").innerHTML = CELLS.map((c, i) => `<button type="button" data-c="${i}" aria-pressed="${i === 0}">${c[0]}</button>`).join("");
+  function draw() {
+    $("switches").innerHTML = GENES.map((g, j) => `<label class="sw">${g}<input type="checkbox" data-j="${j}" ${state[cur][j] ? "checked" : ""} role="switch"></label>`).join("");
+    $("cellinfo").innerHTML = `<h3 style="font-size:1.05rem">${CELLS[cur][0]}</h3><p style="margin-top:4px">تحتوي هذه الخلية على الجينات الثلاثة كلها، مثل باقي خلايا الجسم. أي جين تحتاج أن تستعمله؟</p>${done.has(cur) ? `<p style="color:var(--good);font-weight:600">✓ ${CELLS[cur][2]}</p>` : ""}`;
+    document.querySelectorAll("#cellpick button").forEach(b => b.setAttribute("aria-pressed", String(+b.dataset.c === cur)));
+  }
+  $("cellpick").addEventListener("click", e => { const b = e.target.closest("[data-c]"); if (!b) return; cur = +b.dataset.c; $("c-result").textContent = ""; draw(); });
+  $("switches").addEventListener("change", e => { const j = +e.target.dataset.j; state[cur][j] = e.target.checked; $("c-result").textContent = ""; });
+  $("c-check").addEventListener("click", () => {
+    const r = $("c-result"), want = CELLS[cur][1], st = state[cur];
+    const ok = st.every((v, j) => v === (j === want));
+    if (ok) done.add(cur);
+    r.className = "result " + (ok ? "ok" : "no");
+    r.textContent = ok ? (done.size === 3 ? "أحسنتِ! كل خلية تستعمل فقط الجينات التي تصنع البروتينات اللازمة لأنشطتها." : `صحيح! جرّبي خلية أخرى (أنجزتِ ${AR(done.size)} من ${AR(3)}).`)
+      : !st[want] ? "الجين الذي تحتاجه هذه الخلية ما زال متوقفًا." : "شغّلتِ جينًا لا تحتاجه هذه الخلية؛ يجب أن تكون الخلية قادرة على تثبيط بعض الجينات.";
+    draw();
+  });
+  draw();
+})();
+
+/* ===== محاكاة الطفرة ===== */
+(function () {
+  const GENE = "TACGGATTCAGC".split("");
+  const PAL = ["#F28E2B", "#59A14F", "#E15759", "#4E79A7", "#B07AA1", "#EDC948", "#76B7B2", "#9C755F"];
+  const aa = (seq, k, forceDiff) => { let h = 0; seq.slice(k * 3, k * 3 + 3).forEach((b, i) => h += "ATGC".indexOf(b) * (i + 1) * 3 + i); return h % PAL.length; };
+  let cause = "none";
+  const seqHtml = (s, ch) => s.map((b, i) => `<span class="b b${b} ${ch === i ? "changed" : ""}">${b}</span>`).join("");
+  const protHtml = idx => idx.map(c => `<i style="background:${PAL[c]}"></i>`).join("");
+  const p0 = [0, 1, 2, 3].map(k => aa(GENE, k));
+  $("mu-orig").innerHTML = seqHtml(GENE); $("mu-p0").innerHTML = protHtml(p0);
+  $("mu-copy").innerHTML = ""; $("mu-p1").innerHTML = "";
+  $("causes").addEventListener("click", e => { const b = e.target.closest("[data-c]"); if (!b) return; cause = b.dataset.c; document.querySelectorAll("#causes [data-c]").forEach(x => x.setAttribute("aria-pressed", String(x === b))); });
+  $("mu-go").addEventListener("click", () => {
+    const copy = GENE.slice(); let ch = -1;
+    if (cause !== "none") { ch = Math.floor(Math.random() * copy.length); const opts = "ATGC".replace(copy[ch], ""); copy[ch] = opts[Math.floor(Math.random() * 3)]; }
+    const p1 = [0, 1, 2, 3].map(k => aa(copy, k));
+    if (ch >= 0) { const k = Math.floor(ch / 3); if (p1[k] === p0[k]) p1[k] = (p0[k] + 3) % PAL.length; }
+    $("mu-copy").innerHTML = seqHtml(copy, ch); $("mu-p1").innerHTML = protHtml(p1);
+    const r = $("mu-result"), names = { x: "الأشعة السينية", sun: "ضوء الشمس", chem: "بعض المواد الكيميائية" };
+    if (ch < 0) { r.className = "result ok"; r.textContent = "نُسخ الجين كما هو بالأصل، فنتج البروتين نفسه."; }
+    else { r.className = "result no"; r.textContent = `حدثت طفرة بسبب ${names[cause]}: تغيّرت القاعدة رقم ${AR(ch + 1)} من ${GENE[ch]} إلى ${copy[ch]}، فتغيّر ترتيب الأحماض الأمينية، ونتج بروتين غير متطابق قد لا يؤدي وظيفته.`; }
+  });
+})();
+
+/* ===== التقويم: يرسل النتيجة إلى لبيبة ===== */
+(function () {
+  const QZ = [
+    ["مم يتكوّن جانبا السلم الحلزوني في DNA؟", ["القواعد النيتروجينية", "السكر والفوسفات", "الأحماض الأمينية", "البروتينات"], 1, "يتكوّن الجانبان من تعاقب السكر والفوسفات، أما الدرجات فمن القواعد النيتروجينية."],
+    ["مع أي قاعدة يرتبط الأدنين (A) في DNA؟", ["الجوانين (G)", "السايتوسين (C)", "الثايمين (T)", "اليوراسيل (U)"], 2, "الأدنين يرتبط دائمًا مع الثايمين، والجوانين مع السايتوسين."],
+    ["إذا كان ترتيب القواعد في سلسلة من DNA هو AGTAAC، فما ترتيب القواعد في السلسلة المقابلة؟", ["AGTAAC", "TCATTG", "GACGGT", "UCAUUG"], 1, "A↔T و G↔C، فتصبح المقابلة TCATTG."],
+    ["من توصّلت بالاعتماد على الأشعة السينية إلى أن شكل DNA يشبه السلم الحلزوني عام 1952م؟", ["روزاليند فرانكلين", "جيمس واطسون", "فرانسيس كريك", "علماء منتصف 1800م"], 0, "توصّلت إليه الدكتورة روزاليند فرانكلين، ثم بنى واطسون وكريك نموذج DNA عام 1953م."],
+    ["ما الجين؟", ["بروتين يدخل في بناء الخلايا", "جزء من DNA على الكروموسوم مسؤول عن تصنيع بروتين", "نوع من أنواع RNA", "حمض أميني"], 1, "الجين جزء من DNA يحدّد ترتيب الأحماض الأمينية في البروتين."],
+    ["أين تُصنع البروتينات في الخلية؟", ["في النواة", "في الرايبوسومات الموجودة في السيتوبلازم", "في الكروموسومات", "في DNA"], 1, "الجينات في النواة، لكن تصنيع البروتين يحدث في الرايبوسومات في السيتوبلازم."],
+    ["ما القاعدة التي تحل محل الثايمين في RNA؟", ["الأدنين", "الجوانين", "اليوراسيل", "السايتوسين"], 2, "يحتوي RNA على اليوراسيل (U) بدلًا من الثايمين (T)."],
+    ["ما دور tRNA في عملية بناء البروتينات؟", ["يحمل الشفرة من النواة إلى الرايبوسوم", "يحمل الأحماض الأمينية إلى الرايبوسوم", "يفصل سلسلتي DNA", "يكوّن غلاف النواة"], 1, "tRNA الناقل يحمل الأحماض الأمينية، أما mRNA فهو الذي يحمل الشفرة من النواة."],
+    ["متى تنتقل الطفرة إلى الأبناء؟", ["عندما تحدث في الخلايا الجسمية", "عندما تحدث في الخلايا الجنسية", "في جميع الحالات", "لا تنتقل أبدًا"], 1, "إذا حدثت الطفرة في الخلايا الجنسية فإنها تنتقل إلى الخلايا الناتجة كلها، فتضيف تنوّعًا."]
+  ];
+  const box = $("quiz");
+  box.innerHTML = QZ.map(([q, o], i) => `<div class="qitem" id="qi${i}"><span class="qn">${AR(i + 1)}. ${q}</span><div class="opts">${o.map((x, j) => `<label><input type="radio" name="q${i}" value="${j}"><span>${x}</span></label>`).join("")}</div><span class="exp" hidden></span></div>`).join("");
+  let first = null;
+  $("qz-send").addEventListener("click", () => {
+    const res = $("qz-result");
+    const ans = QZ.map((_, i) => { const c = box.querySelector(`input[name="q${i}"]:checked`); return c ? +c.value : null; });
+    const left = ans.filter(a => a === null).length;
+    if (left) { res.className = "result no"; res.textContent = `أجيبي عن الأسئلة كلها أولًا (بقي ${AR(left)}).`; return; }
+    let ok = 0;
+    QZ.forEach((q, i) => {
+      const good = ans[i] === q[2]; if (good) ok++;
+      const el = $("qi" + i); el.classList.remove("ok", "no"); el.classList.add(good ? "ok" : "no");
+      const ex = el.querySelector(".exp"); ex.hidden = false; ex.innerHTML = good ? `<b>✓ صحيح.</b> ${q[3]}` : `<b>✗ الإجابة الصحيحة: ${q[1][q[2]]}.</b> ${q[3]}`;
+    });
+    const total = QZ.length, score = Math.round((ok / total) * 100);
+    if (first === null) first = { ok, score };
+    res.className = "result " + (ok === total ? "ok" : "no");
+    res.textContent = `${ok === total ? "أحسنتِ! " : ""}${AR(ok)} من ${AR(total)} صحيحة (${AR(score)}٪).` + (first.score !== score ? ` درجتك المسجّلة من المحاولة الأولى: ${AR(first.score)}٪.` : "");
+    $("qz-send").textContent = "تحقّقي مرة أخرى";
+    $("qz-end").hidden = false;
+    if (!window.__labeebaDone) { window.__labeebaDone = true; try { parent.postMessage({ type: "labeeba-lab-complete", score: first.score, tasks: total }, "*"); } catch (e) {} }
+  });
+  box.addEventListener("change", e => { const q = e.target.closest(".qitem"); if (q) { q.classList.remove("ok", "no"); q.querySelector(".exp").hidden = true; } });
+})();
+</script>
+<script type="module">
+import * as THREE from "three";
+import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+
+const $ = id => document.getElementById(id);
+const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const stage = $("stage"), canvas = $("gl"), tagsEl = $("tags");
+const COL = { A: 0xD9534F, T: 0x3B7DD8, G: 0x3FA86B, C: 0xE0A91B };
+const PAIR = { A: "T", T: "A", G: "C", C: "G" };
+
+let renderer;
+try { renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true }); }
+catch (e) { stage.insertAdjacentHTML("beforeend", `<div class="err3d">تعذّر تشغيل العرض ثلاثي الأبعاد في هذا المتصفح. جرّبي متصفحًا يدعم WebGL.</div>`); throw e; }
+renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 2));
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(35, 1, 0.1, 100);
+const HOME = new THREE.Vector3(0, 0, 15);
+camera.position.copy(HOME);
+scene.add(new THREE.HemisphereLight(0xffffff, 0xd6dce6, 1.6));
+const key = new THREE.DirectionalLight(0xffffff, 1.8); key.position.set(5, 8, 10); scene.add(key);
+
+const controls = new OrbitControls(camera, canvas);
+controls.enableDamping = true; controls.dampingFactor = 0.08; controls.enableZoom = false; controls.enablePan = false;
+
+const dna = new THREE.Group(); dna.rotation.z = -1.2; scene.add(dna);
+const pick = [];
+const mat = (c, o = {}) => new THREE.MeshStandardMaterial({ color: c, roughness: 0.45, metalness: 0.05, ...o });
+
+const SEQ = "ATGCGTACCGATTACGGCTA".split("");
+const N = SEQ.length, RISE = 0.5, R = 1.25, TWIST = (36 * Math.PI) / 180, OFF = Math.PI * 0.78;
+const y0 = -((N - 1) * RISE) / 2;
+const pos = (i, s) => { const a = i * TWIST + (s ? OFF : 0); return new THREE.Vector3(R * Math.cos(a), y0 + i * RISE, R * Math.sin(a)); };
+
+const sugarGeo = new THREE.SphereGeometry(0.22, 20, 14), phosGeo = new THREE.SphereGeometry(0.15, 16, 12);
+const sugarMat = mat(0x9C7BD1), phosMat = mat(0xF2A65A);
+const tags = [];
+const baseMats = [];
+for (let s = 0; s < 2; s++) {
+  const pts = [];
+  for (let i = 0; i < N; i++) {
+    const p = pos(i, s); pts.push(p);
+    const su = new THREE.Mesh(sugarGeo, sugarMat); su.position.copy(p); su.userData = { kind: "sugar" }; dna.add(su); pick.push(su);
+    if (i < N - 1) {
+      const q = pos(i + 0.5, s);
+      const ph = new THREE.Mesh(phosGeo, phosMat); ph.position.copy(q); ph.userData = { kind: "phos" }; dna.add(ph); pick.push(ph);
+      pts.push(q);
+    }
+  }
+  const tube = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), N * 8, 0.07, 8, false), mat(0xB9A6DE));
+  dna.add(tube);
+}
+// درجات السلم: نصفان ملوّنان يلتقيان في المنتصف
+const up = new THREE.Vector3(0, 1, 0);
+function half(a, b, color, base) {
+  const dir = new THREE.Vector3().subVectors(b, a), len = dir.length();
+  const m = mat(color); baseMats.push(m);
+  const cyl = new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.11, len, 14), m);
+  cyl.position.copy(a).addScaledVector(dir, 0.5);
+  cyl.quaternion.setFromUnitVectors(up, dir.clone().normalize());
+  cyl.userData = { kind: "base", base }; dna.add(cyl); pick.push(cyl);
+  return cyl;
+}
+const rungs = [];
+SEQ.forEach((b, i) => {
+  const p1 = pos(i, 0), p2 = pos(i, 1), mid = p1.clone().add(p2).multiplyScalar(0.5);
+  const h1 = half(p1, mid, COL[b], b), h2 = half(p2, mid, COL[PAIR[b]], PAIR[b]);
+  rungs.push([h1, h2]);
+  [[b, p1.clone().lerp(mid, 0.55)], [PAIR[b], p2.clone().lerp(mid, 0.55)]].forEach(([l, p]) => {
+    const el = document.createElement("span"); el.textContent = l; el.style.background = "#" + COL[l].toString(16).padStart(6, "0");
+    tagsEl.appendChild(el); tags.push({ el, p });
+  });
+});
+
+// الحجم والتحريك
+function size() {
+  const w = stage.clientWidth, h = stage.clientHeight;
+  renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix();
+  camera.position.setLength(w / h < 1.1 ? 18 : 14);
+}
+new ResizeObserver(size).observe(stage); size();
+
+let spin = !reduced, showTags = true, sel = null;
+const AX = new THREE.Vector3(0, 1, 0);
+const v = new THREE.Vector3();
+function frame() {
+  if (spin) dna.rotateOnAxis(AX, 0.006);
+  controls.update();
+  renderer.render(scene, camera);
+  if (showTags) {
+    const w = stage.clientWidth, h = stage.clientHeight;
+    const camDir = new THREE.Vector3(); camera.getWorldDirection(camDir);
+    tags.forEach(t => {
+      v.copy(t.p); dna.localToWorld(v);
+      const toCam = v.clone().sub(camera.position).normalize();
+      const front = toCam.dot(camDir) > 0;
+      const depth = v.clone().sub(camera.position).length();
+      v.project(camera);
+      t.el.style.left = ((v.x + 1) / 2) * w + "px"; t.el.style.top = ((1 - v.y) / 2) * h + "px";
+      t.el.style.opacity = front ? Math.max(0.25, Math.min(1, (17 - depth) / 3)) : 0;
+    });
+  }
+  requestAnimationFrame(frame);
+}
+frame();
+
+// الاختيار
+const ray = new THREE.Raycaster(), ptr = new THREE.Vector2();
+let down = null;
+canvas.addEventListener("pointerdown", e => { down = [e.clientX, e.clientY]; });
+canvas.addEventListener("pointerup", e => {
+  if (!down || Math.hypot(e.clientX - down[0], e.clientY - down[1]) > 6) return;
+  const r = canvas.getBoundingClientRect();
+  ptr.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
+  ray.setFromCamera(ptr, camera);
+  const hit = ray.intersectObjects(pick, false)[0];
+  if (sel) sel.forEach(m => m.material.emissive.setHex(0));
+  sel = null;
+  if (!hit) { window.showDnaPart("intro"); return; }
+  const o = hit.object, d = o.userData;
+  if (d.kind === "base") { sel = rungs.find(r => r.includes(o)); sel.forEach(m => m.material.emissive.setHex(0x333333)); }
+  else { o.material = o.material.clone(); sel = [o]; o.material.emissive.setHex(0x333333); }
+  window.showDnaPart(d.kind, d.base);
+});
+
+$("t-letters").addEventListener("click", e => { showTags = !showTags; e.currentTarget.setAttribute("aria-pressed", String(showTags)); tagsEl.style.display = showTags ? "" : "none"; });
+$("t-spin").addEventListener("click", e => { spin = !spin; e.currentTarget.setAttribute("aria-pressed", String(spin)); });
+if (reduced) $("t-spin").setAttribute("aria-pressed", "false");
+$("t-home").addEventListener("click", () => { controls.reset(); dna.rotation.set(0, 0, -1.2); size(); });
+</script>
+</body>
+</html>
